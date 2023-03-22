@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.campus_bbs.ui.BlogScreen
 import com.example.campus_bbs.ui.RecommendationScreen
+import com.example.campus_bbs.ui.UserHomeScreen
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
 
 class MainActivity : ComponentActivity() {
@@ -45,6 +46,9 @@ fun App() {
         composable("BlogScreen") {
             BlogScreen(mainAppNavController)
         }
+        composable("UserHome") {
+            UserHomeScreen(mainAppNavController = mainAppNavController)
+        }
     }
 }
 
@@ -57,6 +61,7 @@ fun AppHome(
     val items = listOf("homepage", "blogs", "info")
 
     val navController = rememberNavController()
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -106,7 +111,7 @@ fun MainAppView(
         }
         composable("info") {
             Info(
-                update = {navController.navigate("homepage")},
+                update = { mainAppNavController.navigate("UserHome") },
                 modifier
             )
         }
@@ -117,25 +122,6 @@ fun MainAppView(
 
 }
 
-@Composable
-fun HomePageTest (
-    update: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-    ) {
-        Button(onClick = update) {
-            Text(text = "Test Button")
-        }
-        Text(text = "Homepage")
-        Text(text = "Homepage")
-        Text(text = "Homepage")
-        Text(text = "Homepage")
-        Text(text = "Homepage")
-        Text(text = "Homepage")
-    }
-}
 
 @Composable
 fun Blogs (
