@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 @Preview(showBackground = true)
 fun App() {
-    val selectedItem by remember { mutableStateOf(0) }
+    var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("homepage", "blogs", "info")
     val navController = rememberNavController()
     Scaffold(
@@ -52,7 +52,10 @@ fun App() {
                         icon = { Icon(Icons.Filled.Favorite, contentDescription = item) },
                         label = { Text(item) },
                         selected = selectedItem == index,
-                        onClick = { navController.navigate(items[index]) }
+                        onClick = {
+                            navController.navigate(items[index])
+                            selectedItem = index
+                        }
                     )
                 }
             }
@@ -76,22 +79,19 @@ fun MainAppView(
             )
         }
         composable("blogs") {
-            Blogs(update = { navController.navigate("homepage") }, modifier)
+            Blogs(
+                update = { navController.navigate("homepage") },
+                modifier
+            )
         }
         composable("info") {
-            Info(update = {navController.navigate("homepage")}, modifier)
+            Info(
+                update = {navController.navigate("homepage")},
+                modifier
+            )
         }
-        /*...*/
     }
 
-//    Column(
-//        modifier = modifier
-//    ) {
-//        Text(text = "test main text")
-//        Button(onClick = { }) {
-//            Text(text = "Button")
-//        }
-//    }
 }
 
 @Composable
