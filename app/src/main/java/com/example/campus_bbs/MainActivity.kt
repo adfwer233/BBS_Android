@@ -3,7 +3,9 @@ package com.example.campus_bbs
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,6 +37,17 @@ fun Greeting(name: String) {
 @Composable
 fun DefaultPreview() {
     Campus_BBSTheme {
-        Greeting("Android")
+        TestCompose()
+    }
+}
+
+@Composable
+fun TestCompose() {
+    Column {
+        Greeting("Android Adfwer")
+        Text(text = "test2")
+        Button(onClick = {}) {
+            Text(text = "button")
+        }
     }
 }
