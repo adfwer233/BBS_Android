@@ -11,12 +11,15 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.campus_bbs.ui.BlogScreen
+import com.example.campus_bbs.ui.CreateBlogScreen
 import com.example.campus_bbs.ui.RecommendationScreen
 import com.example.campus_bbs.ui.UserHomeScreen
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
@@ -49,6 +52,9 @@ fun App() {
         composable("UserHome") {
             UserHomeScreen(mainAppNavController = mainAppNavController)
         }
+        composable("CreateBlog") {
+            CreateBlogScreen(mainAppNavController = mainAppNavController)
+        }
     }
 }
 
@@ -76,11 +82,16 @@ fun AppHome(
                         label = { Text(item) },
                         selected = selectedItem == index,
                         onClick = {
-                            navController.navigate(items[index])
+                            navController.navigate(items[index]){ popUpTo(items[selectedItem]){inclusive = true} }
                             selectedItem = index
                         }
                     )
                 }
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { mainAppNavController.navigate("CreateBlog") }) {
+                Text(text = "+", color=Color.White, fontSize = 26.sp)
             }
         }
     ) {
