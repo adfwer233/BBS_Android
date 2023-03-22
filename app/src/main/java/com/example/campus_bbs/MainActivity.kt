@@ -5,13 +5,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,33 +25,115 @@ class MainActivity : ComponentActivity() {
             Campus_BBSTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Greeting("Android")
+                    App()
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
 @Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    Campus_BBSTheme {
-        TestCompose()
+fun App() {
+    val selectedItem by remember { mutableStateOf(0) }
+    val items = listOf("homepage", "blogs", "info")
+    val navController = rememberNavController()
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(text = "Campus BBS")}
+            )
+        },
+        bottomBar = {
+            NavigationBar {
+                items.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Filled.Favorite, contentDescription = item) },
+                        label = { Text(item) },
+                        selected = selectedItem == index,
+                        onClick = { navController.navigate(items[index]) }
+                    )
+                }
+            }
+        }
+    ) {
+        contentPadding -> MainAppView(navController, modifier = Modifier.padding(contentPadding))
     }
 }
 
 @Composable
-fun TestCompose() {
-    Column {
-        Greeting("Android Adfwer")
-        Text(text = "test2")
-        Button(onClick = {}) {
-            Text(text = "button")
+fun MainAppView(
+    navController: NavHostController,
+    modifier: Modifier
+) {
+
+    NavHost(navController = navController, startDestination = "homepage") {
+        composable("homepage") {
+            HomePageTest(
+                update = { navController.navigate("blogs") },
+                modifier
+            )
+        }
+        composable("blogs") {
+            Blogs(update = { navController.navigate("homepage") }, modifier)
+        }
+        composable("info") {
+            Info(update = {navController.navigate("homepage")}, modifier)
+        }
+        /*...*/
+    }
+
+//    Column(
+//        modifier = modifier
+//    ) {
+//        Text(text = "test main text")
+//        Button(onClick = { }) {
+//            Text(text = "Button")
+//        }
+//    }
+}
+
+@Composable
+fun HomePageTest (
+    update: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+    ) {
+        Button(onClick = update) {
+            Text(text = "Test Button")
+        }
+        Text(text = "Homepage")
+        Text(text = "Homepage")
+        Text(text = "Homepage")
+        Text(text = "Homepage")
+        Text(text = "Homepage")
+        Text(text = "Homepage")
+    }
+}
+
+@Composable
+fun Blogs (
+    update: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Button(onClick = update) {
+            Text(text = "Test Button in Blogs")
+        }
+    }
+}
+
+@Composable
+fun Info (
+    update: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Button(onClick = update) {
+            Text(text = "Test Button in Info")
         }
     }
 }
