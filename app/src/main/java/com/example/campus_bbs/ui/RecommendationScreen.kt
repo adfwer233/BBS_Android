@@ -7,14 +7,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.campus_bbs.data.Blog
 import com.example.campus_bbs.data.FakeDataGenerator
+import com.example.campus_bbs.ui.model.RecommendationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +40,7 @@ fun BlogsCard(
             }
         }
 
-        Text(text = blog.blogTitle)
+        Text(text = blog.blogTitle, fontSize = 18.sp)
         Spacer(modifier = Modifier.height(3.dp))
         Text(text = blog.blogContent)
         
@@ -76,22 +79,25 @@ fun BlogsCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecommendationScreen(
     mainAppNavController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    recommendationViewModel: RecommendationViewModel = viewModel()
 ) {
-    val blogList = FakeDataGenerator().generateFakeBlogs(10)
+//    val blogList = remember{ mutableStateOf<List<Blog>>(FakeDataGenerator().generateFakeBlogs(10)) }
+
+    val recommendationUiState by recommendationViewModel.uiState.collectAsState()
+
+    if (recommendationUiState.blogList.isEmpty()) {
+        recommendationViewModel.updateBlogList()
+    }
 
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-//        items(6) {
-//            BlogsCard({mainAppNavController.navigate("BlogScreen")})
-//        }
-        items(blogList) {
+        items(recommendationUiState.blogList) {
             BlogsCard(moreButtonOnClick = { mainAppNavController.navigate("BlogScreen")}, blog = it)
         }
     }

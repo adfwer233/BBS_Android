@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,6 +23,7 @@ import com.example.campus_bbs.ui.BlogScreen
 import com.example.campus_bbs.ui.CreateBlogScreen
 import com.example.campus_bbs.ui.RecommendationScreen
 import com.example.campus_bbs.ui.UserHomeScreen
+import com.example.campus_bbs.ui.model.RecommendationViewModel
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
 
 class MainActivity : ComponentActivity() {
@@ -106,13 +108,15 @@ fun MainAppView(
     modifier: Modifier
 ) {
 
+    val recommendationViewModel: RecommendationViewModel = viewModel()
+
     NavHost(navController = navController, startDestination = "homepage") {
         composable("homepage") {
 //            HomePageTest(
 //                update = { navController.navigate("blogs") },
 //                modifier
 //            )
-            RecommendationScreen(mainAppNavController, modifier = modifier)
+            RecommendationScreen(mainAppNavController, modifier = modifier, recommendationViewModel = recommendationViewModel)
         }
         composable("blogs") {
             Blogs(
