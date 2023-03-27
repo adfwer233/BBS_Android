@@ -10,14 +10,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.campus_bbs.data.Blog
 import com.example.campus_bbs.data.FakeDataGenerator
-import com.example.campus_bbs.ui.model.RecommendationViewModel
+import com.example.campus_bbs.ui.model.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +42,12 @@ fun BlogsCard(
 
         Text(text = blog.blogTitle, fontSize = 18.sp)
         Spacer(modifier = Modifier.height(3.dp))
-        Text(text = blog.blogContent)
+        Text(
+            text = blog.blogContent,
+            softWrap = true,
+            maxLines = 6,
+            overflow = TextOverflow.Ellipsis
+        )
         
         Button(
             modifier = Modifier.align(Alignment.End),
@@ -83,22 +88,34 @@ fun BlogsCard(
 fun RecommendationScreen(
     mainAppNavController: NavHostController,
     modifier: Modifier = Modifier,
-    recommendationViewModel: RecommendationViewModel = viewModel()
+    mainViewModel: MainViewModel = MainViewModel()
 ) {
 //    val blogList = remember{ mutableStateOf<List<Blog>>(FakeDataGenerator().generateFakeBlogs(10)) }
 
-    val recommendationUiState by recommendationViewModel.uiState.collectAsState()
+    val recommendationUiState by mainViewModel.recommendationViewModel.uiState.collectAsState()
 
     if (recommendationUiState.blogList.isEmpty()) {
-        recommendationViewModel.updateBlogList()
+        mainViewModel.recommendationViewModel.updateBlogList()
     }
 
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
+        item {
+            Button(onClick = { mainViewModel.recommendationViewModel.updateBlogList() }) {
+                Text(text = "Refresh")
+            }
+        }
+
         items(recommendationUiState.blogList) {
-            BlogsCard(moreButtonOnClick = { mainAppNavController.navigate("BlogScreen")}, blog = it)
+            BlogsCard(
+                moreButtonOnClick = {
+                    mainViewModel.BlogViewModel.updateBlog(it)
+                    mainAppNavController.navigate("BlogScreen")
+                },
+                blog = it
+            )
         }
     }
 }

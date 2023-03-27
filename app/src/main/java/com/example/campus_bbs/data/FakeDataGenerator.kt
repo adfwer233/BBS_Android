@@ -1,6 +1,5 @@
 package com.example.campus_bbs.data
 
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import java.util.*
 import kotlin.random.Random
 
@@ -11,6 +10,22 @@ class FakeDataGenerator {
         return  (1..length).map { Random.nextInt(0, charPool.size).let { charPool[it] } }.joinToString("")
     }
 
+    fun generateSingleComment(depth: Int): BlogComment {
+        return BlogComment(
+            creator = UserMeta(
+                userId = Random.nextInt(),
+                userName = getRandomString(6)
+            ),
+            commentContent = getRandomString(50),
+            createTime = Date(),
+            followingComment = if (depth == 1) listOf<BlogComment>() else generateCommentList(depth - 1, 3)
+        )
+    }
+
+    fun generateCommentList(depth: Int, number: Int): List<BlogComment> {
+        return (1..number).map { generateSingleComment(depth) }
+    }
+
     fun generateSingleFakeBlog(): Blog {
         return Blog(
             creatorID = Random.nextInt(),
@@ -18,7 +33,7 @@ class FakeDataGenerator {
             createTime = Date(),
             blogTitle = getRandomString(15),
             blogContent = getRandomString(500),
-            blogComments = listOf<BlogComment>(),
+            blogComments = generateCommentList(2, 10),
             subscribed = Random.nextBoolean(),
             liked = Random.nextBoolean(),
             subscribedNumber = Random.nextInt(0, 1000),
@@ -31,9 +46,4 @@ class FakeDataGenerator {
     fun generateFakeBlogs(number: Int): List<Blog> {
         return (1..number).map { generateSingleFakeBlog() }
     }
-}
-
-class singleFakeProvider: PreviewParameterProvider<Blog> {
-    override val values: Sequence<Blog>
-        get() = FakeDataGenerator().generateFakeBlogs(5).asSequence()
 }

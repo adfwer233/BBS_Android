@@ -23,7 +23,7 @@ import com.example.campus_bbs.ui.BlogScreen
 import com.example.campus_bbs.ui.CreateBlogScreen
 import com.example.campus_bbs.ui.RecommendationScreen
 import com.example.campus_bbs.ui.UserHomeScreen
-import com.example.campus_bbs.ui.model.RecommendationViewModel
+import com.example.campus_bbs.ui.model.MainViewModel
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
 
 class MainActivity : ComponentActivity() {
@@ -44,12 +44,17 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val mainAppNavController = rememberNavController()
+
+    val mainViewModel = MainViewModel()
+    mainViewModel.recommendationViewModel = viewModel()
+    mainViewModel.BlogViewModel = viewModel()
+
     NavHost(navController = mainAppNavController, startDestination = "AppHome") {
         composable("AppHome") {
-            AppHome(mainAppNavController)
+            AppHome(mainAppNavController, mainViewModel)
         }
         composable("BlogScreen") {
-            BlogScreen(mainAppNavController)
+            BlogScreen(mainAppNavController, blogViewModel = mainViewModel.BlogViewModel)
         }
         composable("UserHome") {
             UserHomeScreen(mainAppNavController = mainAppNavController)
@@ -63,7 +68,8 @@ fun App() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppHome(
-    mainAppNavController: NavHostController
+    mainAppNavController: NavHostController,
+    mainViewModel: MainViewModel
 ) {
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("homepage", "blogs", "info")
@@ -97,7 +103,7 @@ fun AppHome(
             }
         }
     ) {
-        contentPadding -> MainAppView(mainAppNavController, navController, modifier = Modifier.padding(contentPadding))
+        contentPadding -> MainAppView(mainAppNavController, navController, mainViewModel, modifier = Modifier.padding(contentPadding))
     }
 }
 
@@ -105,10 +111,9 @@ fun AppHome(
 fun MainAppView(
     mainAppNavController: NavHostController,
     navController: NavHostController,
+    mainViewModel: MainViewModel,
     modifier: Modifier
 ) {
-
-    val recommendationViewModel: RecommendationViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = "homepage") {
         composable("homepage") {
@@ -116,12 +121,12 @@ fun MainAppView(
 //                update = { navController.navigate("blogs") },
 //                modifier
 //            )
-            RecommendationScreen(mainAppNavController, modifier = modifier, recommendationViewModel = recommendationViewModel)
+            RecommendationScreen(mainAppNavController, modifier = modifier, mainViewModel = mainViewModel)
         }
         composable("blogs") {
             Blogs(
                 update = { navController.navigate("homepage") },
-                modifier
+                modifier,
             )
         }
         composable("info") {
