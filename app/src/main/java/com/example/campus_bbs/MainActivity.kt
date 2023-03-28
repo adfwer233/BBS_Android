@@ -127,7 +127,7 @@ fun MainAppView(
         }
         composable("info") {
             Info(
-                navController = mainAppNavController,
+                mainNavController = mainAppNavController,
                 modifier = modifier
             )
         }
