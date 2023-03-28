@@ -14,14 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.campus_bbs.ui.BlogScreen
-import com.example.campus_bbs.ui.CreateBlogScreen
-import com.example.campus_bbs.ui.RecommendationScreen
-import com.example.campus_bbs.ui.UserHomeScreen
+import com.example.campus_bbs.ui.*
+import com.example.campus_bbs.ui.model.MainViewModel
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
 
 class MainActivity : ComponentActivity() {
@@ -42,12 +41,18 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val mainAppNavController = rememberNavController()
+
+    val mainViewModel = MainViewModel()
+    mainViewModel.recommendationViewModel = viewModel()
+    mainViewModel.BlogViewModel = viewModel()
+    mainViewModel.notificationViewModel = viewModel()
+
     NavHost(navController = mainAppNavController, startDestination = "AppHome") {
         composable("AppHome") {
-            AppHome(mainAppNavController)
+            AppHome(mainAppNavController, mainViewModel)
         }
         composable("BlogScreen") {
-            BlogScreen(mainAppNavController)
+            BlogScreen(mainAppNavController, blogViewModel = mainViewModel.BlogViewModel)
         }
         composable("UserHome") {
             UserHomeScreen(mainAppNavController = mainAppNavController)
@@ -61,10 +66,11 @@ fun App() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppHome(
-    mainAppNavController: NavHostController
+    mainAppNavController: NavHostController,
+    mainViewModel: MainViewModel
 ) {
     var selectedItem by remember { mutableStateOf(0) }
-    val items = listOf("homepage", "blogs", "info")
+    val items = listOf("homepage", "Notification", "info")
 
     val navController = rememberNavController()
 
@@ -95,7 +101,7 @@ fun AppHome(
             }
         }
     ) {
-        contentPadding -> MainAppView(mainAppNavController, navController, modifier = Modifier.padding(contentPadding))
+        contentPadding -> MainAppView(mainAppNavController, navController, mainViewModel, modifier = Modifier.padding(contentPadding))
     }
 }
 
@@ -103,6 +109,7 @@ fun AppHome(
 fun MainAppView(
     mainAppNavController: NavHostController,
     navController: NavHostController,
+    mainViewModel: MainViewModel,
     modifier: Modifier
 ) {
 
@@ -112,13 +119,10 @@ fun MainAppView(
 //                update = { navController.navigate("blogs") },
 //                modifier
 //            )
-            RecommendationScreen(mainAppNavController, modifier = modifier)
+            RecommendationScreen(mainAppNavController, modifier = modifier, mainViewModel = mainViewModel)
         }
-        composable("blogs") {
-            Blogs(
-                update = { navController.navigate("homepage") },
-                modifier
-            )
+        composable("Notification") {
+            notificationScreen(mainAppNavController, mainViewModel, modifier = modifier)
         }
         composable("info") {
             Info(
@@ -133,18 +137,6 @@ fun MainAppView(
 
 }
 
-
-@Composable
-fun Blogs (
-    update: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier) {
-        Button(onClick = update) {
-            Text(text = "Test Button in Blogs")
-        }
-    }
-}
 
 @Composable
 fun Info (

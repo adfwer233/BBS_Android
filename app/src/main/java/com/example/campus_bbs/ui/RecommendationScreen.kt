@@ -2,6 +2,7 @@ package com.example.campus_bbs.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
@@ -14,47 +15,23 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.lazy.items
+import com.example.campus_bbs.ui.components.BlogsCard
+import com.example.campus_bbs.ui.model.MainViewModel
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BlogsCard(
-    moreButtonOnClick : () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-    ) {
-        
-        Row {
-            Icon(Icons.Filled.Face, contentDescription = "user")
-            Column {
-                Text(text = "Creator")
-                Text(text = "Creator Info")
-            }
-        }
-
-        Text(text = "Card Title")
-        Spacer(modifier = Modifier.height(3.dp))
-        Text(text = "Card context")
-        
-        Button(
-            modifier = Modifier.align(Alignment.End),
-            onClick = moreButtonOnClick
-        ) {
-            Text(text = "more")
-        }
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun RecommendationScreen(
     mainAppNavController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    mainViewModel: MainViewModel = MainViewModel()
 ) {
+//    val blogList = remember{ mutableStateOf<List<Blog>>(FakeDataGenerator().generateFakeBlogs(10)) }
+
+    val recommendationUiState by mainViewModel.recommendationViewModel.uiState.collectAsState()
+
+    if (recommendationUiState.blogList.isEmpty()) {
+        mainViewModel.recommendationViewModel.updateBlogList()
+    }
 
     var refreshing by remember { mutableStateOf(false) }
     var itemCount by remember { mutableStateOf(1) }
@@ -79,8 +56,4 @@ fun RecommendationScreen(
         }
         PullRefreshIndicator(refreshing = refreshing, state = state, modifier = Modifier.align(Alignment.TopCenter))
     }
-
-
-
-
 }
