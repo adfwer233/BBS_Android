@@ -19,10 +19,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.campus_bbs.ui.BlogScreen
-import com.example.campus_bbs.ui.CreateBlogScreen
-import com.example.campus_bbs.ui.RecommendationScreen
-import com.example.campus_bbs.ui.UserHomeScreen
+import com.example.campus_bbs.ui.*
 import com.example.campus_bbs.ui.model.MainViewModel
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
 
@@ -48,6 +45,7 @@ fun App() {
     val mainViewModel = MainViewModel()
     mainViewModel.recommendationViewModel = viewModel()
     mainViewModel.BlogViewModel = viewModel()
+    mainViewModel.notificationViewModel = viewModel()
 
     NavHost(navController = mainAppNavController, startDestination = "AppHome") {
         composable("AppHome") {
@@ -72,7 +70,7 @@ fun AppHome(
     mainViewModel: MainViewModel
 ) {
     var selectedItem by remember { mutableStateOf(0) }
-    val items = listOf("homepage", "blogs", "info")
+    val items = listOf("homepage", "Notification", "info")
 
     val navController = rememberNavController()
 
@@ -123,11 +121,8 @@ fun MainAppView(
 //            )
             RecommendationScreen(mainAppNavController, modifier = modifier, mainViewModel = mainViewModel)
         }
-        composable("blogs") {
-            Blogs(
-                update = { navController.navigate("homepage") },
-                modifier,
-            )
+        composable("Notification") {
+            notificationScreen(mainAppNavController, mainViewModel, modifier = modifier)
         }
         composable("info") {
             Info(
@@ -142,18 +137,6 @@ fun MainAppView(
 
 }
 
-
-@Composable
-fun Blogs (
-    update: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier) {
-        Button(onClick = update) {
-            Text(text = "Test Button in Blogs")
-        }
-    }
-}
 
 @Composable
 fun Info (

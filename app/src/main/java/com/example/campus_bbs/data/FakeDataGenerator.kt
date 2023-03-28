@@ -10,6 +10,19 @@ class FakeDataGenerator {
         return  (1..length).map { Random.nextInt(0, charPool.size).let { charPool[it] } }.joinToString("")
     }
 
+    fun generateSingleUser(): User {
+        return User(
+            userId = Random.nextInt(),
+            userName = getRandomString(6),
+            followList = listOf(),
+            favorBlogList = listOf()
+        )
+    }
+
+    fun generateUserList(number: Int): List<User> {
+        return  (1..number).map { generateSingleUser() }
+    }
+
     fun generateSingleComment(depth: Int): BlogComment {
         return BlogComment(
             creator = UserMeta(
