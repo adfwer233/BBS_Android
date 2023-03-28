@@ -2,12 +2,20 @@ package com.example.campus_bbs.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.pullrefresh.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.lazy.items
 import com.example.campus_bbs.ui.components.BlogsCard
 import com.example.campus_bbs.ui.model.MainViewModel
 
@@ -25,24 +33,27 @@ fun RecommendationScreen(
         mainViewModel.recommendationViewModel.updateBlogList()
     }
 
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(5.dp)
-    ) {
-        item {
-            Button(onClick = { mainViewModel.recommendationViewModel.updateBlogList() }) {
-                Text(text = "Refresh")
+    var refreshing by remember { mutableStateOf(false) }
+    var itemCount by remember { mutableStateOf(1) }
+    val refreshScope = rememberCoroutineScope()
+
+    fun refresh () = refreshScope.launch {
+        refreshing = true
+        delay(1500)
+        itemCount += 1
+        refreshing = false
+    }
+    val state = rememberPullRefreshState(refreshing, ::refresh)
+
+    Box(modifier = modifier.pullRefresh(state)) {
+        LazyColumn(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            items(itemCount) {
+                BlogsCard({mainAppNavController.navigate("BlogScreen")})
             }
         }
-
-        items(recommendationUiState.blogList) {
-            BlogsCard(
-                moreButtonOnClick = {
-                    mainViewModel.BlogViewModel.updateBlog(it)
-                    mainAppNavController.navigate("BlogScreen")
-                },
-                blog = it
-            )
-        }
+        PullRefreshIndicator(refreshing = refreshing, state = state, modifier = Modifier.align(Alignment.TopCenter))
     }
 }
