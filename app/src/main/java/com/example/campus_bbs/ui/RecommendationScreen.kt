@@ -20,6 +20,7 @@ import com.example.campus_bbs.ui.components.BlogsCard
 import com.example.campus_bbs.ui.model.MainViewModel
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 fun RecommendationScreen(
     mainAppNavController: NavHostController,
     modifier: Modifier = Modifier,
@@ -40,18 +41,18 @@ fun RecommendationScreen(
     fun refresh () = refreshScope.launch {
         refreshing = true
         delay(1500)
-        itemCount += 1
+        mainViewModel.recommendationViewModel.updateBlogList()
         refreshing = false
     }
     val state = rememberPullRefreshState(refreshing, ::refresh)
 
     Box(modifier = modifier.pullRefresh(state)) {
         LazyColumn(
-            modifier = modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            items(itemCount) {
-                BlogsCard({mainAppNavController.navigate("BlogScreen")})
+            items(mainViewModel.recommendationViewModel.uiState.value.blogList) {
+                BlogsCard({mainAppNavController.navigate("BlogScreen")}, it)
             }
         }
         PullRefreshIndicator(refreshing = refreshing, state = state, modifier = Modifier.align(Alignment.TopCenter))
