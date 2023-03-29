@@ -46,6 +46,7 @@ fun App() {
     mainViewModel.recommendationViewModel = viewModel()
     mainViewModel.BlogViewModel = viewModel()
     mainViewModel.notificationViewModel = viewModel()
+    mainViewModel.createBlogViewModel = viewModel()
 
     NavHost(navController = mainAppNavController, startDestination = "AppHome") {
         composable("AppHome") {
@@ -58,7 +59,7 @@ fun App() {
             UserHomeScreen(mainAppNavController = mainAppNavController)
         }
         composable("CreateBlog") {
-            CreateBlogScreen(mainAppNavController = mainAppNavController)
+            CreateBlogScreen(mainAppNavController = mainAppNavController, createBlogViewModel = mainViewModel.createBlogViewModel)
         }
     }
 }

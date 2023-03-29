@@ -4,4 +4,5 @@ class MainViewModel {
     lateinit var recommendationViewModel: RecommendationViewModel
     lateinit var BlogViewModel: BlogViewModel
     lateinit var notificationViewModel: NotificationViewModel
+    lateinit var createBlogViewModel: CreateBlogViewModel
 }
