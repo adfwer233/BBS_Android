@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Campus_BBS</string>
+    <string name="channel_name">MyChannel</string>
+    <string name="channel_description">a channel</string>
 </resources>
