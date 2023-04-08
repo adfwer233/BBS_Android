@@ -14,4 +14,8 @@ class BlogViewModel: ViewModel() {
     fun updateBlog(newBlog: Blog) {
         _uiState.update { currentState -> currentState.copy(blog = newBlog) }
     }
+
+    fun getBlog():Blog {
+        return uiState.value.blog
+    }
 }
