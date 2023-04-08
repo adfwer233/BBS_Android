@@ -6,8 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -63,19 +62,22 @@ fun BlogsCard(
         ) {
             IconButton(onClick = { /*TODO*/ }, modifier= Modifier.weight(1F)) {
                 Row {
-                    Icon(imageVector = Icons.Filled.Add, "test")
+                    Icon(imageVector = Icons.Filled.Menu, "test")
+                    Spacer(modifier = Modifier.width(2.dp))
                     Text(text = blog.subscribedNumber.toString())
                 }
             }
             IconButton(onClick = { /*TODO*/ }, modifier= Modifier.weight(1F)) {
                 Row {
-                    Icon(imageVector = Icons.Filled.Add, "test")
+                    Icon(imageVector = Icons.Filled.Share, "test")
+                    Spacer(modifier = Modifier.width(2.dp))
                     Text(text = blog.blogComments.size.toString())
                 }
             }
             IconButton(onClick = { /*TODO*/ }, modifier= Modifier.weight(1F)) {
                 Row {
-                    Icon(imageVector = Icons.Filled.Add, "test")
+                    Icon(imageVector = Icons.Filled.ThumbUp, "test")
+                    Spacer(modifier = Modifier.width(2.dp))
                     Text(text = blog.likedNumber.toString())
                 }
             }

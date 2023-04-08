@@ -15,6 +15,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,7 +27,9 @@ import coil.request.ImageRequest
 import com.example.campus_bbs.data.Blog
 import com.example.campus_bbs.data.BlogComment
 import com.example.campus_bbs.data.FakeDataGenerator
+import com.example.campus_bbs.ui.components.ImageSingleOrGrid
 import com.example.campus_bbs.ui.components.UserPanelInBlog
+import com.example.campus_bbs.ui.components.UserPanelInComment
 import com.example.campus_bbs.ui.model.BlogViewModel
 
 
@@ -61,7 +65,8 @@ fun BlogScreenMain(
     blogViewModel: BlogViewModel = viewModel()
 ) {
     LazyColumn(
-        modifier = modifier
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
 
         item {
@@ -89,15 +94,21 @@ fun BlogMainCard(
 
         UserPanelInBlog(userMeta = blog.creator, timeString = blog.createTime.toString())
 
-        Text(text = blog.blogTitle, fontSize = 16.sp)
-        Spacer(modifier = Modifier.height(5.dp))
-        Text(text = blog.blogContent)
-        Button(
-            modifier = Modifier.align(Alignment.End),
-            onClick = { }
-        ) {
-            Text(text = "Text Button")
+        Column(modifier = Modifier.padding(5.dp)) {
+            Text(text = blog.blogTitle, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(3.dp))
+            Text(
+                text = blog.blogContent,
+            )
         }
+
+        ImageSingleOrGrid(imageUrlList = blog.imageUrlList)
+//        Button(
+//            modifier = Modifier.align(Alignment.End),
+//            onClick = { }
+//        ) {
+//            Text(text = "Text Button")
+//        }
     }
 }
 
@@ -112,15 +123,12 @@ fun BlogCommentCard(
         modifier = modifier.fillMaxWidth()
     ) {
 
-        UserPanelInBlog(userMeta = comment.creator, timeString = comment.createTime.toString())
+        UserPanelInComment(userMeta = comment.creator)
 
         Spacer(modifier = Modifier.height(3.dp))
-        Text(text = comment.commentContent)
-        Button(
-            modifier = Modifier.align(Alignment.End),
-            onClick = { }
-        ) {
-            Text(text = "Text Button")
+
+        Box(modifier = Modifier.padding(5.dp)) {
+            Text(text = comment.commentContent)
         }
 
         Row(
@@ -137,7 +145,12 @@ fun BlogCommentCard(
                 }
 
                 if (3 >= comment.followingComment.size) {
-                    Button(onClick = { /*TODO*/ }) {
+                    Button(
+                        onClick = {
+
+                        },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
                         Text(text = "More comment")
                     }
                 }

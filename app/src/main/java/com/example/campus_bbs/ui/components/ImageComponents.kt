@@ -23,7 +23,8 @@ import com.example.campus_bbs.data.FakeDataGenerator
 @Composable
 fun ImageComponent(
     imageUrl: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isGrid: Boolean = false
 ) {
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
@@ -32,7 +33,7 @@ fun ImageComponent(
             .build(),
         contentDescription = "test image",
         contentScale = ContentScale.Crop,
-        modifier = modifier.aspectRatio(1F)
+        modifier = if (isGrid) modifier.aspectRatio(1F) else modifier
     )
 }
 
@@ -59,7 +60,7 @@ fun ImageGrid(
                         val index = 3 * rowIndex + columnIndex
                         if (index < imageList.size) {
                             Box(modifier = Modifier.weight(1F)) {
-                                ImageComponent(imageList[index])
+                                ImageComponent(imageList[index], isGrid = true)
                             }
                         } else if (index < placeholderIndex) {
                             Box(modifier = Modifier.weight(1F))

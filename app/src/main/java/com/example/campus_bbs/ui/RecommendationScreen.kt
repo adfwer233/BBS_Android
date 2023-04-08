@@ -52,7 +52,12 @@ fun RecommendationScreen(
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             items(mainViewModel.recommendationViewModel.uiState.value.blogList) {
-                BlogsCard({mainAppNavController.navigate("BlogScreen")}, it)
+                BlogsCard({
+                            mainViewModel.BlogViewModel.updateBlog(it)
+                            mainAppNavController.navigate("BlogScreen")
+                          },
+                    it
+                )
             }
         }
         PullRefreshIndicator(refreshing = refreshing, state = state, modifier = Modifier.align(Alignment.TopCenter))

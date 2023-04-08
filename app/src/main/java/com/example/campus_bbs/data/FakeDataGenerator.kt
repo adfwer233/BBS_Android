@@ -11,6 +11,13 @@ class FakeDataGenerator {
         return  (1..length).map { Random.nextInt(0, charPool.size).let { charPool[it] } }.joinToString("")
     }
 
+    fun generateSingleUserMeta(): UserMeta {
+        return UserMeta(
+            userId = Random.nextInt(),
+            userName = getRandomString(6) ,
+            userIconUrl = generateImageUrlList(1)[0],
+        )
+    }
     fun generateSingleUser(): User {
         return User(
             userId = Random.nextInt(),
