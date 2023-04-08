@@ -1,14 +1,20 @@
 package com.example.campus_bbs.ui.components
 
+import android.text.BoringLayout
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -24,24 +30,39 @@ import com.example.campus_bbs.data.FakeDataGenerator
 fun ImageComponent(
     imageUrl: String,
     modifier: Modifier = Modifier,
-    isGrid: Boolean = false
+    isGrid: Boolean = false,
+    showDelete: Boolean = false,
+    deleteOnClick: () -> Unit = {}
 ) {
-    AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(imageUrl)
-            .crossfade(true)
-            .build(),
-        contentDescription = "test image",
-        contentScale = ContentScale.Crop,
-        modifier = if (isGrid) modifier.aspectRatio(1F) else modifier
-    )
+    Box(modifier = Modifier) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(imageUrl)
+                .crossfade(true)
+                .build(),
+            contentDescription = "test image",
+            contentScale = ContentScale.Crop,
+            modifier = if (isGrid) modifier.aspectRatio(1F) else modifier
+        )
+        if (showDelete) {
+            IconButton(onClick = deleteOnClick,
+                modifier = Modifier.align(Alignment.TopEnd)
+                    .background(Color.LightGray, shape = CircleShape)
+                    .width(20.dp).height(20.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Close, contentDescription = "test")
+            }
+        }
+    }
 }
 
 @Preview
 @Composable
 fun ImageGrid(
     imageList: List<String> = FakeDataGenerator().generateImageUrlList(7),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    withDelete: Boolean = false,
+    deleteOnClick: (Int) -> Unit = {}
 ) {
     var placeholderIndex = imageList.size + (3 - imageList.size % 3)
 
@@ -60,17 +81,30 @@ fun ImageGrid(
                         val index = 3 * rowIndex + columnIndex
                         if (index < imageList.size) {
                             Box(modifier = Modifier.weight(1F)) {
-                                ImageComponent(imageList[index], isGrid = true)
+                                ImageComponent(imageList[index], isGrid = true, showDelete = withDelete, deleteOnClick = { deleteOnClick(index)} )
                             }
                         } else if (index < placeholderIndex) {
                             Box(modifier = Modifier.weight(1F))
                         }
-
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun AddImageGrid(
+    imageUrlList: List<String>,
+    modifier: Modifier = Modifier,
+    deleteOnClick: (Int) -> Unit = {}
+) {
+    ImageGrid(
+        imageUrlList,
+        modifier = Modifier.padding(5.dp).clip(RoundedCornerShape(5.dp)),
+        withDelete = true,
+        deleteOnClick = deleteOnClick
+    )
 }
 
 @Composable

@@ -21,6 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.campus_bbs.data.FakeDataGenerator
+import com.example.campus_bbs.ui.components.AddImageGrid
 import com.example.campus_bbs.ui.components.ImageSingleOrGrid
 import com.example.campus_bbs.ui.model.CreateBlogViewModel
 import com.example.campus_bbs.ui.model.MainViewModel
@@ -78,8 +79,7 @@ fun editBlog(
         mutableStateOf(TextFieldValue(createBlogViewModel.uiState.value.savedContentText))
     }
 
-    var fakeUrlList = FakeDataGenerator().generateImageUrlList(5)
-    createBlogViewModel.updateImageUrl(fakeUrlList)
+    val imageUrlList by createBlogViewModel.imageUrlList.collectAsState()
 
     LazyColumn(
         modifier = modifier
@@ -120,13 +120,14 @@ fun editBlog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = "Images", Modifier.padding(10.dp))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { createBlogViewModel.addRandomImageUrl() }) {
                         Icon(imageVector = Icons.Outlined.Add, contentDescription = "add image")
                     }
                 }
-                ImageSingleOrGrid(
-                    imageUrlList = fakeUrlList,
-                )
+
+                AddImageGrid(imageUrlList = imageUrlList) {
+                    createBlogViewModel.removeImageUrl(it)
+                }
             }
         }
     }
