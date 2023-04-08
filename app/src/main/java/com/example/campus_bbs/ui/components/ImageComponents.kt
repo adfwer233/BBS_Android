@@ -1,7 +1,14 @@
 package com.example.campus_bbs.ui.components
 
 import android.text.BoringLayout
+import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,21 +16,24 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.example.campus_bbs.R
 import com.example.campus_bbs.data.FakeDataGenerator
 
 @Composable
@@ -32,8 +42,13 @@ fun ImageComponent(
     modifier: Modifier = Modifier,
     isGrid: Boolean = false,
     showDelete: Boolean = false,
-    deleteOnClick: () -> Unit = {}
+    deleteOnClick: () -> Unit = {},
+    imageOnClick: () -> Unit = {}
 ) {
+    var commonModifier = modifier.clickable {
+        imageOnClick()
+    }
+
     Box(modifier = Modifier) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -42,13 +57,15 @@ fun ImageComponent(
                 .build(),
             contentDescription = "test image",
             contentScale = ContentScale.Crop,
-            modifier = if (isGrid) modifier.aspectRatio(1F) else modifier
+            modifier = if (isGrid) commonModifier.aspectRatio(1F) else commonModifier,
         )
         if (showDelete) {
             IconButton(onClick = deleteOnClick,
-                modifier = Modifier.align(Alignment.TopEnd)
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
                     .background(Color.LightGray, shape = CircleShape)
-                    .width(20.dp).height(20.dp)
+                    .width(20.dp)
+                    .height(20.dp)
             ) {
                 Icon(imageVector = Icons.Default.Close, contentDescription = "test")
             }
@@ -64,8 +81,22 @@ fun ImageGrid(
     withDelete: Boolean = false,
     deleteOnClick: (Int) -> Unit = {}
 ) {
-    var placeholderIndex = imageList.size + (3 - imageList.size % 3)
 
+    var showDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var indexOfClicked by remember {
+        mutableStateOf(0)
+    }
+
+    if (showDialog) {
+        Dialog(onDismissRequest = { showDialog = !showDialog }) {
+            FullScreenImageRoller(imageUrlList = imageList, initState = indexOfClicked)
+        }
+    }
+
+    var placeholderIndex = imageList.size + (3 - imageList.size % 3)
 
     Column(
         modifier = modifier,
@@ -81,7 +112,16 @@ fun ImageGrid(
                         val index = 3 * rowIndex + columnIndex
                         if (index < imageList.size) {
                             Box(modifier = Modifier.weight(1F)) {
-                                ImageComponent(imageList[index], isGrid = true, showDelete = withDelete, deleteOnClick = { deleteOnClick(index)} )
+                                ImageComponent(
+                                    imageList[index],
+                                    isGrid = true,
+                                    showDelete = withDelete,
+                                    deleteOnClick = { deleteOnClick(index)},
+                                    imageOnClick = {
+                                        indexOfClicked = index
+                                        showDialog = true
+                                    }
+                                )
                             }
                         } else if (index < placeholderIndex) {
                             Box(modifier = Modifier.weight(1F))
@@ -101,7 +141,9 @@ fun AddImageGrid(
 ) {
     ImageGrid(
         imageUrlList,
-        modifier = Modifier.padding(5.dp).clip(RoundedCornerShape(5.dp)),
+        modifier = Modifier
+            .padding(5.dp)
+            .clip(RoundedCornerShape(5.dp)),
         withDelete = true,
         deleteOnClick = deleteOnClick
     )

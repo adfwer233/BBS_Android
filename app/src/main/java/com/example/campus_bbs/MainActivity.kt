@@ -25,7 +25,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.ui.*
+import com.example.campus_bbs.ui.components.FullScreenImageRoller
 import com.example.campus_bbs.ui.model.MainViewModel
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
 
