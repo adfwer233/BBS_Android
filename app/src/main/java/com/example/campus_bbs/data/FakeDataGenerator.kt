@@ -2,6 +2,7 @@ package com.example.campus_bbs.data
 
 import java.util.*
 import kotlin.random.Random
+import kotlin.random.nextInt
 
 class FakeDataGenerator {
     private fun getRandomString(length: Int): String {
@@ -14,6 +15,7 @@ class FakeDataGenerator {
         return User(
             userId = Random.nextInt(),
             userName = getRandomString(6),
+            userIconUrl = generateImageUrlList(1)[0],
             followList = listOf(),
             favorBlogList = listOf()
         )
@@ -27,7 +29,8 @@ class FakeDataGenerator {
         return BlogComment(
             creator = UserMeta(
                 userId = Random.nextInt(),
-                userName = getRandomString(6)
+                userName = getRandomString(6) ,
+                userIconUrl = generateImageUrlList(1)[0],
             ),
             commentContent = getRandomString(50),
             createTime = Date(),
@@ -39,13 +42,28 @@ class FakeDataGenerator {
         return (1..number).map { generateSingleComment(depth) }
     }
 
+    fun generateImageUrlList(number: Int): List<String> {
+        val urls = listOf<String>(
+            "https://ts4.cn.mm.bing.net/th?id=OIP-C.a13xv-Dkd4pE26B1PNFpyAHaGl&w=265&h=235&c=8&rs=1&qlt=90&o=6&dpr=2&pid=3.1&rm=2",
+            "https://ts2.cn.mm.bing.net/th?id=OIP-C.xjxtzuYpyhxD6zo3OV2ZaAHaFj&w=288&h=216&c=8&rs=1&qlt=90&o=6&dpr=2&pid=3.1&rm=2",
+            "https://ts3.cn.mm.bing.net/th?id=OIP-C.CBRSObBHaX1dA_OqPdZSDQHaHt&w=244&h=255&c=8&rs=1&qlt=90&o=6&dpr=2&pid=3.1&rm=2",
+            "https://ts1.cn.mm.bing.net/th?id=OIP-C.yoIeq6UsWUnvlduoSAOJaAHaI4&w=228&h=273&c=8&rs=1&qlt=90&o=6&dpr=2&pid=3.1&rm=2"
+        )
+
+        return (1..number).map { urls[Random.nextInt(0, urls.size)] }
+    }
+
     fun generateSingleFakeBlog(): Blog {
         return Blog(
-            creatorID = Random.nextInt(),
-            creatorName = getRandomString(6),
+            creator = UserMeta(
+                userId = Random.nextInt(),
+                userName = getRandomString(6) ,
+                userIconUrl = generateImageUrlList(1)[0],
+            ),
             createTime = Date(),
             blogTitle = getRandomString(15),
             blogContent = getRandomString(500),
+            imageUrlList = generateImageUrlList(Random.nextInt(1, 10)),
             blogComments = generateCommentList(2, 10),
             subscribed = Random.nextBoolean(),
             liked = Random.nextBoolean(),

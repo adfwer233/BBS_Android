@@ -10,13 +10,14 @@ data class BlogComment (
 )
 
 data class Blog (
-    val creatorID: Int,
-    val creatorName: String,
+    val creator: UserMeta,
     val createTime: Date,
 
     val blogTitle: String,
+
     // TODO: More data types of content
     val blogContent: String,
+    val imageUrlList: List<String>,
 
     val blogComments: List<BlogComment>,
     

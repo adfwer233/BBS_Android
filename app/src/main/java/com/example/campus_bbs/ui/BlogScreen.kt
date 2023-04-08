@@ -3,6 +3,7 @@ package com.example.campus_bbs.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Face
@@ -10,15 +11,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.campus_bbs.data.Blog
 import com.example.campus_bbs.data.BlogComment
 import com.example.campus_bbs.data.FakeDataGenerator
+import com.example.campus_bbs.ui.components.UserPanelInBlog
 import com.example.campus_bbs.ui.model.BlogViewModel
 
 
@@ -58,7 +65,7 @@ fun BlogScreenMain(
     ) {
 
         item {
-            BlogMainCard(blog = blogViewModel.uiState.value.blog)
+            BlogMainCard(blog = blogViewModel.getBlog())
         }
 
         items(blogViewModel.uiState.value.blog.blogComments) {
@@ -79,14 +86,10 @@ fun BlogMainCard(
     Card(
         modifier = modifier.fillMaxWidth()
     ) {
-        Row {
-            Icon(Icons.Filled.Face, contentDescription = "user")
-            Column {
-                Text(text = blog.creatorName)
-                Text(text = blog.createTime.toString())
-            }
-        }
-        Text(text = blog.blogTitle, fontSize = 18.sp)
+
+        UserPanelInBlog(userMeta = blog.creator, timeString = blog.createTime.toString())
+
+        Text(text = blog.blogTitle, fontSize = 16.sp)
         Spacer(modifier = Modifier.height(5.dp))
         Text(text = blog.blogContent)
         Button(
@@ -108,13 +111,9 @@ fun BlogCommentCard(
     Card(
         modifier = modifier.fillMaxWidth()
     ) {
-        Row {
-            Icon(Icons.Filled.Face, contentDescription = "user")
-            Column {
-                Text(text = comment.creator.userName)
-                Text(text = comment.createTime.toString())
-            }
-        }
+
+        UserPanelInBlog(userMeta = comment.creator, timeString = comment.createTime.toString())
+
         Spacer(modifier = Modifier.height(3.dp))
         Text(text = comment.commentContent)
         Button(
