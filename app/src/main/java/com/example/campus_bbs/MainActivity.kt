@@ -64,7 +64,7 @@ fun App() {
             UserHomeScreen(mainAppNavController = mainAppNavController)
         }
         composable("CreateBlog") {
-            CreateBlogScreen(mainAppNavController = mainAppNavController, createBlogViewModel = mainViewModel.createBlogViewModel)
+            CreateBlogScreen(mainAppNavController = mainAppNavController, mainViewModel = mainViewModel)
         }
         composable("fansScreen") {
             FansScreen(mainAppNavController = mainAppNavController)

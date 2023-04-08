@@ -5,4 +5,5 @@ data class CreateBlogUiState(
     val savedContentText: String = "",
     val titleText: String = "",
     val contentText: String = "",
+    val imageUrlList: List<String> = listOf()
 )
