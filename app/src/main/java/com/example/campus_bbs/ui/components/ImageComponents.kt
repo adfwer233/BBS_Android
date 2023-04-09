@@ -92,7 +92,11 @@ fun ImageGrid(
 
     if (showDialog) {
         Dialog(onDismissRequest = { showDialog = !showDialog }) {
-            FullScreenImageRoller(imageUrlList = imageList, initState = indexOfClicked)
+            FullScreenImageRoller(
+                imageUrlList = imageList,
+                initState = indexOfClicked,
+                fullScreenImageOnClick = { showDialog = false }
+            )
         }
     }
 

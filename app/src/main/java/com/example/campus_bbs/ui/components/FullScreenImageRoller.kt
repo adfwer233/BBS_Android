@@ -2,6 +2,7 @@ package com.example.campus_bbs.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -24,12 +25,15 @@ import com.example.campus_bbs.data.FakeDataGenerator
 fun FullScreenImageRoller(
     imageUrlList: List<String>,
     initState: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fullScreenImageOnClick: () -> Unit = {}
 ) {
 
     val pageCount = imageUrlList.size
     val pagerState = rememberPagerState(initState)
-    Box {
+    Box(
+        modifier = Modifier.clickable { fullScreenImageOnClick() }
+    ) {
         HorizontalPager(
             pageCount = pageCount,
             state = pagerState
