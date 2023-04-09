@@ -29,6 +29,7 @@ import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.ui.*
 import com.example.campus_bbs.ui.components.CommentSheet
 import com.example.campus_bbs.ui.components.FullScreenImageRoller
+import com.example.campus_bbs.ui.components.OnlineVideoPlayer
 import com.example.campus_bbs.ui.model.MainViewModel
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
 

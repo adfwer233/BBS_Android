@@ -24,9 +24,14 @@ import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.data.UserMeta
 
 @Composable
-fun UserPanelInBlog(userMeta: UserMeta, timeString: String) {
+@Preview
+fun UserPanelInBlog(
+    userMeta: UserMeta = FakeDataGenerator().generateSingleUserMeta(),
+    timeString: String = "time"
+) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(5.dp)
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        modifier = Modifier.padding(top = 5.dp, start = 5.dp)
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -42,9 +47,8 @@ fun UserPanelInBlog(userMeta: UserMeta, timeString: String) {
         )
         Column(
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxHeight()
+            modifier = Modifier.align(Alignment.CenterVertically)
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
             Text(text = userMeta.userName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Text(text = timeString)
         }
@@ -55,7 +59,8 @@ fun UserPanelInBlog(userMeta: UserMeta, timeString: String) {
 @Preview
 fun UserPanelInComment(userMeta: UserMeta = FakeDataGenerator().generateSingleUserMeta()) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(5.dp)
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        modifier = Modifier.padding(top = 5.dp, start = 5.dp)
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -75,9 +80,16 @@ fun UserPanelInComment(userMeta: UserMeta = FakeDataGenerator().generateSingleUs
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.height(65.dp).fillMaxWidth()
-            ){
-                Text(text = userMeta.userName, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterVertically))
+                modifier = Modifier
+                    .height(65.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = userMeta.userName,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
                 IconButton(
                     onClick = { /*TODO*/ },
                     modifier = Modifier.align(Alignment.CenterVertically)
