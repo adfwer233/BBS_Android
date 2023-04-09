@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
@@ -45,8 +46,34 @@ fun ImageComponent(
     deleteOnClick: () -> Unit = {},
     imageOnClick: () -> Unit = {}
 ) {
-    var commonModifier = modifier.clickable {
-        imageOnClick()
+    var showDialog by remember {
+        mutableStateOf(false)
+    }
+    var commonModifier = modifier
+
+    if (isGrid) {
+        commonModifier = modifier.clickable {
+            imageOnClick()
+        }
+    } else {
+        commonModifier = modifier.clickable {
+            showDialog = true
+        }
+    }
+
+    if (showDialog) {
+        Dialog(
+            onDismissRequest = { showDialog = !showDialog },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false
+            ),
+        ) {
+            FullScreenImageRoller(
+                imageUrlList = listOf(imageUrl),
+                initState = 0,
+                fullScreenImageOnClick = { showDialog = false }
+            )
+        }
     }
 
     Box(modifier = Modifier) {
@@ -91,7 +118,12 @@ fun ImageGrid(
     }
 
     if (showDialog) {
-        Dialog(onDismissRequest = { showDialog = !showDialog }) {
+        Dialog(
+            onDismissRequest = { showDialog = !showDialog },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false
+            ),
+        ) {
             FullScreenImageRoller(
                 imageUrlList = imageList,
                 initState = indexOfClicked,

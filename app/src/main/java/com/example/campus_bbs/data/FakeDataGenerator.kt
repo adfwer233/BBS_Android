@@ -41,7 +41,7 @@ class FakeDataGenerator {
             ),
             commentContent = getRandomString(50),
             createTime = Date(),
-            followingComment = if (depth == 1) listOf<BlogComment>() else generateCommentList(depth - 1, 3)
+            followingComment = if (depth == 1) listOf<BlogComment>() else generateCommentList(depth - 1, 15)
         )
     }
 

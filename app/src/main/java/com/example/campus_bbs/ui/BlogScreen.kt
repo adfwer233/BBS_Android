@@ -4,11 +4,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,6 +24,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -27,42 +33,66 @@ import coil.request.ImageRequest
 import com.example.campus_bbs.data.Blog
 import com.example.campus_bbs.data.BlogComment
 import com.example.campus_bbs.data.FakeDataGenerator
-import com.example.campus_bbs.ui.components.ImageSingleOrGrid
-import com.example.campus_bbs.ui.components.UserPanelInBlog
-import com.example.campus_bbs.ui.components.UserPanelInComment
+import com.example.campus_bbs.ui.components.*
 import com.example.campus_bbs.ui.model.BlogViewModel
+import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun BlogScreen(
     mainAppNavController: NavHostController,
     modifier: Modifier = Modifier,
     blogViewModel: BlogViewModel = viewModel()
 ) {
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = "Blog Detail") },
-                navigationIcon = {
-                    Button(onClick = { mainAppNavController.navigateUp() }) {
-                        Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Go back")
+
+    val sheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden
+    )
+    val scope = rememberCoroutineScope()
+
+    var commentToShow by remember {
+        mutableStateOf(FakeDataGenerator().generateSingleComment(2))
+    }
+
+    ModalBottomSheetLayout(
+        sheetContent = {
+            CommentSheet(comment = commentToShow)
+        },
+        sheetState = sheetState
+    ) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text(text = "Blog Detail") },
+                    navigationIcon = {
+                        Button(onClick = { mainAppNavController.navigateUp() }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "Go back"
+                            )
+                        }
                     }
+                )
+            }
+        ) { contentPadding ->
+            BlogScreenMain(
+                modifier = modifier.padding(contentPadding),
+                blogViewModel = blogViewModel,
+                showComment = {
+                    commentToShow = it
+                    scope.launch { sheetState.show() }
                 }
             )
         }
-    ) { contentPadding ->
-        BlogScreenMain(
-            modifier = modifier.padding(contentPadding),
-            blogViewModel = blogViewModel
-        )
     }
 }
 
 @Composable
 fun BlogScreenMain(
     modifier: Modifier = Modifier,
-    blogViewModel: BlogViewModel = viewModel()
+    blogViewModel: BlogViewModel = viewModel(),
+    showComment: (BlogComment) -> Unit = {}
 ) {
     LazyColumn(
         modifier = modifier,
@@ -75,7 +105,8 @@ fun BlogScreenMain(
 
         items(blogViewModel.uiState.value.blog.blogComments) {
             BlogCommentCard(
-                comment = it
+                comment = it,
+                moreCommentOnClick = { showComment(it) }
             )
         }
     }
@@ -86,7 +117,7 @@ fun BlogScreenMain(
 @Composable
 fun BlogMainCard(
     modifier: Modifier = Modifier,
-    blog: Blog = FakeDataGenerator().generateSingleFakeBlog(),
+    blog: Blog = FakeDataGenerator().generateSingleFakeBlog()
 ) {
     Card(
         modifier = modifier.fillMaxWidth()
@@ -103,12 +134,6 @@ fun BlogMainCard(
         }
 
         ImageSingleOrGrid(imageUrlList = blog.imageUrlList)
-//        Button(
-//            modifier = Modifier.align(Alignment.End),
-//            onClick = { }
-//        ) {
-//            Text(text = "Text Button")
-//        }
     }
 }
 
@@ -117,7 +142,8 @@ fun BlogMainCard(
 @Composable
 fun BlogCommentCard(
     modifier: Modifier = Modifier,
-    comment: BlogComment = FakeDataGenerator().generateSingleComment(2)
+    comment: BlogComment = FakeDataGenerator().generateSingleComment(2),
+    moreCommentOnClick: () -> Unit = {}
 ) {
     Card(
         modifier = modifier.fillMaxWidth()
@@ -144,11 +170,9 @@ fun BlogCommentCard(
                     }
                 }
 
-                if (3 >= comment.followingComment.size) {
+                if (comment.followingComment.size > 3) {
                     Button(
-                        onClick = {
-
-                        },
+                        onClick = moreCommentOnClick,
                         modifier = Modifier.align(Alignment.End)
                     ) {
                         Text(text = "More comment")
