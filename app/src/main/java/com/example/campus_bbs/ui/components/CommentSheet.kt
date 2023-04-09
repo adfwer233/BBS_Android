@@ -5,10 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.ShoppingCart
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -21,7 +21,7 @@ import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.ui.FollowingComment
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentSheet(
     comment: BlogComment = FakeDataGenerator().generateSingleComment(2),
@@ -30,11 +30,11 @@ fun CommentSheet(
 
 
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().background(color= MaterialTheme.colorScheme.background)
     ) {
 
         LazyColumn(
-            modifier = Modifier
+            modifier = Modifier.background(color= MaterialTheme.colorScheme.primaryContainer)
         ) {
 
             item {
