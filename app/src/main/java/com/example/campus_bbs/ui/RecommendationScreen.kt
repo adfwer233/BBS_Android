@@ -1,5 +1,7 @@
 package com.example.campus_bbs.ui
 
+import android.location.Geocoder
+import android.location.LocationManager
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,11 +23,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.location.LocationCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.campus_bbs.ui.components.BlogsCard
 import com.example.campus_bbs.ui.model.MainViewModel
+import com.example.campus_bbs.utils.LocationUtils
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.RichText
 import kotlinx.coroutines.coroutineScope
@@ -143,10 +148,23 @@ fun HotRecommendation(
 fun SubscribedRecommendation(
     modifier: Modifier = Modifier
 ) {
-    Box(
+
+    val localContext = LocalContext.current
+
+    var location = LocationUtils().getLocation(localContext)
+
+    var addressList = LocationUtils().getGeoFromLocation(localContext, location)
+    Column(
         modifier = Modifier.fillMaxHeight()
     ) {
         Text(text = "Subscribed Screen")
+        if (location != null) {
+            Text(text = location.latitude.toString())
+        }
+
+        if (addressList.isNotEmpty()) {
+            Text(text = addressList[0].featureName)
+        }
     }
 }
 
