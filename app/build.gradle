@@ -61,6 +61,7 @@ dependencies {
     implementation 'androidx.leanback:leanback:1.0.0'
     implementation "com.google.android.exoplayer:exoplayer:2.16.1"
     implementation "com.halilibo.compose-richtext:richtext-commonmark:0.16.0"
+    implementation "com.google.accompanist:accompanist-permissions:0.25.1"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

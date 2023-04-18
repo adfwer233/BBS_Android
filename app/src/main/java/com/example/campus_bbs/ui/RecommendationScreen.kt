@@ -1,5 +1,6 @@
 package com.example.campus_bbs.ui
 
+import android.Manifest
 import android.location.Geocoder
 import android.location.LocationManager
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -31,6 +32,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.campus_bbs.ui.components.BlogsCard
 import com.example.campus_bbs.ui.model.MainViewModel
 import com.example.campus_bbs.utils.LocationUtils
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.RichText
 import kotlinx.coroutines.coroutineScope
@@ -144,6 +149,7 @@ fun HotRecommendation(
 }
 
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun SubscribedRecommendation(
     modifier: Modifier = Modifier
@@ -154,16 +160,29 @@ fun SubscribedRecommendation(
     var location = LocationUtils().getLocation(localContext)
 
     var addressList = LocationUtils().getGeoFromLocation(localContext, location)
+
+    val locationPermissionState = rememberPermissionState(
+        permission = Manifest.permission.ACCESS_FINE_LOCATION
+    )
+
     Column(
         modifier = Modifier.fillMaxHeight()
     ) {
         Text(text = "Subscribed Screen")
-        if (location != null) {
-            Text(text = location.latitude.toString())
-        }
 
-        if (addressList.isNotEmpty()) {
-            Text(text = addressList[0].featureName)
+        if (locationPermissionState.status.isGranted) {
+            Text("Location permission Granted")
+            if (location != null) {
+                Text(text = location.latitude.toString())
+            }
+
+            if (addressList.isNotEmpty()) {
+                Text(text = addressList[0].featureName)
+            }
+        } else {
+            Button(onClick = { locationPermissionState.launchPermissionRequest() }) {
+                Text("Request permission")
+            }
         }
     }
 }

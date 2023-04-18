@@ -9,6 +9,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.provider.Telephony.Mms.Addr
 import android.util.Log
+import android.webkit.PermissionRequest
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.io.IOException
@@ -16,7 +17,8 @@ import java.io.IOException
 class LocationUtils {
     fun getLocation(context: Context): Location? {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        var location: Location? = Location(LocationManager.GPS_PROVIDER)
+        var location: Location? = null
+
 
 
         if (ActivityCompat.checkSelfPermission(
