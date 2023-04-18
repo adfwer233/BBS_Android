@@ -1,5 +1,6 @@
 package com.example.campus_bbs.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,15 +18,20 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.filled.Search
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.campus_bbs.ui.components.BlogsCard
 import com.example.campus_bbs.ui.model.MainViewModel
+import kotlinx.coroutines.coroutineScope
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class,
+    ExperimentalFoundationApi::class
+)
 fun RecommendationScreen(
     mainAppNavController: NavHostController,
     modifier: Modifier = Modifier,
@@ -33,13 +39,11 @@ fun RecommendationScreen(
 ) {
 //    val blogList = remember{ mutableStateOf<List<Blog>>(FakeDataGenerator().generateFakeBlogs(10)) }
 
-    var tabState by remember {
-        mutableStateOf(0)
-    }
     val titles = listOf("Default", "Hot", "Subscribe")
 
-    var recommendationNavHostController = rememberNavController()
+    var pagerState = rememberPagerState(0)
 
+    val coroutineScope = rememberCoroutineScope()
     Column(
         modifier = modifier
     ) {
@@ -50,18 +54,15 @@ fun RecommendationScreen(
 
             Box {
                 TabRow(
-                    selectedTabIndex = tabState,
+                    selectedTabIndex = pagerState.currentPage,
                 ) {
                     titles.forEachIndexed { index, title ->
                         Tab(
-                            selected = tabState == index,
+                            selected = pagerState.currentPage == index,
                             onClick = {
-                                recommendationNavHostController.navigate(titles[index]) {
-                                    popUpTo(titles[tabState]) {
-                                        inclusive = true
-                                    }
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(index, 0F)
                                 }
-                                tabState = index
                             },
                             modifier = Modifier
                         ) {
@@ -71,19 +72,17 @@ fun RecommendationScreen(
                 }
             }
         }
-        NavHost(
-            navController = recommendationNavHostController,
-            startDestination = "Default",
-            modifier = Modifier.fillMaxHeight()
+
+        HorizontalPager(
+            pageCount = titles.size,
+            state = pagerState
         ) {
-            composable("Default") {
-                DefaultRecommendation(mainAppNavController, Modifier, mainViewModel)
-            }
-            composable("Hot") {
-                HotRecommendation()
-            }
-            composable("Subscribe") {
-                SubscribedRecommendation()
+
+            page ->
+            when(page) {
+                0 -> DefaultRecommendation(mainAppNavController, Modifier, mainViewModel)
+                1 -> HotRecommendation()
+                2 -> SubscribedRecommendation()
             }
         }
     }
@@ -92,17 +91,25 @@ fun RecommendationScreen(
 @Composable
 
 fun HotRecommendation(
-
+    modifier: Modifier = Modifier
 ) {
-
+    Box(
+        modifier = Modifier.fillMaxHeight()
+    ) {
+        Text(text = "Hot Screen")
+    }
 }
 
 
 @Composable
 fun SubscribedRecommendation(
-
+    modifier: Modifier = Modifier
 ) {
-
+    Box(
+        modifier = Modifier.fillMaxHeight()
+    ) {
+        Text(text = "Subscribed Screen")
+    }
 }
 
 @Composable
