@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -59,6 +61,8 @@ fun App() {
 
     NavHost(navController = mainAppNavController, startDestination = "AppHome") {
         composable("AppHome") {
+//            OnlineVideoPlayer(videoUrl = "https://cloud.tsinghua.edu.cn/f/d059ce302d864d7ab9ee/?dl=1",)
+
             AppHome(mainAppNavController, mainViewModel)
         }
         composable("BlogScreen") {
@@ -90,7 +94,17 @@ fun AppHome(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "Campus BBS")}
+                title = { Text(text = "Campus BBS")},
+                actions = {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(imageVector = Icons.Default.Search, contentDescription = "search")
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "User Icon")
+                    }
+                }
             )
         },
         bottomBar = {

@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.ui.components.AddImageGrid
 import com.example.campus_bbs.ui.components.ImageSingleOrGrid
+import com.example.campus_bbs.ui.components.OnlineVideoPlayer
 import com.example.campus_bbs.ui.model.CreateBlogViewModel
 import com.example.campus_bbs.ui.model.MainViewModel
 
@@ -79,8 +80,6 @@ fun editBlog(
         mutableStateOf(TextFieldValue(createBlogViewModel.uiState.value.savedContentText))
     }
 
-    val imageUrlList by createBlogViewModel.imageUrlList.collectAsState()
-
     LazyColumn(
         modifier = modifier
             .fillMaxWidth()
@@ -109,11 +108,39 @@ fun editBlog(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(400.dp)
+                    .height(200.dp)
             )
         }
 
         item {
+            MultiMediaPanel(createBlogViewModel)
+        }
+    }
+}
+
+@Composable
+fun MultiMediaPanel(
+    createBlogViewModel: CreateBlogViewModel,
+    modifier: Modifier = Modifier
+) {
+    var tabState by remember {
+        mutableStateOf(0)
+    }
+
+    val imageUrlList by createBlogViewModel.imageUrlList.collectAsState()
+
+    val titles = listOf("Image", "Video")
+
+    Column() {
+        TabRow(selectedTabIndex = tabState) {
+            titles.forEachIndexed { index, title ->
+                Tab(selected = tabState == index, onClick = {tabState = index}) {
+                    Text(text = title)
+                }
+            }
+        }
+
+        if (titles[tabState] == "Image") {
             Column() {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -128,6 +155,22 @@ fun editBlog(
                 AddImageGrid(imageUrlList = imageUrlList) {
                     createBlogViewModel.removeImageUrl(it)
                 }
+            }
+        }
+        
+        if (titles[tabState] == "Video") {
+            Column() {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = "Video", Modifier.padding(10.dp))
+                    IconButton(onClick = { createBlogViewModel.addRandomImageUrl() }) {
+                        Icon(imageVector = Icons.Outlined.Add, contentDescription = "add image")
+                    }
+                }
+
+                OnlineVideoPlayer(videoUrl = "https://cloud.tsinghua.edu.cn/f/d059ce302d864d7ab9ee/?dl=1", modifier)
             }
         }
     }

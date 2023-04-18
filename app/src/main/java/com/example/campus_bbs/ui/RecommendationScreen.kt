@@ -1,5 +1,6 @@
 package com.example.campus_bbs.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 
@@ -16,6 +17,10 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.Search
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.campus_bbs.ui.components.BlogsCard
 import com.example.campus_bbs.ui.model.MainViewModel
 
@@ -28,6 +33,85 @@ fun RecommendationScreen(
 ) {
 //    val blogList = remember{ mutableStateOf<List<Blog>>(FakeDataGenerator().generateFakeBlogs(10)) }
 
+    var tabState by remember {
+        mutableStateOf(0)
+    }
+    val titles = listOf("Default", "Hot", "Subscribe")
+
+    var recommendationNavHostController = rememberNavController()
+
+    Column(
+        modifier = modifier
+    ) {
+
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Box {
+                TabRow(
+                    selectedTabIndex = tabState,
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            selected = tabState == index,
+                            onClick = {
+                                recommendationNavHostController.navigate(titles[index]) {
+                                    popUpTo(titles[tabState]) {
+                                        inclusive = true
+                                    }
+                                }
+                                tabState = index
+                            },
+                            modifier = Modifier
+                        ) {
+                            Text(text = title, modifier = Modifier.padding(10.dp))
+                        }
+                    }
+                }
+            }
+        }
+        NavHost(
+            navController = recommendationNavHostController,
+            startDestination = "Default",
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            composable("Default") {
+                DefaultRecommendation(mainAppNavController, Modifier, mainViewModel)
+            }
+            composable("Hot") {
+                HotRecommendation()
+            }
+            composable("Subscribe") {
+                SubscribedRecommendation()
+            }
+        }
+    }
+}
+
+@Composable
+
+fun HotRecommendation(
+
+) {
+
+}
+
+
+@Composable
+fun SubscribedRecommendation(
+
+) {
+
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+fun DefaultRecommendation(
+    mainAppNavController: NavHostController,
+    modifier: Modifier = Modifier,
+    mainViewModel: MainViewModel = MainViewModel()
+) {
     val recommendationUiState by mainViewModel.recommendationViewModel.uiState.collectAsState()
 
     if (recommendationUiState.blogList.isEmpty()) {
@@ -53,9 +137,9 @@ fun RecommendationScreen(
         ) {
             items(mainViewModel.recommendationViewModel.uiState.value.blogList) {
                 BlogsCard({
-                            mainViewModel.BlogViewModel.updateBlog(it)
-                            mainAppNavController.navigate("BlogScreen")
-                          },
+                    mainViewModel.BlogViewModel.updateBlog(it)
+                    mainAppNavController.navigate("BlogScreen")
+                },
                     it
                 )
             }
