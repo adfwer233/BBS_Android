@@ -8,8 +8,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -66,11 +65,19 @@ fun BlogScreen(
                 CenterAlignedTopAppBar(
                     title = { Text(text = "Blog Detail") },
                     navigationIcon = {
-                        Button(onClick = { mainAppNavController.navigateUp() }) {
-                            Icon(
-                                imageVector = Icons.Filled.ArrowBack,
-                                contentDescription = "Go back"
-                            )
+//                        Button(onClick = { mainAppNavController.navigateUp() }) {
+//                            Icon(
+//                                imageVector = Icons.Filled.ArrowBack,
+//                                contentDescription = "Go back"
+//                            )
+//                        }
+                        IconButton(onClick = { mainAppNavController.navigateUp() }) {
+                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "exit")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(imageVector = Icons.Default.Share, contentDescription = "share")
                         }
                     }
                 )

@@ -24,6 +24,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.campus_bbs.data.Blog
 import com.example.campus_bbs.data.FakeDataGenerator
+import com.halilibo.richtext.markdown.Markdown
+import com.halilibo.richtext.ui.RichText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
