@@ -1,22 +1,23 @@
 package com.example.campus_bbs.Managers
 
 import android.content.ContentValues
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraSelector.LensFacing
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ImageManager {
+class CameraImageManager {
     var imageCapture: ImageCapture ? = null
 
     fun takePhoto(context: Context) {
@@ -48,5 +49,19 @@ class ImageManager {
                 }
             }
         )
+    }
+
+    fun bindPreview(
+        lifecycleOwner: LifecycleOwner,
+        previewView: PreviewView,
+        cameraProvider: ProcessCameraProvider,
+        cameraSelector: CameraSelector,
+    ) {
+        Log.e("bindPreview", "binding....")
+        val preview = androidx.camera.core.Preview.Builder().build()
+        imageCapture = ImageCapture.Builder().build()
+
+        preview.setSurfaceProvider(previewView.surfaceProvider)
+        val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, imageCapture)
     }
 }
