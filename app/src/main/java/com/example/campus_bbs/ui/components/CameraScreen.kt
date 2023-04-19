@@ -76,10 +76,10 @@ private fun bindPreview(
     imageManager: ImageManager
 ) {
     val preview = androidx.camera.core.Preview.Builder().build()
+    imageManager.imageCapture = ImageCapture.Builder().build()
     val cameraSelector: CameraSelector = CameraSelector.Builder()
         .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
         .build()
     preview.setSurfaceProvider(previewView.surfaceProvider)
-    val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
-    imageManager.imageCapture = ImageCapture.Builder().build()
+    val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, imageManager.imageCapture)
 }
