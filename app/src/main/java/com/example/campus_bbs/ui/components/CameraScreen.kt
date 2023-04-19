@@ -5,7 +5,10 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -29,32 +32,41 @@ fun SimpleCameraScreen(
     val context = LocalContext.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
 
-    AndroidView(
-        factory = { ctx ->
-            val preview = PreviewView(context).apply {
-                this.scaleType = scaleType
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-                // Preview is incorrectly scaled in Compose on some devices without this
-                implementationMode = PreviewView.ImplementationMode.COMPATIBLE
-            }
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
 
-            val executor = ContextCompat.getMainExecutor(ctx)
-            cameraProviderFuture.addListener({
-                val cameraProvider = cameraProviderFuture.get()
-                bindPreview(
-                    lifecycleOwner,
-                    preview,
-                    cameraProvider,
-                    cameraViewModel.imageManager
-                )
-            }, executor)
-            preview
-        },
-        modifier = Modifier.fillMaxSize(),
-    )
+        AndroidView(
+            factory = { ctx ->
+                val preview = PreviewView(context).apply {
+                    this.scaleType = scaleType
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                    // Preview is incorrectly scaled in Compose on some devices without this
+                    implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                }
+
+                val executor = ContextCompat.getMainExecutor(ctx)
+                cameraProviderFuture.addListener({
+                    val cameraProvider = cameraProviderFuture.get()
+                    bindPreview(
+                        lifecycleOwner,
+                        preview,
+                        cameraProvider,
+                        cameraViewModel.imageManager
+                    )
+                }, executor)
+                preview
+            },
+            modifier = Modifier.fillMaxSize(),
+        )
+        Button(onClick = { cameraViewModel.imageManager.takePhoto(context) }) {
+            Text(text = "Take photo")
+        }
+    }
+
 }
 
 private fun bindPreview(
