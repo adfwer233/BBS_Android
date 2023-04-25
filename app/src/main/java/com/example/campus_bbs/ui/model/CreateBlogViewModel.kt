@@ -21,8 +21,12 @@ class CreateBlogViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(CreateBlogUiState())
     val uiState = _uiState.asStateFlow()
 
+    // TODO: Refactor these to uistate
     private val imageUrlListStateFlow = MutableStateFlow(_uiState.value.imageUrlList)
     val imageUrlList: StateFlow<List<String>> = imageUrlListStateFlow
+
+    private val videoUrlListStateFlow = MutableStateFlow(_uiState.value.videoUrl)
+    val videoUrlList: StateFlow<String> = videoUrlListStateFlow
 
     fun updateTitleText(newTitle: String) {
         _uiState.update { currentState -> currentState.copy(titleText = newTitle) }
@@ -35,6 +39,11 @@ class CreateBlogViewModel: ViewModel() {
     fun updateImageUrl(newUrlList: List<String>) {
         imageUrlListStateFlow.value = newUrlList
         _uiState.update { currentState -> currentState.copy(imageUrlList = newUrlList) }
+    }
+
+    fun updateVideoUri(newVideoUri: String) {
+        videoUrlListStateFlow.value = newVideoUri
+        _uiState.update { currentState -> currentState.copy(videoUrl = newVideoUri) }
     }
 
     fun generateBlogFromState(): Blog {

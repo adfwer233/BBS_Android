@@ -1,7 +1,11 @@
 package com.example.campus_bbs.ui
 
+import android.net.Uri
 import android.provider.MediaStore.Images
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -13,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -79,7 +84,6 @@ fun editBlog(
     var contentText by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(createBlogViewModel.uiState.value.savedContentText))
     }
-
     LazyColumn(
         modifier = modifier
             .fillMaxWidth()
@@ -127,9 +131,19 @@ fun MultiMediaPanel(
         mutableStateOf(0)
     }
 
+//    val uiState by createBlogViewModel.uiState.collectAsState()
+    val videoUrl by createBlogViewModel.videoUrlList.collectAsState()
     val imageUrlList by createBlogViewModel.imageUrlList.collectAsState()
 
     val titles = listOf("Image", "Video")
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.PickMultipleVisualMedia(9)) { uri: List<Uri> ->
+        createBlogViewModel.updateImageUrl(uri.map { it.toString() })
+    }
+
+    val videoPickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia()) {
+        createBlogViewModel.updateVideoUri(it.toString())
+    }
 
     Column() {
         TabRow(selectedTabIndex = tabState) {
@@ -147,7 +161,7 @@ fun MultiMediaPanel(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = "Images", Modifier.padding(10.dp))
-                    IconButton(onClick = { createBlogViewModel.addRandomImageUrl() }) {
+                    IconButton(onClick = { imagePickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {
                         Icon(imageVector = Icons.Outlined.Add, contentDescription = "add image")
                     }
                 }
@@ -165,12 +179,12 @@ fun MultiMediaPanel(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = "Video", Modifier.padding(10.dp))
-                    IconButton(onClick = { createBlogViewModel.addRandomImageUrl() }) {
-                        Icon(imageVector = Icons.Outlined.Add, contentDescription = "add image")
+                    IconButton(onClick = { videoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)) }) {
+                        Icon(imageVector = Icons.Outlined.Add, contentDescription = "add video")
                     }
                 }
 
-                OnlineVideoPlayer(videoUrl = "https://cloud.tsinghua.edu.cn/f/d059ce302d864d7ab9ee/?dl=1", modifier)
+                OnlineVideoPlayer(videoUrl = videoUrl, modifier)
             }
         }
     }

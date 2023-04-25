@@ -22,9 +22,11 @@ fun OnlineVideoPlayer(
     modifier: Modifier = Modifier
 ) {
 
-
+    
     Column(
-        modifier = Modifier.background(color= Color.Red).fillMaxWidth()
+        modifier = Modifier
+            .background(color = Color.Red)
+            .fillMaxWidth()
     ) {
 
         val context = LocalContext.current
@@ -47,7 +49,13 @@ fun OnlineVideoPlayer(
                     this.player = exoPlayer
                 }
             },
-            modifier = Modifier.align(Alignment.CenterHorizontally).height(200.dp).fillMaxWidth()
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .height(200.dp)
+                .fillMaxWidth(),
+            update = {
+                it.player?.setMediaItem(MediaItem.fromUri(videoUrl))
+            }
         )
     }
 
