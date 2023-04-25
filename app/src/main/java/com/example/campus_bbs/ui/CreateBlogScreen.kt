@@ -131,9 +131,7 @@ fun MultiMediaPanel(
         mutableStateOf(0)
     }
 
-//    val uiState by createBlogViewModel.uiState.collectAsState()
-    val videoUrl by createBlogViewModel.videoUrlList.collectAsState()
-    val imageUrlList by createBlogViewModel.imageUrlList.collectAsState()
+    val uiState by createBlogViewModel.uiState.collectAsState()
 
     val titles = listOf("Image", "Video")
 
@@ -166,7 +164,7 @@ fun MultiMediaPanel(
                     }
                 }
 
-                AddImageGrid(imageUrlList = imageUrlList) {
+                AddImageGrid(imageUrlList = uiState.imageUrlList) {
                     createBlogViewModel.removeImageUrl(it)
                 }
             }
@@ -184,7 +182,7 @@ fun MultiMediaPanel(
                     }
                 }
 
-                OnlineVideoPlayer(videoUrl = videoUrl, modifier)
+                OnlineVideoPlayer(videoUrl = uiState.videoUrl, modifier)
             }
         }
     }
