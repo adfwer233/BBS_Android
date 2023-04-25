@@ -29,10 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.ui.*
-import com.example.campus_bbs.ui.components.CommentSheet
-import com.example.campus_bbs.ui.components.FullScreenImageRoller
-import com.example.campus_bbs.ui.components.OnlineVideoPlayer
-import com.example.campus_bbs.ui.components.SimpleCameraScreen
+import com.example.campus_bbs.ui.components.*
 import com.example.campus_bbs.ui.model.CameraViewModel
 import com.example.campus_bbs.ui.model.MainViewModel
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
@@ -65,7 +62,8 @@ fun App() {
     NavHost(navController = mainAppNavController, startDestination = "AppHome") {
         composable("AppHome") {
 //            OnlineVideoPlayer(videoUrl = "https://cloud.tsinghua.edu.cn/f/d059ce302d864d7ab9ee/?dl=1",)
-            SimpleCameraScreen(cameraViewModel = cameraViewModel)
+//            SimpleCameraScreen(cameraViewModel = cameraViewModel)
+            ImagePicker()
 //            AppHome(mainAppNavController, mainViewModel)
         }
         composable("BlogScreen") {
