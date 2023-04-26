@@ -5,4 +5,5 @@ class MainViewModel {
     lateinit var BlogViewModel: BlogViewModel
     lateinit var notificationViewModel: NotificationViewModel
     lateinit var createBlogViewModel: CreateBlogViewModel
+    lateinit var communicationViewModel: CommunicationViewModel
 }

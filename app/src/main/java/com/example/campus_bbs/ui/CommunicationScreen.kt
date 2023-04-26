@@ -15,6 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.campus_bbs.ui.components.MessageReceivedComponent
 import com.example.campus_bbs.ui.components.MessageSentComponent
 import com.example.campus_bbs.ui.model.CommunicationViewModel
@@ -22,6 +23,7 @@ import com.example.campus_bbs.ui.model.CommunicationViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommunicationScreen(
+    mainNavController: NavController,
     communicationViewModel: CommunicationViewModel = CommunicationViewModel(),
     modifier: Modifier = Modifier,
 ) {
@@ -32,7 +34,7 @@ fun CommunicationScreen(
             CenterAlignedTopAppBar(
                 title = { Text(text = uiState.value.targetUserMeta.userName )},
                 navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {  }) {
                         Icon(Icons.Default.ArrowBack, "back")
                     }
                 }

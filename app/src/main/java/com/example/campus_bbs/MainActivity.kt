@@ -63,6 +63,7 @@ fun App() {
     mainViewModel.BlogViewModel = viewModel()
     mainViewModel.notificationViewModel = viewModel()
     mainViewModel.createBlogViewModel = viewModel()
+    mainViewModel.communicationViewModel = viewModel()
 
     val cameraViewModel = CameraViewModel()
     NavHost(navController = mainAppNavController, startDestination = "AppHome") {
@@ -87,6 +88,9 @@ fun App() {
         }
         composable("fansScreen") {
             FansScreen(mainAppNavController = mainAppNavController)
+        }
+        composable("CommunicationScreen") {
+            CommunicationScreen(communicationViewModel = mainViewModel.communicationViewModel, mainNavController = mainAppNavController)
         }
     }
 }
@@ -130,9 +134,9 @@ fun AppHome(
                                 BadgedBox(
                                     badge = {
                                         Badge {
-                                            val badgeNumber = "8"
+                                            val badgeNumber = mainViewModel.notificationViewModel.getTotalUnreadNumber()
                                             Text(
-                                                badgeNumber,
+                                                badgeNumber.toString(),
                                                 modifier = Modifier.semantics {
                                                     contentDescription =
                                                         "$badgeNumber new notifications"

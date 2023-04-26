@@ -110,4 +110,12 @@ class FakeDataGenerator {
         val targetUserMeta = generateSingleUserMeta()
         return generateFakeMessageInfoList(number, selfUserMeta, targetUserMeta)
     }
+
+    fun generateChatList(number: Int): List<Chat> {
+        val selfUserMeta = generateSingleUserMeta()
+        return (1..number).map {
+            val targetUserMeta = generateSingleUserMeta()
+            Chat(selfUserMeta, targetUserMeta, generateFakeMessageInfoList(10, selfUserMeta, targetUserMeta))
+        }
+    }
 }

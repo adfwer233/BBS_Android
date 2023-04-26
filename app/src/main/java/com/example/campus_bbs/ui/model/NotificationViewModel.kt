@@ -15,4 +15,8 @@ class NotificationViewModel: ViewModel() {
         val newList = FakeDataGenerator().generateFakeBlogs(10)
         _uiState.update { currentState -> currentState.copy(blogListOfSubscribedUsers = newList) }
     }
+
+    fun getTotalUnreadNumber() : Number {
+        return uiState.value.chatList.sumOf { it.numberOfUnread.toInt() }
+    }
 }
