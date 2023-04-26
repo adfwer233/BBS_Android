@@ -84,4 +84,24 @@ class FakeDataGenerator {
     fun generateFakeBlogs(number: Int): List<Blog> {
         return (1..number).map { generateSingleFakeBlog() }
     }
+
+    fun generateFakeMessageInfoList(number: Int, selfUserMeta: UserMeta, targetUserMeta: UserMeta): List<MessageInfo> {
+        val res = (1..number).map {
+            val tmp = Random.nextBoolean()
+            if (tmp) {
+                MessageInfo(
+                    senderUserMeta = selfUserMeta,
+                    receiverUserMeta = targetUserMeta,
+                    messageContent = getRandomString(200)
+                )
+            } else {
+                MessageInfo(
+                    senderUserMeta = targetUserMeta,
+                    receiverUserMeta = selfUserMeta,
+                    messageContent = getRandomString(200)
+                )
+            }
+        }
+        return res
+    }
 }

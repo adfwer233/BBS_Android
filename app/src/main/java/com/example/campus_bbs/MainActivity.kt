@@ -64,7 +64,8 @@ fun App() {
 //            OnlineVideoPlayer(videoUrl = "https://cloud.tsinghua.edu.cn/f/d059ce302d864d7ab9ee/?dl=1",)
 //            SimpleCameraScreen(cameraViewModel = cameraViewModel)
 //            ImagePicker()
-            AppHome(mainAppNavController, mainViewModel)
+//            AppHome(mainAppNavController, mainViewModel)
+            CommunicationScreen()
         }
         composable("BlogScreen") {
             BlogScreen(mainAppNavController, blogViewModel = mainViewModel.BlogViewModel)
