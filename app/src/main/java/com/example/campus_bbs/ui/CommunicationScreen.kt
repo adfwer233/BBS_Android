@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
@@ -63,8 +65,11 @@ fun CommunicationList(
 ) {
     val uiState = communicationViewModel.uiState.collectAsState()
 
+    val lazyListState = rememberLazyListState(uiState.value.messageList.size)
+
     LazyColumn(
-        modifier = modifier.fillMaxHeight()
+        modifier = modifier.fillMaxHeight(),
+        state = lazyListState
     ) {
         items(uiState.value.messageList) {
 
