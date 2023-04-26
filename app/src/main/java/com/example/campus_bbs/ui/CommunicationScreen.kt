@@ -1,15 +1,19 @@
 package com.example.campus_bbs.ui
 
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.campus_bbs.ui.components.MessageReceivedComponent
 import com.example.campus_bbs.ui.components.MessageSentComponent
@@ -33,6 +37,17 @@ fun CommunicationScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            BottomAppBar {
+                Spacer(modifier = Modifier.width(20.dp))
+
+                TextField(value = uiState.value.messageInput, onValueChange = { communicationViewModel.updateMessageInput(it) })
+                
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(imageVector = Icons.Default.Send, contentDescription = "send Message")
+                }
+            }
         }
     ){
        CommunicationList(communicationViewModel = communicationViewModel, modifier = Modifier.padding(it))

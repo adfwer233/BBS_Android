@@ -7,5 +7,7 @@ import com.example.campus_bbs.data.UserMeta
 data class CommunicationState (
     val selfUserMeta: UserMeta = FakeDataGenerator().generateSingleUserMeta(),
     val targetUserMeta: UserMeta = FakeDataGenerator().generateSingleUserMeta(),
-    val messageList: List<MessageInfo> = FakeDataGenerator().generateFakeMessageInfoList(20, selfUserMeta, targetUserMeta)
+    val messageList: List<MessageInfo> = FakeDataGenerator().generateFakeMessageInfoList(20, selfUserMeta, targetUserMeta),
+
+    val messageInput: String = ""
 )
