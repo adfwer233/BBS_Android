@@ -104,4 +104,10 @@ class FakeDataGenerator {
         }
         return res
     }
+
+    fun generateFakeMessageInfoList(number: Int): List<MessageInfo> {
+        val selfUserMeta = generateSingleUserMeta()
+        val targetUserMeta = generateSingleUserMeta()
+        return generateFakeMessageInfoList(number, selfUserMeta, targetUserMeta)
+    }
 }

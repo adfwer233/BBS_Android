@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,7 +43,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             Campus_BBSTheme {
                 // A surface container using the 'background' color from the theme
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
                     App()
                 }
             }
@@ -74,7 +80,10 @@ fun App() {
             UserHomeScreen(mainAppNavController = mainAppNavController)
         }
         composable("CreateBlog") {
-            CreateBlogScreen(mainAppNavController = mainAppNavController, mainViewModel = mainViewModel)
+            CreateBlogScreen(
+                mainAppNavController = mainAppNavController,
+                mainViewModel = mainViewModel
+            )
         }
         composable("fansScreen") {
             FansScreen(mainAppNavController = mainAppNavController)
@@ -96,7 +105,7 @@ fun AppHome(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "Campus BBS")},
+                title = { Text(text = "Campus BBS") },
                 actions = {
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(imageVector = Icons.Default.Search, contentDescription = "search")
@@ -104,7 +113,10 @@ fun AppHome(
                 },
                 navigationIcon = {
                     IconButton(onClick = { /*TODO*/ }) {
-                        Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "User Icon")
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = "User Icon"
+                        )
                     }
                 }
             )
@@ -113,11 +125,38 @@ fun AppHome(
             NavigationBar {
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        icon = { Icon(Icons.Filled.Favorite, contentDescription = item) },
+                        icon = {
+                            if (index == 1) {
+                                BadgedBox(
+                                    badge = {
+                                        Badge {
+                                            val badgeNumber = "8"
+                                            Text(
+                                                badgeNumber,
+                                                modifier = Modifier.semantics {
+                                                    contentDescription =
+                                                        "$badgeNumber new notifications"
+                                                }
+                                            )
+                                        }
+                                    }) {
+                                    Icon(
+                                        Icons.Filled.Favorite,
+                                        contentDescription = "Favorite"
+                                    )
+                                }
+                            } else {
+                                Icon(Icons.Filled.Favorite, contentDescription = item)
+                            }
+                        },
                         label = { Text(item) },
                         selected = selectedItem == index,
                         onClick = {
-                            navController.navigate(items[index]){ popUpTo(items[selectedItem]){inclusive = true} }
+                            navController.navigate(items[index]) {
+                                popUpTo(items[selectedItem]) {
+                                    inclusive = true
+                                }
+                            }
                             selectedItem = index
                         }
                     )
@@ -126,11 +165,16 @@ fun AppHome(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { mainAppNavController.navigate("CreateBlog") }) {
-                Text(text = "+", color=Color.White, fontSize = 26.sp)
+                Text(text = "+", color = Color.White, fontSize = 26.sp)
             }
         }
-    ) {
-        contentPadding -> MainAppView(mainAppNavController, navController, mainViewModel, modifier = Modifier.padding(contentPadding))
+    ) { contentPadding ->
+        MainAppView(
+            mainAppNavController,
+            navController,
+            mainViewModel,
+            modifier = Modifier.padding(contentPadding)
+        )
     }
 }
 
@@ -148,7 +192,11 @@ fun MainAppView(
 //                update = { navController.navigate("blogs") },
 //                modifier
 //            )
-            RecommendationScreen(mainAppNavController, modifier = modifier, mainViewModel = mainViewModel)
+            RecommendationScreen(
+                mainAppNavController,
+                modifier = modifier,
+                mainViewModel = mainViewModel
+            )
         }
         composable("Notification") {
             notificationScreen(mainAppNavController, mainViewModel, modifier = modifier)
