@@ -44,6 +44,10 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onPause() {
+        super.onPause()
+    }
 }
 
 @Composable

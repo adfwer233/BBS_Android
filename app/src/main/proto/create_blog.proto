@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "com.example.campus_bbs.data";
+option java_multiple_files = true;
+option java_outer_classname = "CreateBlogProtos";
+
+message CreateBlog {
+  // filter for showing / hiding completed tasks
+  string titleText = 1;
+  string contentText = 2;
+  repeated string imageUrl = 3;
+  string videoUrl = 4;
+}

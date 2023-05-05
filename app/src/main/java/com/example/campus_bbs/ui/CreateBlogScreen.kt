@@ -1,5 +1,6 @@
 package com.example.campus_bbs.ui
 
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -35,7 +36,7 @@ fun CreateBlogScreen(
     mainAppNavController: NavHostController = rememberNavController(),
 ) {
     val recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity)
-    val createBlogViewModel: CreateBlogViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val createBlogViewModel: CreateBlogViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -47,10 +48,6 @@ fun CreateBlogScreen(
                 },
                 actions = {
                     Row {
-                        IconButton(onClick = { createBlogViewModel.saveState() }) {
-                            Icon(imageVector = Icons.Filled.Build, contentDescription = "")
-                        }
-                        
                         IconButton(onClick = {
                             val blog = createBlogViewModel.generateBlogFromState()
                             recommendationViewModel.pushFront(blog)
@@ -74,13 +71,9 @@ fun editBlog(
     modifier: Modifier = Modifier,
     createBlogViewModel: CreateBlogViewModel = viewModel(LocalContext.current as ComponentActivity),
 ) {
-    var titleText by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(createBlogViewModel.uiState.value.savedTitleText))
-    }
 
-    var contentText by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(createBlogViewModel.uiState.value.savedContentText))
-    }
+    val uistate = createBlogViewModel.uiState.collectAsState()
+
     LazyColumn(
         modifier = modifier
             .fillMaxWidth()
@@ -90,10 +83,9 @@ fun editBlog(
         item {
             TextField(
                 label = { Text(text = "Title") },
-                value = titleText,
+                value = uistate.value.titleText,
                 onValueChange = {
-                    titleText = it
-                    createBlogViewModel.updateTitleText(it.text)
+                    createBlogViewModel.updateTitleText(it)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -102,10 +94,9 @@ fun editBlog(
         item {
             TextField(
                 label = { Text(text = "Content") },
-                value = contentText,
+                value = uistate.value.contentText,
                 onValueChange = {
-                    contentText = it
-                    createBlogViewModel.updateContentText(it.text)
+                    createBlogViewModel.updateContentText(it)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -131,9 +122,12 @@ fun MultiMediaPanel(
     val uiState by createBlogViewModel.uiState.collectAsState()
 
     val titles = listOf("Image", "Video")
-
+    val context = LocalContext.current
     val imagePickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.PickMultipleVisualMedia(9)) { uri: List<Uri> ->
-        createBlogViewModel.updateImageUrl(uri.map { it.toString() })
+        createBlogViewModel.updateImageUrl(uri.map {
+            context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            it.toString()
+        })
     }
 
     val videoPickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia()) {

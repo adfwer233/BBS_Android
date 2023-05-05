@@ -1,10 +1,10 @@
 package com.example.campus_bbs.ui.state
 
+import androidx.room.Entity
 import com.example.campus_bbs.data.FakeDataGenerator
 
+@Entity(tableName = "create_blog_ui_state")
 data class CreateBlogUiState(
-    val savedTitleText: String = "",
-    val savedContentText: String = "",
     val titleText: String = "",
     val contentText: String = "",
     val imageUrlList: List<String> = listOf(),

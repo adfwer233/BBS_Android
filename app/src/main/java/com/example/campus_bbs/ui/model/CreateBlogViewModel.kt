@@ -1,40 +1,54 @@
 package com.example.campus_bbs.ui.model
 
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.campus_bbs.data.Blog
 import com.example.campus_bbs.data.FakeDataGenerator
-import com.example.campus_bbs.data.User
-import com.example.campus_bbs.data.UserMeta
-import com.example.campus_bbs.ui.state.BlogUiState
+import com.example.campus_bbs.data.repository.CreateBlogRepository
 import com.example.campus_bbs.ui.state.CreateBlogUiState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.random.Random
 
-class CreateBlogViewModel: ViewModel() {
+class CreateBlogViewModel(
+    private val createBlogRepository: CreateBlogRepository
+): ViewModel() {
+
     private val _uiState = MutableStateFlow(CreateBlogUiState())
     val uiState = _uiState.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            _uiState.update { createBlogRepository.getCreateBlogUiState.first() }
+        }
+    }
     fun updateTitleText(newTitle: String) {
         _uiState.update { currentState -> currentState.copy(titleText = newTitle) }
+        viewModelScope.launch {
+            createBlogRepository.saveCreateBlogUiState(uiState.value)
+        }
     }
 
     fun updateContentText(newContent: String) {
         _uiState.update { currentState -> currentState.copy(contentText = newContent) }
+        viewModelScope.launch {
+            createBlogRepository.saveCreateBlogUiState(uiState.value)
+        }
     }
 
     fun updateImageUrl(newUrlList: List<String>) {
         _uiState.update { currentState -> currentState.copy(imageUrlList = newUrlList) }
+        viewModelScope.launch {
+            createBlogRepository.saveCreateBlogUiState(uiState.value)
+        }
     }
 
     fun updateVideoUri(newVideoUri: String) {
         _uiState.update { currentState -> currentState.copy(videoUrl = newVideoUri) }
+        viewModelScope.launch {
+            createBlogRepository.saveCreateBlogUiState(uiState.value)
+        }
     }
 
     fun generateBlogFromState(): Blog {
@@ -69,8 +83,4 @@ class CreateBlogViewModel: ViewModel() {
         updateImageUrl(newList)
     }
 
-    fun saveState() {
-        _uiState.update { currentState -> currentState.copy(savedContentText = currentState.contentText, savedTitleText = currentState.titleText) }
-//        Log.e(uiState.value.titleText, uiState.value.savedTitleText)
-    }
 }
