@@ -1,5 +1,6 @@
 package com.example.campus_bbs.ui
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
@@ -42,7 +43,6 @@ import kotlinx.coroutines.launch
 fun BlogScreen(
     mainAppNavController: NavHostController,
     modifier: Modifier = Modifier,
-    blogViewModel: BlogViewModel = viewModel()
 ) {
 
     val sheetState = rememberModalBottomSheetState(
@@ -85,7 +85,7 @@ fun BlogScreen(
         ) { contentPadding ->
             BlogScreenMain(
                 modifier = modifier.padding(contentPadding),
-                blogViewModel = blogViewModel,
+//                blogViewModel = blogViewModel,
                 showComment = {
                     commentToShow = it
                     scope.launch { sheetState.show() }
@@ -98,7 +98,7 @@ fun BlogScreen(
 @Composable
 fun BlogScreenMain(
     modifier: Modifier = Modifier,
-    blogViewModel: BlogViewModel = viewModel(),
+    blogViewModel: BlogViewModel = viewModel(LocalContext.current as ComponentActivity),
     showComment: (BlogComment) -> Unit = {}
 ) {
     LazyColumn(

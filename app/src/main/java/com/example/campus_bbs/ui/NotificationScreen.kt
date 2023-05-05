@@ -1,7 +1,7 @@
 package com.example.campus_bbs.ui
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,23 +21,23 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.campus_bbs.data.*
-import com.example.campus_bbs.ui.components.BlogsCard
-import com.example.campus_bbs.ui.model.MainViewModel
+import com.example.campus_bbs.ui.model.CommunicationViewModel
+import com.example.campus_bbs.ui.model.NotificationViewModel
 
 @Composable
 fun notificationScreen(
     mainAppNavController: NavHostController,
-    mainViewModel: MainViewModel,
     modifier: Modifier = Modifier
 ) {
-    val uiState = mainViewModel.notificationViewModel.uiState
+    val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val uiState = notificationViewModel.uiState
 
     LazyColumn(
         modifier = modifier,
@@ -49,7 +49,7 @@ fun notificationScreen(
         }
 
         items(uiState.value.chatList) {
-            MessageItemInScreen(mainAppNavController, mainViewModel, chat = it)
+            MessageItemInScreen(mainAppNavController, chat = it)
         }
     }
 }
@@ -58,14 +58,15 @@ fun notificationScreen(
 @Composable
 fun MessageItemInScreen(
     mainAppNavController: NavHostController,
-    mainViewModel: MainViewModel,
     chat: Chat,
     modifier: Modifier = Modifier
 ) {
+    val communicationViewModel: CommunicationViewModel = viewModel(LocalContext.current as ComponentActivity)
+
     Card(
         shape = RectangleShape,
         onClick = {
-            mainViewModel.communicationViewModel.openChat(chat)
+            communicationViewModel.openChat(chat)
             mainAppNavController.navigate("CommunicationScreen")
         }
     ) {

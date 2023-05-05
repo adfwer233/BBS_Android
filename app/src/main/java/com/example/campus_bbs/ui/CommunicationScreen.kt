@@ -1,5 +1,6 @@
 package com.example.campus_bbs.ui
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -26,9 +28,9 @@ import com.example.campus_bbs.ui.model.CommunicationViewModel
 @Composable
 fun CommunicationScreen(
     mainNavController: NavController,
-    communicationViewModel: CommunicationViewModel = CommunicationViewModel(),
     modifier: Modifier = Modifier,
-) {
+    communicationViewModel: CommunicationViewModel = viewModel(LocalContext.current as ComponentActivity),
+    ) {
     val uiState = communicationViewModel.uiState.collectAsState()
 
     Scaffold (
@@ -60,8 +62,8 @@ fun CommunicationScreen(
 
 @Composable
 fun CommunicationList(
-    communicationViewModel: CommunicationViewModel = CommunicationViewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    communicationViewModel: CommunicationViewModel = viewModel(LocalContext.current as ComponentActivity),
 ) {
     val uiState = communicationViewModel.uiState.collectAsState()
 

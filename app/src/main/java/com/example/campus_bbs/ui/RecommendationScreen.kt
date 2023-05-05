@@ -1,16 +1,12 @@
 package com.example.campus_bbs.ui
 
 import android.Manifest
-import android.location.Geocoder
-import android.location.LocationManager
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.pullrefresh.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,22 +19,17 @@ import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.location.LocationCompat
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.campus_bbs.ui.components.BlogsCard
-import com.example.campus_bbs.ui.model.MainViewModel
+import com.example.campus_bbs.ui.model.BlogViewModel
+import com.example.campus_bbs.ui.model.RecommendationViewModel
 import com.example.campus_bbs.utils.LocationUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.accompanist.permissions.shouldShowRationale
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.RichText
-import kotlinx.coroutines.coroutineScope
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class,
@@ -47,7 +38,6 @@ import kotlinx.coroutines.coroutineScope
 fun RecommendationScreen(
     mainAppNavController: NavHostController,
     modifier: Modifier = Modifier,
-    mainViewModel: MainViewModel = MainViewModel()
 ) {
 //    val blogList = remember{ mutableStateOf<List<Blog>>(FakeDataGenerator().generateFakeBlogs(10)) }
 
@@ -92,7 +82,7 @@ fun RecommendationScreen(
 
             page ->
             when(page) {
-                0 -> DefaultRecommendation(mainAppNavController, Modifier, mainViewModel)
+                0 -> DefaultRecommendation(mainAppNavController, Modifier)
                 1 -> HotRecommendation()
                 2 -> SubscribedRecommendation()
             }
@@ -192,12 +182,14 @@ fun SubscribedRecommendation(
 fun DefaultRecommendation(
     mainAppNavController: NavHostController,
     modifier: Modifier = Modifier,
-    mainViewModel: MainViewModel = MainViewModel()
 ) {
-    val recommendationUiState by mainViewModel.recommendationViewModel.uiState.collectAsState()
+    var recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity)
+    var blogViewModel: BlogViewModel = viewModel(LocalContext.current as ComponentActivity)
+
+    val recommendationUiState by recommendationViewModel.uiState.collectAsState()
 
     if (recommendationUiState.blogList.isEmpty()) {
-        mainViewModel.recommendationViewModel.updateBlogList()
+        recommendationViewModel.updateBlogList()
     }
 
     var refreshing by remember { mutableStateOf(false) }
@@ -207,7 +199,7 @@ fun DefaultRecommendation(
     fun refresh () = refreshScope.launch {
         refreshing = true
         delay(1500)
-        mainViewModel.recommendationViewModel.updateBlogList()
+        recommendationViewModel.updateBlogList()
         refreshing = false
     }
     val state = rememberPullRefreshState(refreshing, ::refresh)
@@ -217,9 +209,9 @@ fun DefaultRecommendation(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            items(mainViewModel.recommendationViewModel.uiState.value.blogList) {
+            items(recommendationViewModel.uiState.value.blogList) {
                 BlogsCard({
-                    mainViewModel.BlogViewModel.updateBlog(it)
+                    blogViewModel.updateBlog(it)
                     mainAppNavController.navigate("BlogScreen")
                 },
                     it

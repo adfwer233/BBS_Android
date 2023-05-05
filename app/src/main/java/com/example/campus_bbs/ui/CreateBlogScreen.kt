@@ -1,8 +1,7 @@
 package com.example.campus_bbs.ui
 
 import android.net.Uri
-import android.provider.MediaStore.Images
-import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,27 +17,25 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.ui.components.AddImageGrid
-import com.example.campus_bbs.ui.components.ImageSingleOrGrid
 import com.example.campus_bbs.ui.components.OnlineVideoPlayer
+import com.example.campus_bbs.ui.model.CommunicationViewModel
 import com.example.campus_bbs.ui.model.CreateBlogViewModel
-import com.example.campus_bbs.ui.model.MainViewModel
+import com.example.campus_bbs.ui.model.RecommendationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateBlogScreen(
     modifier: Modifier = Modifier,
     mainAppNavController: NavHostController = rememberNavController(),
-    mainViewModel: MainViewModel
 ) {
+    val recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val createBlogViewModel: CreateBlogViewModel = viewModel(LocalContext.current as ComponentActivity)
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -50,13 +47,13 @@ fun CreateBlogScreen(
                 },
                 actions = {
                     Row {
-                        IconButton(onClick = { mainViewModel.createBlogViewModel.saveState() }) {
+                        IconButton(onClick = { createBlogViewModel.saveState() }) {
                             Icon(imageVector = Icons.Filled.Build, contentDescription = "")
                         }
                         
                         IconButton(onClick = {
-                            val blog = mainViewModel.createBlogViewModel.generateBlogFromState()
-                            mainViewModel.recommendationViewModel.pushFront(blog)
+                            val blog = createBlogViewModel.generateBlogFromState()
+                            recommendationViewModel.pushFront(blog)
                             mainAppNavController.navigateUp()
                         }) {
                             Row {
@@ -68,14 +65,14 @@ fun CreateBlogScreen(
             )
         }
     ) { contentPadding ->
-        editBlog(modifier = modifier.padding(contentPadding), createBlogViewModel=mainViewModel.createBlogViewModel)
+        editBlog(modifier = modifier.padding(contentPadding))
     }
 }
 
 @Composable
 fun editBlog(
     modifier: Modifier = Modifier,
-    createBlogViewModel: CreateBlogViewModel = viewModel()
+    createBlogViewModel: CreateBlogViewModel = viewModel(LocalContext.current as ComponentActivity),
 ) {
     var titleText by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(createBlogViewModel.uiState.value.savedTitleText))
@@ -117,15 +114,15 @@ fun editBlog(
         }
 
         item {
-            MultiMediaPanel(createBlogViewModel)
+            MultiMediaPanel()
         }
     }
 }
 
 @Composable
 fun MultiMediaPanel(
-    createBlogViewModel: CreateBlogViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    createBlogViewModel: CreateBlogViewModel = viewModel(LocalContext.current as ComponentActivity),
 ) {
     var tabState by remember {
         mutableStateOf(0)
