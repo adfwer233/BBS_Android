@@ -79,9 +79,7 @@ fun CreateBlogScreen(
 
 
     val localContext = LocalContext.current
-
     var location = LocationUtils().getLocation(localContext)
-
     var addressList = LocationUtils().getGeoFromLocation(localContext, location)
 
     val locationPermissionState = rememberPermissionState(
@@ -157,6 +155,8 @@ fun CreateBlogScreen(
                     Button(
                         onClick = {
                             if (locationPermissionState.status.isGranted) {
+                                location = LocationUtils().getLocation(localContext)
+                                addressList = LocationUtils().getGeoFromLocation(localContext, location)
                                 if (addressList.isNotEmpty()) {
                                     createBlogViewModel.updateLocation(addressList[0].featureName)
                                 }
@@ -170,11 +170,16 @@ fun CreateBlogScreen(
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+
                             Icon(
                                 imageVector = Icons.Default.LocationOn,
                                 contentDescription = "location"
                             )
-                            Text(text = "Location")
+                            if (locationPermissionState.status.isGranted) {
+                                Text(text = "Location")
+                            } else {
+                                Text(text = "Permission")
+                            }
                         }
                     }
                 } else {
