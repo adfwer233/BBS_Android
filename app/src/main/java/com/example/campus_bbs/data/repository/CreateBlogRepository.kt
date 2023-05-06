@@ -1,18 +1,12 @@
 package com.example.campus_bbs.data.repository
 
-import android.util.Log
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.protobuf.InvalidProtocolBufferException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import java.io.IOException
 import com.example.campus_bbs.data.CreateBlog
 import com.example.campus_bbs.ui.state.CreateBlogUiState
 import java.io.InputStream
@@ -39,10 +33,6 @@ object CreateBlogSerializer : Serializer<CreateBlog> {
 class CreateBlogRepository(
     private val dataStore: DataStore<CreateBlog>
 ) {
-    private companion object {
-        val TITLE_TEXT = stringPreferencesKey("TITLE_TEXT")
-        const val TAG = "CreateBlogPreferencesRepo"
-    }
 
     val getCreateBlogUiState: Flow<CreateBlogUiState> = dataStore.data
         .map {
@@ -54,14 +44,6 @@ class CreateBlogRepository(
             )
         }
 
-    suspend fun saveTitleText(titleText: String) {
-        dataStore.updateData {
-            it.toBuilder()
-                .setTitleText(titleText)
-                .build()
-        }
-    }
-
     suspend fun saveCreateBlogUiState(createBlogUiState: CreateBlogUiState) {
         dataStore.updateData {
             it.toBuilder()
@@ -70,6 +52,17 @@ class CreateBlogRepository(
                 .setVideoUrl(createBlogUiState.videoUrl)
                 .clearImageUrl()
                 .addAllImageUrl(createBlogUiState.imageUrlList)
+                .build()
+        }
+    }
+
+    suspend fun cleanCreateBlogUiState() {
+        dataStore.updateData {
+            it.toBuilder()
+                .clearTitleText()
+                .clearContentText()
+                .clearImageUrl()
+                .clearVideoUrl()
                 .build()
         }
     }

@@ -51,6 +51,7 @@ fun CreateBlogScreen(
                         IconButton(onClick = {
                             val blog = createBlogViewModel.generateBlogFromState()
                             recommendationViewModel.pushFront(blog)
+                            createBlogViewModel.clearUiState()
                             mainAppNavController.navigateUp()
                         }) {
                             Row {

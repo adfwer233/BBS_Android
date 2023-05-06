@@ -24,7 +24,7 @@ object AppViewModelProvider {
             CommunicationViewModel()
         }
         initializer {
-            CreateBlogViewModel(bssApplication().createBlogPreferencesBlogRepository)
+            CreateBlogViewModel(bssApplication().createBlogRepository)
         }
         initializer {
             NotificationViewModel()

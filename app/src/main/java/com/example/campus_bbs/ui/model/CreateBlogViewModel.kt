@@ -51,6 +51,12 @@ class CreateBlogViewModel(
         }
     }
 
+    fun clearUiState() {
+        viewModelScope.launch {
+            createBlogRepository.cleanCreateBlogUiState()
+        }
+    }
+
     fun generateBlogFromState(): Blog {
         val newBlog = Blog(
             creator = FakeDataGenerator().generateSingleUserMeta(),
