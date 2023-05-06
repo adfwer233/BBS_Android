@@ -10,4 +10,5 @@ message CreateBlog {
   string contentText = 2;
   repeated string imageUrl = 3;
   string videoUrl = 4;
+  string location = 5;
 }

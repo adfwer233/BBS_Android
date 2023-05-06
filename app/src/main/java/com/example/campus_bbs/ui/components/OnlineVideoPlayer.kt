@@ -3,7 +3,12 @@ package com.example.campus_bbs.ui.components
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,13 +24,14 @@ import com.google.android.exoplayer2.ui.PlayerView
 @Composable
 fun OnlineVideoPlayer(
     videoUrl: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showDelete: Boolean = false,
+    deleteOnClick: ()->Unit = {}
 ) {
 
-    
+
     Column(
         modifier = Modifier
-            .background(color = Color.Red)
             .fillMaxWidth()
     ) {
 
@@ -41,22 +47,37 @@ fun OnlineVideoPlayer(
         exoPlayer.prepare()
 //        exoPlayer.play()
 
-        AndroidView(
-            factory = { context ->
+        Box() {
 
-                PlayerView(context).apply {
-                    useController = true
-                    this.player = exoPlayer
+            AndroidView(
+                factory = { context ->
+
+                    PlayerView(context).apply {
+                        useController = true
+                        this.player = exoPlayer
+                    }
+                },
+                modifier = Modifier
+                    .height(200.dp)
+                    .fillMaxWidth(),
+                update = {
+                    it.player?.setMediaItem(MediaItem.fromUri(videoUrl))
                 }
-            },
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .height(200.dp)
-                .fillMaxWidth(),
-            update = {
-                it.player?.setMediaItem(MediaItem.fromUri(videoUrl))
+            )
+
+            if (showDelete) {
+                IconButton(
+                    onClick = deleteOnClick,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .background(Color.LightGray, shape = CircleShape)
+                        .width(35.dp)
+                        .height(35.dp)
+                ) {
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "test")
+                }
             }
-        )
+        }
     }
 
 }

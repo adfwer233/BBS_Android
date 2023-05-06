@@ -27,5 +27,7 @@ data class Blog (
     val likedNumber: Int,
 
     val tag: List<String>,
-    val division: String
+    val division: String,
+
+    val location: String = ""
 )

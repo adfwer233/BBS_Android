@@ -1,5 +1,6 @@
 package com.example.campus_bbs.ui
 
+import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.ComponentActivity
@@ -8,35 +9,85 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.campus_bbs.ui.components.AddImageGrid
 import com.example.campus_bbs.ui.components.OnlineVideoPlayer
 import com.example.campus_bbs.ui.model.CommunicationViewModel
 import com.example.campus_bbs.ui.model.CreateBlogViewModel
 import com.example.campus_bbs.ui.model.RecommendationViewModel
+import com.example.campus_bbs.utils.LocationUtils
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.exoplayer2.extractor.TrueHdSampleRechunker
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun CreateBlogScreen(
     modifier: Modifier = Modifier,
     mainAppNavController: NavHostController = rememberNavController(),
 ) {
-    val recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity)
-    val createBlogViewModel: CreateBlogViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val recommendationViewModel: RecommendationViewModel =
+        viewModel(LocalContext.current as ComponentActivity)
+    val createBlogViewModel: CreateBlogViewModel =
+        viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
+    val uiState = createBlogViewModel.uiState.collectAsState()
+
+    val context = LocalContext.current
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(9)
+    ) { uri: List<Uri> ->
+        createBlogViewModel.addImageUrl(uri.map {
+            context.contentResolver.takePersistableUriPermission(
+                it,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            it.toString()
+        })
+    }
+
+    val videoPickerLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia()) {
+            it?.let {
+                context.contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+                createBlogViewModel.updateVideoUri(it.toString())
+            }
+        }
+
+
+    val localContext = LocalContext.current
+
+    var location = LocationUtils().getLocation(localContext)
+
+    var addressList = LocationUtils().getGeoFromLocation(localContext, location)
+
+    val locationPermissionState = rememberPermissionState(
+        permission = Manifest.permission.ACCESS_FINE_LOCATION
+    )
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -61,12 +112,98 @@ fun CreateBlogScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                // add image button
+                Button(onClick = {
+                    imagePickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                }, shape = RoundedCornerShape(3.dp), modifier = Modifier.weight(1f)) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "add image")
+                        Text(text = "Image")
+                    }
+                }
+
+                // add video button
+                Button(
+                    onClick = {
+                        videoPickerLauncher.launch(
+                            PickVisualMediaRequest(
+                                ActivityResultContracts.PickVisualMedia.VideoOnly
+                            )
+                        )
+                    },
+                    shape = RoundedCornerShape(3.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "video")
+                        Text(text = "Video")
+                    }
+                }
+
+                // add location button
+                if (uiState.value.location.isEmpty()) {
+                    Button(
+                        onClick = {
+                            if (locationPermissionState.status.isGranted) {
+                                if (addressList.isNotEmpty()) {
+                                    createBlogViewModel.updateLocation(addressList[0].featureName)
+                                }
+                            } else {
+                                locationPermissionState.launchPermissionRequest()
+                            }
+                        },
+                        shape = RoundedCornerShape(3.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = "location"
+                            )
+                            Text(text = "Location")
+                        }
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            createBlogViewModel.updateLocation("")
+                        },
+                        shape = RoundedCornerShape(3.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "location"
+                            )
+                            Text(text = "Location")
+                        }
+                    }
+                }
+            }
         }
     ) { contentPadding ->
         editBlog(modifier = modifier.padding(contentPadding))
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun editBlog(
     modifier: Modifier = Modifier,
@@ -80,7 +217,7 @@ fun editBlog(
             .fillMaxWidth()
             .fillMaxHeight(),
 
-    ) {
+        ) {
         item {
             TextField(
                 label = { Text(text = "Title") },
@@ -101,8 +238,19 @@ fun editBlog(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
             )
+        }
+
+        item {
+            if(uistate.value.location.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(3.dp))
+                Card {
+                    Row (modifier = Modifier.padding(5.dp)) {
+                        Icon(imageVector = Icons.Default.LocationOn, contentDescription = "loc icon")
+                        Text(uistate.value.location)
+                    }
+                }
+            }
         }
 
         item {
@@ -116,66 +264,19 @@ fun MultiMediaPanel(
     modifier: Modifier = Modifier,
     createBlogViewModel: CreateBlogViewModel = viewModel(LocalContext.current as ComponentActivity),
 ) {
-    var tabState by remember {
-        mutableStateOf(0)
-    }
-
     val uiState by createBlogViewModel.uiState.collectAsState()
 
-    val titles = listOf("Image", "Video")
-    val context = LocalContext.current
-    val imagePickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.PickMultipleVisualMedia(9)) { uri: List<Uri> ->
-        createBlogViewModel.updateImageUrl(uri.map {
-            context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            it.toString()
-        })
-    }
+    Column(
+        modifier = Modifier.fillMaxHeight()
+    ) {
 
-    val videoPickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia()) {
-        createBlogViewModel.updateVideoUri(it.toString())
-    }
-
-    Column() {
-        TabRow(selectedTabIndex = tabState) {
-            titles.forEachIndexed { index, title ->
-                Tab(selected = tabState == index, onClick = {tabState = index}) {
-                    Text(text = title)
-                }
-            }
+        AddImageGrid(imageUrlList = uiState.imageUrlList) {
+            createBlogViewModel.removeImageUrl(it)
         }
 
-        if (titles[tabState] == "Image") {
-            Column() {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = "Images", Modifier.padding(10.dp))
-                    IconButton(onClick = { imagePickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {
-                        Icon(imageVector = Icons.Outlined.Add, contentDescription = "add image")
-                    }
-                }
-
-                AddImageGrid(imageUrlList = uiState.imageUrlList) {
-                    createBlogViewModel.removeImageUrl(it)
-                }
+        if (uiState.videoUrl.isNotEmpty())
+            OnlineVideoPlayer(videoUrl = uiState.videoUrl, modifier, showDelete = true) {
+                createBlogViewModel.removeVideoUri()
             }
-        }
-        
-        if (titles[tabState] == "Video") {
-            Column() {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = "Video", Modifier.padding(10.dp))
-                    IconButton(onClick = { videoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)) }) {
-                        Icon(imageVector = Icons.Outlined.Add, contentDescription = "add video")
-                    }
-                }
-
-                OnlineVideoPlayer(videoUrl = uiState.videoUrl, modifier)
-            }
-        }
     }
 }

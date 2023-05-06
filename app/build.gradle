@@ -62,7 +62,10 @@ dependencies {
     implementation "io.coil-kt:coil-compose:2.1.0"
     implementation 'androidx.leanback:leanback:1.0.0'
     implementation "com.google.android.exoplayer:exoplayer:2.16.1"
+
     implementation "com.halilibo.compose-richtext:richtext-commonmark:0.16.0"
+    implementation "com.halilibo.compose-richtext:richtext-ui-material3:0.16.0"
+
     implementation "com.google.accompanist:accompanist-permissions:0.25.1"
 
     def camerax_version = "1.1.0-beta01"

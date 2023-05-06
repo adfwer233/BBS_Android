@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,7 +26,12 @@ import coil.request.ImageRequest
 import com.example.campus_bbs.data.Blog
 import com.example.campus_bbs.data.FakeDataGenerator
 import com.halilibo.richtext.markdown.Markdown
+import com.halilibo.richtext.ui.Heading
 import com.halilibo.richtext.ui.RichText
+import com.halilibo.richtext.ui.RichTextStyle
+import com.halilibo.richtext.ui.material3.Material3RichText
+import com.halilibo.richtext.ui.textOrderedMarkers
+import java.lang.Integer.min
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,22 +50,33 @@ fun BlogsCard(
         UserPanelInBlog(userMeta = blog.creator, timeString = blog.createTime.toString())
 
         Column(modifier = Modifier.padding(5.dp)) {
-            Text(text = blog.blogTitle, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(3.dp))
-            Text(
-                text = blog.blogContent,
-                softWrap = true,
-                maxLines = 6,
-                overflow = TextOverflow.Ellipsis
-            )
+            Material3RichText(
+                style = RichTextStyle(),
+                modifier = Modifier
+            ) {
+                Heading(4, blog.blogTitle)
+                Markdown(content = blog.blogContent.substring(0, min(300, blog.blogContent.length)))
+            }
+            if (blog.blogContent.length > 300) {
+                Text(text = "...", textAlign = TextAlign.End)
+            }
         }
         
         ImageSingleOrGrid(imageUrlList = blog.imageUrlList)
 
+        if(blog.location.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(3.dp))
+            Card {
+                Row (modifier = Modifier.padding(5.dp)) {
+                    Icon(imageVector = Icons.Default.LocationOn, contentDescription = "loc icon")
+                    Text(blog.location)
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(3.dp))
 
         Row(
-            modifier = modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             IconButton(onClick = { /*TODO*/ }, modifier= Modifier.weight(1F)) {

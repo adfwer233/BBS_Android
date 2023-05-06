@@ -35,7 +35,11 @@ import com.example.campus_bbs.data.BlogComment
 import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.ui.components.*
 import com.example.campus_bbs.ui.model.BlogViewModel
+import com.halilibo.richtext.markdown.Markdown
+import com.halilibo.richtext.ui.Heading
+import com.halilibo.richtext.ui.material3.Material3RichText
 import kotlinx.coroutines.launch
+import java.util.*
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -133,11 +137,10 @@ fun BlogMainCard(
         UserPanelInBlog(userMeta = blog.creator, timeString = blog.createTime.toString())
 
         Column(modifier = Modifier.padding(5.dp)) {
-            Text(text = blog.blogTitle, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(3.dp))
-            Text(
-                text = blog.blogContent,
-            )
+            Material3RichText() {
+                Heading(5, blog.blogTitle)
+                Markdown(content = blog.blogContent)
+            }
         }
 
         ImageSingleOrGrid(imageUrlList = blog.imageUrlList)

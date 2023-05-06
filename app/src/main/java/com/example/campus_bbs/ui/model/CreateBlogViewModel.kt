@@ -37,6 +37,14 @@ class CreateBlogViewModel(
         }
     }
 
+    fun addImageUrl(urlToAdd: List<String>) {
+        var urlList = uiState.value.imageUrlList.toMutableList()
+        urlList.addAll(urlToAdd)
+        _uiState.update { currentState -> currentState.copy(imageUrlList = urlList) }
+        viewModelScope.launch {
+            createBlogRepository.saveCreateBlogUiState(uiState.value)
+        }
+    }
     fun updateImageUrl(newUrlList: List<String>) {
         _uiState.update { currentState -> currentState.copy(imageUrlList = newUrlList) }
         viewModelScope.launch {
@@ -46,6 +54,17 @@ class CreateBlogViewModel(
 
     fun updateVideoUri(newVideoUri: String) {
         _uiState.update { currentState -> currentState.copy(videoUrl = newVideoUri) }
+        viewModelScope.launch {
+            createBlogRepository.saveCreateBlogUiState(uiState.value)
+        }
+    }
+
+    fun removeVideoUri() {
+        updateVideoUri("")
+    }
+
+    fun updateLocation(location: String) {
+        _uiState.update { currentState -> currentState.copy(location = location) }
         viewModelScope.launch {
             createBlogRepository.saveCreateBlogUiState(uiState.value)
         }
@@ -70,7 +89,8 @@ class CreateBlogViewModel(
             subscribedNumber = 0,
             likedNumber = 0,
             tag = listOf(),
-            division = ""
+            division = "",
+            location = uiState.value.location
         )
 
         _uiState.update { CreateBlogUiState() }

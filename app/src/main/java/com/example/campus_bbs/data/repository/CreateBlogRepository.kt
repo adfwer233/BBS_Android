@@ -40,7 +40,8 @@ class CreateBlogRepository(
                 titleText = it.titleText,
                 contentText = it.contentText,
                 imageUrlList = it.imageUrlList,
-                videoUrl = it.videoUrl
+                videoUrl = it.videoUrl,
+                location = it.location
             )
         }
 
@@ -52,6 +53,7 @@ class CreateBlogRepository(
                 .setVideoUrl(createBlogUiState.videoUrl)
                 .clearImageUrl()
                 .addAllImageUrl(createBlogUiState.imageUrlList)
+                .setLocation(createBlogUiState.location)
                 .build()
         }
     }
