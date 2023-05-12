@@ -5,6 +5,8 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
@@ -22,6 +24,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.campus_bbs.ui.DefaultRecommendation
+import com.example.campus_bbs.ui.HotRecommendation
+import com.example.campus_bbs.ui.SubscribedRecommendation
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,14 +64,13 @@ fun BlogsCard(
 @Composable
 fun BlogsList(mainAppNavController: NavHostController, blogList: List<Int>, modifier: Modifier = Modifier){
     LazyColumn(
-        modifier = modifier,
+        modifier = Modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
         item { BlogsCard(moreButtonOnClick = { /*TODO*/ }) }
         item { BlogsCard(moreButtonOnClick = { /*TODO*/ }) }
         item { BlogsCard(moreButtonOnClick = { /*TODO*/ }) }
         item { BlogsCard(moreButtonOnClick = { /*TODO*/ }) }
-
     }
 }
 @Composable
@@ -85,7 +90,7 @@ fun historyScreen(mainAppNavController: NavHostController, navController: NavHos
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun Info (
     mainNavController: NavHostController,
@@ -93,7 +98,7 @@ fun Info (
 ) {
 //    var scrollState by remember { mutableStateOf( ScrollState(0) ) }
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxHeight(),
 //            .verticalScroll(state = scrollState),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
@@ -167,26 +172,50 @@ fun Info (
         }
 
 
-        var selectedItem by remember { mutableStateOf(0)}
         val items = listOf("Liked", "Bookmark", "History")
-        val navController = rememberNavController()
-        Scaffold(
-            topBar = {
-                NavigationBar {
-                items.forEachIndexed{index, s ->
-                    NavigationBarItem(
-                        selected = selectedItem == index,
-                        onClick = {
-                            navController.navigate(items[index]){ popUpTo(items[selectedItem]){inclusive = true} }
-                            selectedItem = index
-                                  },
-                        label = { Text(s) },
-                        icon = { Icon(Icons.Filled.Face, contentDescription = "aaa")}
-                    )
+
+        var pagerState = rememberPagerState(0)
+
+        val coroutineScope = rememberCoroutineScope()
+        Column(
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Box {
+                    TabRow(
+                        selectedTabIndex = pagerState.currentPage,
+                    ) {
+                        items.forEachIndexed { index, title ->
+                            Tab(
+                                selected = pagerState.currentPage == index,
+                                onClick = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(index, 0F)
+                                    }
+                                },
+                                modifier = Modifier
+                            ) {
+                                Text(text = title, modifier = Modifier.padding(10.dp))
+                            }
+                        }
+                    }
                 }
             }
-        }) {
-            contentPadding -> historyScreen(mainAppNavController = mainNavController, navController = navController, modifier = Modifier.padding(contentPadding))
+
+            HorizontalPager(
+                pageCount = items.size,
+                state = pagerState,
+                modifier = Modifier.fillMaxHeight()
+            ) { page ->
+                when(page) {
+                    0 -> BlogsList(mainNavController, blogList = listOf(1))
+                    1 -> BlogsList(mainNavController, blogList = listOf(1))
+                    2 -> BlogsList(mainNavController, blogList = listOf(1))
+                }
+            }
         }
     }
 }
