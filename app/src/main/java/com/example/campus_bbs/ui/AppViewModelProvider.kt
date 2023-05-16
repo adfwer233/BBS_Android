@@ -32,6 +32,10 @@ object AppViewModelProvider {
         initializer {
             RecommendationViewModel()
         }
+
+        initializer {
+            LoginViewModel(bssApplication().dataStore)
+        }
     }
 
 }

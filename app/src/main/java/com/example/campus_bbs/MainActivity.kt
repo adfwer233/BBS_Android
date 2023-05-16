@@ -26,8 +26,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.campus_bbs.ui.*
 import com.example.campus_bbs.ui.components.*
 import com.example.campus_bbs.ui.model.CameraViewModel
+import com.example.campus_bbs.ui.model.LoginViewModel
 import com.example.campus_bbs.ui.model.NotificationViewModel
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
+import kotlinx.coroutines.flow.first
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,12 +57,21 @@ fun App() {
     val mainAppNavController = rememberNavController()
 
     val cameraViewModel = CameraViewModel()
+
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
+    val tokenState = loginViewModel.tokenFlow.collectAsState(loginViewModel.jwtToken)
+
     NavHost(navController = mainAppNavController, startDestination = "AppHome") {
         composable("AppHome") {
 //            OnlineVideoPlayer(videoUrl = "https://cloud.tsinghua.edu.cn/f/d059ce302d864d7ab9ee/?dl=1",)
 //            SimpleCameraScreen(cameraViewModel = cameraViewModel)
 //            ImagePicker()
-            AppHome(mainAppNavController)
+//            AppHome(mainAppNavController)
+            if (tokenState.value == "")
+                LoginScreen()
+            else
+                AppHome(mainAppNavController)
 //            CommunicationScreen()
         }
         composable("BlogScreen") {
