@@ -1,5 +1,7 @@
 package com.example.campus_bbs.ui.components
 
+import androidx.activity.ComponentActivity
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -17,11 +19,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.campus_bbs.data.Blog
 import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.data.UserMeta
+import com.example.campus_bbs.ui.AppViewModelProvider
+import com.example.campus_bbs.ui.model.NavControlViewModel
 
 @Composable
 @Preview
@@ -29,6 +34,7 @@ fun UserPanelInBlog(
     userMeta: UserMeta = FakeDataGenerator().generateSingleUserMeta(),
     timeString: String = "time"
 ) {
+    val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     Row(
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         modifier = Modifier.padding(top = 5.dp, start = 5.dp)
@@ -44,6 +50,9 @@ fun UserPanelInBlog(
                 .clip(CircleShape)
                 .height(65.dp)
                 .width(65.dp)
+                .clickable {
+                    navControlViewModel.mainNavController.navigate("UserHome")
+                }
         )
         Column(
             verticalArrangement = Arrangement.Center,
@@ -58,6 +67,7 @@ fun UserPanelInBlog(
 @Composable
 @Preview
 fun UserPanelInComment(userMeta: UserMeta = FakeDataGenerator().generateSingleUserMeta()) {
+    val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     Row(
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         modifier = Modifier.padding(top = 5.dp, start = 5.dp)
@@ -73,6 +83,9 @@ fun UserPanelInComment(userMeta: UserMeta = FakeDataGenerator().generateSingleUs
                 .clip(CircleShape)
                 .height(65.dp)
                 .width(65.dp)
+                .clickable {
+                    navControlViewModel.mainNavController.navigate("UserHome")
+                }
         )
         Column(
             verticalArrangement = Arrangement.Center,

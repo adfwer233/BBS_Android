@@ -73,7 +73,7 @@ fun BlogsCard(
 }
 
 @Composable
-fun BlogsList(mainAppNavController: NavHostController, blogList: List<Int>, modifier: Modifier = Modifier){
+fun BlogsList(blogList: List<Int>, modifier: Modifier = Modifier){
     LazyColumn(
         modifier = Modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.spacedBy(5.dp)
@@ -82,22 +82,6 @@ fun BlogsList(mainAppNavController: NavHostController, blogList: List<Int>, modi
         item { BlogsCard(moreButtonOnClick = { /*TODO*/ }) }
         item { BlogsCard(moreButtonOnClick = { /*TODO*/ }) }
         item { BlogsCard(moreButtonOnClick = { /*TODO*/ }) }
-    }
-}
-@Composable
-fun historyScreen(mainAppNavController: NavHostController, navController: NavHostController, modifier: Modifier = Modifier){
-
-    NavHost(navController = navController, startDestination = "Liked"){
-        composable("Liked") {
-            BlogsList(mainAppNavController = mainAppNavController, blogList = listOf(1), modifier = modifier)
-        }
-        composable("Bookmark") {
-            BlogsList(mainAppNavController = mainAppNavController, blogList = listOf(1), modifier = modifier)
-        }
-        composable("History") {
-            BlogsList(mainAppNavController = mainAppNavController, blogList = listOf(1), modifier = modifier)
-        }
-
     }
 }
 
@@ -159,7 +143,7 @@ fun Info (
                     Text(text = "Edit Profile")
                 }
                 Spacer(modifier = Modifier.width(3.dp))
-                IconButton(onClick = { /*TODO*/ }) {
+                OutlinedIconButton(onClick = { /*TODO*/ }) {
                     Icon(imageVector = Icons.Default.Settings, contentDescription = "setting", modifier = Modifier.weight(1f))
                 }
             }
@@ -240,9 +224,9 @@ fun Info (
                 modifier = Modifier.fillMaxHeight()
             ) { page ->
                 when(page) {
-                    0 -> BlogsList(mainNavController, blogList = listOf(1))
-                    1 -> BlogsList(mainNavController, blogList = listOf(1))
-                    2 -> BlogsList(mainNavController, blogList = listOf(1))
+                    1 -> BlogsList(blogList = listOf(1))
+                    2 -> BlogsList(blogList = listOf(1))
+                    0 -> BlogsList(blogList = listOf(1))
                 }
             }
         }

@@ -23,12 +23,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.campus_bbs.data.User
 import com.example.campus_bbs.ui.*
 import com.example.campus_bbs.ui.components.*
-import com.example.campus_bbs.ui.model.CameraViewModel
-import com.example.campus_bbs.ui.model.LoginViewModel
-import com.example.campus_bbs.ui.model.NotificationViewModel
-import com.example.campus_bbs.ui.model.UserViewModel
+import com.example.campus_bbs.ui.model.*
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
 import kotlinx.coroutines.flow.first
 
@@ -57,7 +56,8 @@ class MainActivity : ComponentActivity() {
 fun App() {
     val mainAppNavController = rememberNavController()
 
-    val userViewModel = UserViewModel()
+    val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    navControlViewModel.mainNavController = mainAppNavController
 
     val cameraViewModel = CameraViewModel()
 
@@ -71,6 +71,7 @@ fun App() {
 //            SimpleCameraScreen(cameraViewModel = cameraViewModel)
 //            ImagePicker()
 //            AppHome(mainAppNavController)
+//            UserHomeScreen()
             if (tokenState.value == "")
                 LoginScreen()
             else
