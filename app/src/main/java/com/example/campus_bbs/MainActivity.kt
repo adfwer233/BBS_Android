@@ -28,6 +28,7 @@ import com.example.campus_bbs.ui.components.*
 import com.example.campus_bbs.ui.model.CameraViewModel
 import com.example.campus_bbs.ui.model.LoginViewModel
 import com.example.campus_bbs.ui.model.NotificationViewModel
+import com.example.campus_bbs.ui.model.UserViewModel
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
 import kotlinx.coroutines.flow.first
 
@@ -55,6 +56,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val mainAppNavController = rememberNavController()
+
+    val userViewModel = UserViewModel()
 
     val cameraViewModel = CameraViewModel()
 
@@ -90,6 +93,9 @@ fun App() {
         }
         composable("CommunicationScreen") {
             CommunicationScreen(mainNavController = mainAppNavController)
+        }
+        composable("EditProfile") {
+            EditProfileScreen()
         }
     }
 }

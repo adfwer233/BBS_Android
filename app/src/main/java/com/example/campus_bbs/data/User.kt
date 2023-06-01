@@ -11,7 +11,7 @@ data class UserMeta(
 data class User (
     val userId: Int,
     val userName: String,
-    val userIconUrl: String,
+    var userIconUrl: String,
     val followList: List<UserMeta>,
     val favorBlogList: List<Blog>
 )

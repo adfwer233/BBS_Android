@@ -1,5 +1,8 @@
 package com.example.campus_bbs
 
+import androidx.activity.ComponentActivity
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
@@ -10,23 +13,31 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.example.campus_bbs.ui.AppViewModelProvider
 import com.example.campus_bbs.ui.DefaultRecommendation
 import com.example.campus_bbs.ui.HotRecommendation
 import com.example.campus_bbs.ui.SubscribedRecommendation
+import com.example.campus_bbs.ui.model.UserViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,43 +107,61 @@ fun Info (
     mainNavController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-//    var scrollState by remember { mutableStateOf( ScrollState(0) ) }
+    val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
+    val userState = userViewModel.currentUserState.collectAsState()
+
     Column(
         modifier = modifier.fillMaxHeight(),
 //            .verticalScroll(state = scrollState),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier.padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.avatar),
-                contentDescription = "your avatar",
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-            )
-            Column(
-                modifier = Modifier.align(Alignment.CenterVertically),
-                verticalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
-                Text(
-                    modifier = Modifier,
-                    text = "Joker",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(userState.value.userIconUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "test image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .height(80.dp)
+                        .width(80.dp)
                 )
-                Text(
-                    modifier = Modifier,
-                    text = "id: 1145141919810",
-                    fontWeight = FontWeight.Light,
-                    fontSize = 10.sp,
-                    color = Color.Gray
-                )
+                Column(
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Text(
+                        modifier = Modifier,
+                        text = userState.value.userName,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                    Text(
+                        modifier = Modifier,
+                        text = "id: 1145141919810",
+                        fontWeight = FontWeight.Light,
+                        fontSize = 10.sp,
+                        color = Color.Gray
+                    )
+                }
             }
-            Button(onClick = { /*TODO: Edit Profile*/ }) {
-                Text(text = "Edit Profile")
+            Row() {
+
+                OutlinedButton(onClick = { mainNavController.navigate("EditProfile") }, modifier=Modifier.weight(6f)) {
+                    Text(text = "Edit Profile")
+                }
+                Spacer(modifier = Modifier.width(3.dp))
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(imageVector = Icons.Default.Settings, contentDescription = "setting", modifier = Modifier.weight(1f))
+                }
             }
         }
 

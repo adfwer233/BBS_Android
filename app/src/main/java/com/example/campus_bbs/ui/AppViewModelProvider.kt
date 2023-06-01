@@ -36,6 +36,9 @@ object AppViewModelProvider {
         initializer {
             LoginViewModel(bssApplication().dataStore)
         }
+        initializer {
+            UserViewModel()
+        }
     }
 
 }
