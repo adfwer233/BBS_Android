@@ -43,11 +43,6 @@ fun notificationScreen(
         modifier = modifier,
 //        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-        item {
-            subscribeList()
-            Spacer(modifier = Modifier.height(2.dp))
-        }
-
         items(uiState.value.chatList) {
             MessageItemInScreen(mainAppNavController, chat = it)
         }

@@ -1,5 +1,7 @@
 package com.example.campus_bbs.ui
 
+import android.content.Intent
+import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
@@ -26,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -49,6 +52,9 @@ fun BlogScreen(
     modifier: Modifier = Modifier,
 ) {
 
+    val blogViewModel: BlogViewModel = viewModel(LocalContext.current as ComponentActivity)
+
+    val localContent = LocalContext.current
     val sheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden
     )
@@ -80,10 +86,40 @@ fun BlogScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = {
+                            val sendIntent: Intent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TITLE, "Campus BBS")
+                                putExtra(Intent.EXTRA_TEXT, "43.138.60.13:8085")
+                                type = "text/html"
+                            }
+
+                            val shareIntent = Intent.createChooser(sendIntent, null)
+                            startActivity(localContent, shareIntent, null)
+                        }) {
                             Icon(imageVector = Icons.Default.Share, contentDescription = "share")
                         }
                     }
+                )
+            },
+            bottomBar = {
+                BottomAppBar(
+                    content = {
+                        OutlinedTextField(
+                            value = "",
+                            onValueChange = { },
+                            label = { Text(text = "@ Test") },
+                        )
+                        IconButton(
+                            onClick = { /*TODO*/ },
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Send,
+                                contentDescription = "send message"
+                            )
+                        }
+                    },
                 )
             }
         ) { contentPadding ->
@@ -174,7 +210,7 @@ fun BlogCommentCard(
             Column(
                 modifier = modifier
             ) {
-                repeat(3) {index ->
+                repeat(3) { index ->
                     if (index < comment.followingComment.size) {
                         FollowingComment(comment = comment.followingComment[index])
                     }
@@ -195,7 +231,7 @@ fun BlogCommentCard(
 
 @Composable
 fun FollowingComment(comment: BlogComment, modifier: Modifier = Modifier) {
-    Row( modifier = modifier ) {
+    Row(modifier = modifier) {
         Text(text = comment.creator.userName, color = Color.Blue)
         Spacer(modifier = modifier.width(3.dp))
         Text(text = comment.commentContent)
