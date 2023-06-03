@@ -12,8 +12,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -203,7 +207,7 @@ fun CreateBlogScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun editBlog(
     modifier: Modifier = Modifier,
@@ -213,87 +217,93 @@ fun editBlog(
     val uistate = createBlogViewModel.uiState.collectAsState()
 
     var openTagSheet by rememberSaveable { mutableStateOf(false) }
-    val sheetState = rememberSheetState(
-        skipHalfExpanded = false
+    val sheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+//        skipHalfExpanded = true
     )
     val scope = rememberCoroutineScope()
 
-    Column(
-        modifier = modifier.fillMaxHeight(),
-        verticalArrangement = Arrangement.SpaceBetween
+    ModalBottomSheetLayout(
+        sheetContent = {
+            addTagSheet()
+        },
+        sheetState = sheetState,
+        modifier = modifier
     ) {
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            item {
-                TextField(
-                    label = { Text(text = "Title") },
-                    value = uistate.value.titleText,
-                    onValueChange = {
-                        createBlogViewModel.updateTitleText(it)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-            }
-            item {
-                TextField(
-                    label = { Text(text = "Content") },
-                    value = uistate.value.contentText,
-                    onValueChange = {
-                        createBlogViewModel.updateContentText(it)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-            }
 
-            item {
-                if (uistate.value.location.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(3.dp))
-                    Card {
-                        Row(modifier = Modifier.padding(5.dp)) {
-                            Icon(
-                                imageVector = Icons.Default.LocationOn,
-                                contentDescription = "loc icon"
-                            )
-                            Text(uistate.value.location)
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                item {
+                    TextField(
+                        label = { Text(text = "Title") },
+                        value = uistate.value.titleText,
+                        onValueChange = {
+                            createBlogViewModel.updateTitleText(it)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+                item {
+                    TextField(
+                        label = { Text(text = "Content") },
+                        value = uistate.value.contentText,
+                        onValueChange = {
+                            createBlogViewModel.updateContentText(it)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+
+                item {
+                    if (uistate.value.location.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Card {
+                            Row(modifier = Modifier.padding(5.dp)) {
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = "loc icon"
+                                )
+                                Text(uistate.value.location)
+                            }
                         }
                     }
                 }
-            }
 
-            item {
-                MultiMediaPanel()
-            }
-        }
-        // Tags
-        Box(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row {
-                Card {
-                    Text(text = ("# test"), Modifier.padding(5.dp))
+                item {
+                    MultiMediaPanel()
                 }
             }
-            OutlinedIconButton(
-                onClick = { openTagSheet = true }, modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .width(30.dp)
-                    .height(30.dp)
+            // Tags
+            Box(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "add tag",
-                )
+                Row {
+                    Card {
+                        Text(text = ("# test"), Modifier.padding(5.dp))
+                    }
+                }
+                OutlinedIconButton(
+                    onClick = { scope.launch { sheetState.show() } }, modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .width(30.dp)
+                        .height(30.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "add tag",
+                    )
+                }
             }
         }
-    }
-
-    if (openTagSheet) {
-        addTagSheet({openTagSheet=false}, sheetState)
     }
 }
 
@@ -321,19 +331,10 @@ fun MultiMediaPanel(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun addTagSheet(
-    onDismissRequest: () -> Unit,
-    sheetState: SheetState
-) {
-    val scope = rememberCoroutineScope()
-    val tagList = listOf<String>("tag1", "tag2", "tag3")
-    ModalBottomSheet(onDismissRequest = {
-        scope.launch { sheetState.hide() }.invokeOnCompletion {
-            if (!sheetState.isVisible) {
-                onDismissRequest()
-            }
-        }
-    }, sheetState = sheetState) {
+fun addTagSheet() {
+    Column() {
+        val tagList = listOf<String>("tag1", "tag2", "tag3")
+
         Text("Add New Tag:")
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             OutlinedTextField(value = "", onValueChange = { })
