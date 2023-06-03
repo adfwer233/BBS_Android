@@ -9,36 +9,30 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.campus_bbs.ui.components.AddImageGrid
 import com.example.campus_bbs.ui.components.OnlineVideoPlayer
-import com.example.campus_bbs.ui.model.CommunicationViewModel
 import com.example.campus_bbs.ui.model.CreateBlogViewModel
 import com.example.campus_bbs.ui.model.RecommendationViewModel
 import com.example.campus_bbs.utils.LocationUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.android.exoplayer2.extractor.TrueHdSampleRechunker
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -156,7 +150,8 @@ fun CreateBlogScreen(
                         onClick = {
                             if (locationPermissionState.status.isGranted) {
                                 location = LocationUtils().getLocation(localContext)
-                                addressList = LocationUtils().getGeoFromLocation(localContext, location)
+                                addressList =
+                                    LocationUtils().getGeoFromLocation(localContext, location)
                                 if (addressList.isNotEmpty()) {
                                     createBlogViewModel.updateLocation(addressList[0].featureName)
                                 }
@@ -217,50 +212,88 @@ fun editBlog(
 
     val uistate = createBlogViewModel.uiState.collectAsState()
 
-    LazyColumn(
-        modifier = modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
+    var openTagSheet by rememberSaveable { mutableStateOf(false) }
+    val sheetState = rememberSheetState(
+        skipHalfExpanded = false
+    )
+    val scope = rememberCoroutineScope()
 
+    Column(
+        modifier = modifier.fillMaxHeight(),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
-        item {
-            TextField(
-                label = { Text(text = "Title") },
-                value = uistate.value.titleText,
-                onValueChange = {
-                    createBlogViewModel.updateTitleText(it)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-        }
-        item {
-            TextField(
-                label = { Text(text = "Content") },
-                value = uistate.value.contentText,
-                onValueChange = {
-                    createBlogViewModel.updateContentText(it)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-        }
+            item {
+                TextField(
+                    label = { Text(text = "Title") },
+                    value = uistate.value.titleText,
+                    onValueChange = {
+                        createBlogViewModel.updateTitleText(it)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
+            item {
+                TextField(
+                    label = { Text(text = "Content") },
+                    value = uistate.value.contentText,
+                    onValueChange = {
+                        createBlogViewModel.updateContentText(it)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
 
-        item {
-            if(uistate.value.location.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(3.dp))
-                Card {
-                    Row (modifier = Modifier.padding(5.dp)) {
-                        Icon(imageVector = Icons.Default.LocationOn, contentDescription = "loc icon")
-                        Text(uistate.value.location)
+            item {
+                if (uistate.value.location.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Card {
+                        Row(modifier = Modifier.padding(5.dp)) {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = "loc icon"
+                            )
+                            Text(uistate.value.location)
+                        }
                     }
                 }
             }
-        }
 
-        item {
-            MultiMediaPanel()
+            item {
+                MultiMediaPanel()
+            }
         }
+        // Tags
+        Box(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row {
+                Card {
+                    Text(text = ("# test"), Modifier.padding(5.dp))
+                }
+            }
+            OutlinedIconButton(
+                onClick = { openTagSheet = true }, modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .width(30.dp)
+                    .height(30.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "add tag",
+                )
+            }
+        }
+    }
+
+    if (openTagSheet) {
+        addTagSheet({openTagSheet=false}, sheetState)
     }
 }
 
@@ -283,5 +316,46 @@ fun MultiMediaPanel(
             OnlineVideoPlayer(videoUrl = uiState.videoUrl, modifier, showDelete = true) {
                 createBlogViewModel.removeVideoUri()
             }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun addTagSheet(
+    onDismissRequest: () -> Unit,
+    sheetState: SheetState
+) {
+    val scope = rememberCoroutineScope()
+    val tagList = listOf<String>("tag1", "tag2", "tag3")
+    ModalBottomSheet(onDismissRequest = {
+        scope.launch { sheetState.hide() }.invokeOnCompletion {
+            if (!sheetState.isVisible) {
+                onDismissRequest()
+            }
+        }
+    }, sheetState = sheetState) {
+        Text("Add New Tag:")
+        Row(horizontalArrangement = Arrangement.SpaceBetween) {
+            OutlinedTextField(value = "", onValueChange = { })
+
+            OutlinedIconButton(
+                onClick = { /*TODO*/ }, modifier = Modifier
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "add tag",
+                )
+            }
+        }
+
+        Spacer(Modifier.height(10.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            items(tagList) {
+                Card {
+                    Text(text = ("# $it"), Modifier.padding(5.dp))
+                }
+            }
+        }
+        Spacer(Modifier.height(10.dp))
     }
 }

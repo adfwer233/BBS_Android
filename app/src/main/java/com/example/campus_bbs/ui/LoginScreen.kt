@@ -119,6 +119,7 @@ fun LoginScreen() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUp(
 
@@ -223,6 +224,7 @@ fun SignUp(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignIn(
     modifier: Modifier = Modifier
