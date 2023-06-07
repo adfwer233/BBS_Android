@@ -30,6 +30,7 @@ class LoginViewModel(
     }
 
     fun setToken(token: String) {
+        jwtToken = token
         viewModelScope.launch {
             dataStore.edit { it[JWT_TOKEN_KEY] = token }
         }

@@ -3,6 +3,8 @@ package com.example.campus_bbs.ui
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -31,7 +33,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.campus_bbs.ui.components.AddImageGrid
 import com.example.campus_bbs.ui.components.OnlineVideoPlayer
 import com.example.campus_bbs.ui.model.CreateBlogViewModel
+import com.example.campus_bbs.ui.model.LoginViewModel
 import com.example.campus_bbs.ui.model.RecommendationViewModel
+import com.example.campus_bbs.ui.network.CreatePostDTO
+import com.example.campus_bbs.ui.network.PostApi
 import com.example.campus_bbs.utils.LocationUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -83,6 +88,8 @@ fun CreateBlogScreen(
     val locationPermissionState = rememberPermissionState(
         permission = Manifest.permission.ACCESS_FINE_LOCATION
     )
+    val scope = rememberCoroutineScope()
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
     Scaffold(
         topBar = {
@@ -97,9 +104,31 @@ fun CreateBlogScreen(
                     Row {
                         IconButton(onClick = {
                             val blog = createBlogViewModel.generateBlogFromState()
+                            println(blog.blogTitle)
+                            println(blog.blogContent)
+                            println(loginViewModel.jwtToken)
+                            println("end")
+                            scope.launch {
+                                try {
+                                    PostApi.retrofitService.createPost(
+                                        loginViewModel.jwtToken,
+                                        CreatePostDTO(
+                                            title = blog.blogTitle,
+                                            content = blog.blogContent
+                                        )
+                                    )
+                                } catch (e: Exception) {
+                                    Log.e("Create Post", e.toString())
+                                    Toast.makeText(
+                                        context, "网络错误",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
                             recommendationViewModel.pushFront(blog)
                             createBlogViewModel.clearUiState()
                             mainAppNavController.navigateUp()
+
                         }) {
                             Row {
                                 Icon(imageVector = Icons.Filled.Send, contentDescription = "test")
