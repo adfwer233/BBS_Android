@@ -7,10 +7,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,27 +34,43 @@ import coil.request.ImageRequest
 import com.example.campus_bbs.data.*
 import com.example.campus_bbs.ui.model.CommunicationViewModel
 import com.example.campus_bbs.ui.model.NotificationViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun notificationScreen(
     mainAppNavController: NavHostController,
     modifier: Modifier = Modifier
 ) {
     val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity)
-    val uiState = notificationViewModel.uiState
+    val uiState = notificationViewModel.uiState.collectAsState()
 
-    LazyColumn(
-        modifier = modifier,
+    var refreshing by remember { mutableStateOf(false) }
+    val refreshScope = rememberCoroutineScope()
+
+    fun refresh () = refreshScope.launch {
+        refreshing = true
+        delay(500)
+        notificationViewModel.updateUserChat()
+        refreshing = false
+    }
+    val state = rememberPullRefreshState(refreshing, ::refresh)
+
+    Box(modifier = modifier.fillMaxHeight().pullRefresh(state)) {
+        LazyColumn(
 //        verticalArrangement = Arrangement.spacedBy(5.dp)
-    ) {
-        item {
-            Button(onClick = { notificationViewModel.updateUserChat() }) {
-                Text(text = "refresh")
+        ) {
+            item {
+                Button(onClick = { notificationViewModel.updateUserChat() }) {
+                    Text(text = "refresh")
+                }
+            }
+            items(uiState.value.chatList) {
+                MessageItemInScreen(mainAppNavController, chat = it)
             }
         }
-        items(uiState.value.chatList) {
-            MessageItemInScreen(mainAppNavController, chat = it)
-        }
+        PullRefreshIndicator(refreshing = refreshing, state = state, modifier = Modifier.align(Alignment.TopCenter))
     }
 }
 
