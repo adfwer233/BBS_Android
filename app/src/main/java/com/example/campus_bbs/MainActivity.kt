@@ -63,7 +63,10 @@ fun App() {
 
     val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
+
     val tokenState = loginViewModel.tokenFlow.collectAsState(loginViewModel.jwtToken)
+
+    val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
     NavHost(navController = mainAppNavController, startDestination = "AppHome") {
         composable("AppHome") {

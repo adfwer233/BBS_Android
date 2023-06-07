@@ -20,7 +20,7 @@ class FakeDataGenerator {
     }
     fun generateSingleUser(): User {
         return User(
-            userId = Random.nextInt(),
+            userId = getRandomString(6),
             userName = getRandomString(6),
             userIconUrl = generateImageUrlList(1)[0],
             followList = listOf(),

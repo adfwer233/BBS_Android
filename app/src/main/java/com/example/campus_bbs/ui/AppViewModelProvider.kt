@@ -37,7 +37,7 @@ object AppViewModelProvider {
             LoginViewModel(bssApplication().dataStore)
         }
         initializer {
-            UserViewModel()
+            UserViewModel(bssApplication().dataStore)
         }
         initializer {
             NavControlViewModel()

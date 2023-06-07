@@ -9,7 +9,7 @@ data class UserMeta(
 
 // full data of user
 data class User (
-    val userId: Int,
+    val userId: String,
     val userName: String,
     var userIconUrl: String,
     val followList: List<UserMeta>,
