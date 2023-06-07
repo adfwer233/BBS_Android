@@ -118,7 +118,9 @@ fun AppHome(
     val items = listOf("homepage", "Notification", "info")
 
     val navController = rememberNavController()
-    val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    notificationViewModel.updateUserChat()
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(

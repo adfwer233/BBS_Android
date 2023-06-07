@@ -23,8 +23,9 @@ class UserViewModel(
     val currentUserState = MutableStateFlow(currentUser)
     var jwtToken: String = ""
 
-    private val _editProfileUiState = EditProfileUiState()
-    val editProfileUiState = MutableStateFlow(_editProfileUiState)
+
+    val _editProfileUiState = MutableStateFlow(EditProfileUiState())
+    val editProfileUiState = _editProfileUiState.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -33,11 +34,11 @@ class UserViewModel(
     }
 
     fun updateUserName(newUserName: String) {
-        editProfileUiState.update { it.copy(newName = newUserName) }
+        _editProfileUiState.update { it.copy(newName = newUserName) }
     }
 
     fun updateProfile(newProfile: String) {
-        editProfileUiState.update { it.copy(newProfile = newProfile) }
+        _editProfileUiState.update { it.copy(newProfile = newProfile) }
     }
 
     fun getCurrentUser() {
@@ -52,7 +53,7 @@ class UserViewModel(
                 .collect {user ->
                     Log.e("user", user.toString())
                     currentUserState.update { user }
-                    editProfileUiState.update { it.copy(newName = user.userName, newProfile = user.profile) }
+                    _editProfileUiState.update { it.copy(newName = user.userName, newProfile = user.profile) }
                 }
         }
     }

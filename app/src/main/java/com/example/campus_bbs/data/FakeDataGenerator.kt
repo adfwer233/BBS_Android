@@ -13,8 +13,8 @@ class FakeDataGenerator {
 
     fun generateSingleUserMeta(): UserMeta {
         return UserMeta(
-            userId = Random.nextInt(),
-            userName = getRandomString(6) ,
+            userId = getRandomString(6),
+            userName = getRandomString(6),
             userIconUrl = generateImageUrlList(1)[0],
         )
     }
@@ -36,7 +36,7 @@ class FakeDataGenerator {
     fun generateSingleComment(depth: Int): BlogComment {
         return BlogComment(
             creator = UserMeta(
-                userId = Random.nextInt(),
+                userId = getRandomString(6),
                 userName = getRandomString(6) ,
                 userIconUrl = generateImageUrlList(1)[0],
             ),
@@ -64,7 +64,7 @@ class FakeDataGenerator {
     fun generateSingleFakeBlog(): Blog {
         return Blog(
             creator = UserMeta(
-                userId = Random.nextInt(),
+                userId = getRandomString(6),
                 userName = getRandomString(6) ,
                 userIconUrl = generateImageUrlList(1)[0],
             ),

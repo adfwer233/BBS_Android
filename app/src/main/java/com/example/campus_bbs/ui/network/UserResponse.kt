@@ -1,5 +1,11 @@
 package com.example.campus_bbs.ui.network
 
+data class UserMetaVo (
+    val id: String,
+    val avatar: String,
+    val nickname: String
+)
+
 @kotlinx.serialization.Serializable
 data class UserResponse (
     val id: String,

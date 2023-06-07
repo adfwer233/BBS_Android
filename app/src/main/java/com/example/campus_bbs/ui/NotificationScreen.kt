@@ -43,6 +43,11 @@ fun notificationScreen(
         modifier = modifier,
 //        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
+        item {
+            Button(onClick = { notificationViewModel.updateUserChat() }) {
+                Text(text = "refresh")
+            }
+        }
         items(uiState.value.chatList) {
             MessageItemInScreen(mainAppNavController, chat = it)
         }
