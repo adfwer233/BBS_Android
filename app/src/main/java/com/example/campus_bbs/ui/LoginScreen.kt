@@ -280,7 +280,7 @@ fun SignIn(
                                 )
                             )
                             loginViewModel.setToken(response.token)
-
+                            Log.e("token", response.token)
                             Toast.makeText(
                                 context, "Login Success" + response.token,
                                 Toast.LENGTH_SHORT
