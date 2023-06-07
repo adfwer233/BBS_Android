@@ -89,6 +89,11 @@ fun UserHome(
     modifier: Modifier = Modifier
 ) {
 
+    val userViewModel: UserViewModel =
+        viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
+    val userState = userViewModel.currentUserState.collectAsState()
+
     val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
     Column(
@@ -126,7 +131,7 @@ fun UserHome(
                     )
                     Text(
                         modifier = Modifier,
-                        text = "id: 1145141919810",
+                        text = userState.value.profile,
                         fontWeight = FontWeight.Light,
                         fontSize = 10.sp,
                         color = Color.Gray

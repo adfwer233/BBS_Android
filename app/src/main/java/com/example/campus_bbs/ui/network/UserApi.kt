@@ -18,6 +18,12 @@ private val retrofit = Retrofit.Builder()
 interface UserApiService {
     @GET("/user")
     suspend fun getCurrentUser(@Header("Authorization") token: String): UserResponse
+
+    @POST("/users/update/description")
+    suspend fun updateDescription(@Header("Authorization") token: String, @Body body: UserUpdateDescriptionDto)
+
+    @POST("/users/update/username")
+    suspend fun updateUserName(@Header("Authorization") token: String, @Body body: UserUpdateUsernameDto)
 }
 
 object UserApi {

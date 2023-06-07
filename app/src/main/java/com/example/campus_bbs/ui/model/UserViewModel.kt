@@ -10,6 +10,7 @@ import com.example.campus_bbs.JWT_TOKEN_KEY
 import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.data.User
 import com.example.campus_bbs.ui.network.UserApi
+import com.example.campus_bbs.ui.state.EditProfileUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -17,33 +18,41 @@ import kotlinx.coroutines.launch
 class UserViewModel(
     private val dataStore: DataStore<Preferences>
 ): ViewModel() {
-    private lateinit var currentUser: User
+    private val currentUser: User = FakeDataGenerator().generateSingleUser()
 
-    lateinit var currentUserState: MutableStateFlow<User>
-
+    val currentUserState = MutableStateFlow(currentUser)
     var jwtToken: String = ""
+
+    private val _editProfileUiState = EditProfileUiState()
+    val editProfileUiState = MutableStateFlow(_editProfileUiState)
 
     init {
         viewModelScope.launch {
             jwtToken = dataStore.data.map { it[JWT_TOKEN_KEY] ?: "" }.first()
-            currentUserFlow.flowOn(Dispatchers.Default).collect() {
-                currentUser = it
-                currentUserState = MutableStateFlow(currentUser)
-            }
         }
+    }
+
+    fun updateUserName(newUserName: String) {
+        editProfileUiState.update { it.copy(newName = newUserName) }
+    }
+
+    fun updateProfile(newProfile: String) {
+        editProfileUiState.update { it.copy(newProfile = newProfile) }
     }
 
     fun getCurrentUser() {
         Log.e("get current user", "get user")
         viewModelScope.launch {
+            jwtToken = dataStore.data.map { it[JWT_TOKEN_KEY] ?: "" }.first()
             currentUserFlow
                 .flowOn(Dispatchers.Default)
                 .catch {
-
+                    Log.e("Error", it.stackTraceToString())
                 }
-                .collect {
-                    Log.e("user", it.toString())
-                    currentUserState.update { it }
+                .collect {user ->
+                    Log.e("user", user.toString())
+                    currentUserState.update { user }
+                    editProfileUiState.update { it.copy(newName = user.userName, newProfile = user.profile) }
                 }
         }
     }
@@ -56,6 +65,7 @@ class UserViewModel(
             userId = currentUserResponse.id,
             userName = currentUserResponse.username,
             userIconUrl = currentUserResponse.avatarUrl,
+            profile = currentUserResponse.description,
             followList = listOf(),
             favorBlogList = listOf(),
         )

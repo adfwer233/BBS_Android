@@ -68,6 +68,8 @@ fun App() {
 
     val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
+    val userState = userViewModel.currentUserState.collectAsState()
+
     NavHost(navController = mainAppNavController, startDestination = "AppHome") {
         composable("AppHome") {
 //            OnlineVideoPlayer(videoUrl = "https://cloud.tsinghua.edu.cn/f/d059ce302d864d7ab9ee/?dl=1",)
@@ -75,10 +77,13 @@ fun App() {
 //            ImagePicker()
 //            AppHome(mainAppNavController)
 //            UserHomeScreen()
-            if (tokenState.value == "")
+            if (tokenState.value == "") {
                 LoginScreen()
-            else
+            }
+            else {
+                userViewModel.getCurrentUser()
                 AppHome(mainAppNavController)
+            }
 //            CommunicationScreen()
         }
         composable("BlogScreen") {
@@ -196,6 +201,8 @@ fun MainAppView(
     modifier: Modifier
 ) {
 
+    val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
     NavHost(navController = navController, startDestination = "homepage") {
         composable("homepage") {
 //            HomePageTest(
@@ -211,6 +218,7 @@ fun MainAppView(
             notificationScreen(mainAppNavController, modifier = modifier)
         }
         composable("info") {
+            userViewModel.getCurrentUser()
             Info(
                 mainNavController = mainAppNavController,
                 modifier = modifier

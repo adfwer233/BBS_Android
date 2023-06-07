@@ -23,6 +23,7 @@ class FakeDataGenerator {
             userId = getRandomString(6),
             userName = getRandomString(6),
             userIconUrl = generateImageUrlList(1)[0],
+            profile = getRandomString(10),
             followList = listOf(),
             favorBlogList = listOf()
         )
