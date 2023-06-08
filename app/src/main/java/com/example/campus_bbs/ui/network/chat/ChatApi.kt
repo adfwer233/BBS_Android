@@ -1,5 +1,6 @@
 package com.example.campus_bbs.ui.network.chat
 
+import com.example.campus_bbs.Global
 import com.example.campus_bbs.data.Chat
 import com.example.campus_bbs.ui.network.IsLoginResponse
 import com.example.campus_bbs.ui.network.LoginDTO
@@ -13,8 +14,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 
-private const val BASE_URL =
-    "http://183.172.141.89:8080"
+private const val BASE_URL = Global.BASE_HTTP_URL
 
 
 //private val myJson: Json = Json { ignoreUnknownKeys = true }
