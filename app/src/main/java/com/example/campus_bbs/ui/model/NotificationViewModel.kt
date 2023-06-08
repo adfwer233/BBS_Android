@@ -1,5 +1,6 @@
 package com.example.campus_bbs.ui.model
 
+import android.content.Context
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.LocalContext
@@ -20,6 +21,7 @@ import com.example.campus_bbs.ui.network.chat.ChatVo
 import com.example.campus_bbs.ui.network.chat.ChatWebSocketRequest
 import com.example.campus_bbs.ui.network.chat.WebsocketManager
 import com.example.campus_bbs.ui.state.NotificationUiState
+import com.example.campus_bbs.utils.showBasicNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -31,12 +33,15 @@ class NotificationViewModel(
     val uiState = _uiState.asStateFlow()
 
     private var websocketManager : WebsocketManager? = null
+    lateinit var registeredContext: Context
     fun updateBlogList() {
         val newList = FakeDataGenerator().generateFakeBlogs(10)
         _uiState.update { currentState -> currentState.copy(blogListOfSubscribedUsers = newList) }
     }
 
     var jwtToken: String = ""
+    var updateTime = 0
+
     init {
         viewModelScope.launch {
             jwtToken = dataStore.data.map { it[JWT_TOKEN_KEY] ?: "" }.first()
@@ -64,7 +69,7 @@ class NotificationViewModel(
         }
     }
 
-    fun updateUserChat() {
+    fun updateUserChat(context: Context? = null) {
         viewModelScope.launch {
             jwtToken = dataStore.data.map { it[JWT_TOKEN_KEY] ?: "" }.first()
             userChatFlow
@@ -72,8 +77,42 @@ class NotificationViewModel(
                 .catch {
                     Log.e("Error", it.stackTraceToString())
                 }
-                .collect {listOfChat ->
+                .collect {
+
+                    var listOfChat = it
+
+                    if (updateTime > 0) {
+                        context?.run {
+                            registeredContext = context
+                            listOfChat.forEachIndexed { index, newChat ->
+                                var found = false
+                                _uiState.value.chatList.forEach { oldChat ->
+                                    if (newChat.targetUserMeta.userId == oldChat.targetUserMeta.userId) {
+                                        newChat.numberOfUnread =
+                                            newChat.messageInfoList.size - oldChat.messageInfoList.size
+                                        showBasicNotification(
+                                            context,
+                                            newChat.targetUserMeta.userName,
+                                            newChat.messageInfoList.last().messageContent,
+                                            index
+                                        )
+                                        found = true
+                                    }
+                                }
+
+                                if (!found) {
+                                    showBasicNotification(
+                                        context,
+                                        newChat.targetUserMeta.userName,
+                                        newChat.messageInfoList.last().messageContent,
+                                        index
+                                    )
+                                }
+                            }
+                        }
+                    }
                     _uiState.update { it.copy(chatList = listOfChat) }
+                    updateTime ++
                 }
         }
 
@@ -117,7 +156,7 @@ class NotificationViewModel(
         emit(res);
     }
 
-    fun connect() {
+    private fun connect() {
         viewModelScope.launch {
             websocketManager?.close()
             while (jwtToken == "");
@@ -132,7 +171,7 @@ class NotificationViewModel(
                 },
                 onReceive = {
                     Log.e("On RECEIVE", it.toString())
-                    updateUserChat()
+                    updateUserChat(registeredContext)
                 }
             )
         }
