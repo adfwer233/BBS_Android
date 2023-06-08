@@ -122,10 +122,9 @@ fun CreateBlogScreen(
                                     ).show()
                                 }
                             }
-                            recommendationViewModel.pushFront(blog)
                             createBlogViewModel.clearUiState()
                             mainAppNavController.navigateUp()
-
+                            recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
                         }) {
                             Row {
                                 Icon(imageVector = Icons.Filled.Send, contentDescription = "test")

@@ -8,7 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -76,12 +76,19 @@ fun BlogsCard(
 
         Spacer(modifier = Modifier.height(3.dp))
 
+        var tmp by remember {
+            mutableStateOf(false)
+        }
         Row(
             horizontalArrangement = Arrangement.spacedBy(3.dp)
         ) {
-            IconButton(onClick = { /*TODO*/ }, modifier= Modifier.weight(1F)) {
+            IconButton(onClick = { tmp = true }, modifier= Modifier.weight(1F)) {
                 Row {
-                    Icon(imageVector = Icons.Filled.Menu, "test")
+                    if (tmp) {
+                        Icon(imageVector = Icons.Default.Menu, contentDescription = "", tint = Color.Yellow)
+                    } else {
+                        Icon(imageVector = Icons.Filled.Menu, "test")
+                    }
                     Spacer(modifier = Modifier.width(2.dp))
                     Text(text = blog.subscribedNumber.toString())
                 }
