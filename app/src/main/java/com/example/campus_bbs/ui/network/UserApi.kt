@@ -1,12 +1,10 @@
 package com.example.campus_bbs.ui.network
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import okhttp3.MultipartBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.POST
+import retrofit2.http.*
 
 private const val BASE_URL = "http://183.172.141.89:8080"
 
@@ -24,6 +22,10 @@ interface UserApiService {
 
     @POST("/users/update/username")
     suspend fun updateUserName(@Header("Authorization") token: String, @Body body: UserUpdateUsernameDto)
+
+    @Multipart
+    @POST("/users/update/avatar")
+    suspend fun updateUserAvatar(@Header("Authorization") token: String, @Part images: MultipartBody.Part)
 }
 
 object UserApi {
