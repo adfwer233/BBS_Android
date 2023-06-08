@@ -42,7 +42,6 @@ class FakeDataGenerator {
             ),
             commentContent = getRandomString(50),
             createTime = Date(),
-            followingComment = if (depth == 1) listOf<BlogComment>() else generateCommentList(depth - 1, 15)
         )
     }
 
@@ -63,6 +62,7 @@ class FakeDataGenerator {
 
     fun generateSingleFakeBlog(): Blog {
         return Blog(
+            id = getRandomString(6),
             creator = UserMeta(
                 userId = getRandomString(6),
                 userName = getRandomString(6) ,
@@ -78,7 +78,6 @@ class FakeDataGenerator {
             subscribedNumber = Random.nextInt(0, 1000),
             likedNumber = Random.nextInt(0, 1000),
             tag = listOf<String>(),
-            division = getRandomString(4)
         )
     }
 

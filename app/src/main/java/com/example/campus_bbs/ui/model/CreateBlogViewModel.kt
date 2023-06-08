@@ -78,6 +78,7 @@ class CreateBlogViewModel(
 
     fun generateBlogFromState(): Blog {
         val newBlog = Blog(
+            id = "",
             creator = FakeDataGenerator().generateSingleUserMeta(),
             createTime = Date(),
             blogTitle = uiState.value.titleText,
@@ -89,7 +90,6 @@ class CreateBlogViewModel(
             subscribedNumber = 0,
             likedNumber = 0,
             tag = listOf(),
-            division = "",
             location = uiState.value.location
         )
 

@@ -1,6 +1,8 @@
 package com.example.campus_bbs.data
+import kotlinx.serialization.Serializable
 
 // meta data of user
+@Serializable
 data class UserMeta(
     val userId: String,
     val userName: String,

@@ -12,17 +12,20 @@ private const val BASE_URL =
     "http://183.172.141.89:8080"
 
 
-//private val myJson: Json = Json { ignoreUnknownKeys = true }
+private val myJson: Json = Json { ignoreUnknownKeys = true }
 
 @OptIn(ExperimentalSerializationApi::class)
 private val retrofit = Retrofit.Builder()
-    .addConverterFactory(GsonConverterFactory.create())
+    .addConverterFactory(myJson.asConverterFactory("application/json".toMediaType()))
     .baseUrl(BASE_URL)
     .build()
 
 interface PostApiService {
-    @POST("/posts/create")
+    @POST("/posts")
     suspend fun createPost(@Header("Authorization") token: String, @Body body: CreatePostDTO)
+
+    @GET("/posts")
+    suspend fun getAllPost(@Header("Authorization") token: String): GetAllPostResponse
 }
 
 object PostApi {

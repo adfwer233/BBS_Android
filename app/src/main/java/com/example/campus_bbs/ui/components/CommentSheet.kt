@@ -52,10 +52,6 @@ fun CommentSheet(
             item {
                 Spacer(modifier = Modifier.height(5.dp))
             }
-
-            items(comment.followingComment) {
-                FollowingComment(comment = it)
-            }
         }
     }
 }
