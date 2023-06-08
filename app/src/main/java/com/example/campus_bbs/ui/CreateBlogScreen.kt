@@ -110,7 +110,8 @@ fun CreateBlogScreen(
                                         loginViewModel.jwtToken,
                                         CreatePostDTO(
                                             title = blog.blogTitle,
-                                            content = blog.blogContent
+                                            content = blog.blogContent,
+                                            location = blog.location
                                         )
                                     )
                                 } catch (e: Exception) {
