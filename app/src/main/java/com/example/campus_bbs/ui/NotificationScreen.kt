@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
@@ -66,8 +67,9 @@ fun notificationScreen(
                     Text(text = "refresh")
                 }
             }
-            items(uiState.value.chatList) {
-                MessageItemInScreen(mainAppNavController, chat = it)
+
+            items(uiState.value.chatList.size) {
+                MessageItemInScreen(mainAppNavController, index = it)
             }
         }
         PullRefreshIndicator(refreshing = refreshing, state = state, modifier = Modifier.align(Alignment.TopCenter))
@@ -78,15 +80,19 @@ fun notificationScreen(
 @Composable
 fun MessageItemInScreen(
     mainAppNavController: NavHostController,
-    chat: Chat,
+    index: Int,
     modifier: Modifier = Modifier
 ) {
     val communicationViewModel: CommunicationViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val uiState = notificationViewModel.uiState.collectAsState()
+
+    val chat = uiState.value.chatList.get(index)
 
     Card(
         shape = RectangleShape,
         onClick = {
-            communicationViewModel.openChat(chat)
+            communicationViewModel.openChat(index)
             mainAppNavController.navigate("CommunicationScreen")
         }
     ) {

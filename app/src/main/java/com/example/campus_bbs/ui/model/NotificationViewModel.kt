@@ -1,18 +1,24 @@
 package com.example.campus_bbs.ui.model
 
 import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.campus_bbs.JWT_TOKEN_KEY
 import com.example.campus_bbs.data.Chat
 import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.data.MessageInfo
 import com.example.campus_bbs.data.UserMeta
+import com.example.campus_bbs.ui.AppViewModelProvider
 import com.example.campus_bbs.ui.network.UserMetaVo
 import com.example.campus_bbs.ui.network.chat.ChatApi
 import com.example.campus_bbs.ui.network.chat.ChatVo
+import com.example.campus_bbs.ui.network.chat.ChatWebSocketRequest
+import com.example.campus_bbs.ui.network.chat.WebsocketManager
 import com.example.campus_bbs.ui.state.NotificationUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -24,6 +30,7 @@ class NotificationViewModel(
     private val _uiState = MutableStateFlow(NotificationUiState())
     val uiState = _uiState.asStateFlow()
 
+    private var websocketManager : WebsocketManager? = null
     fun updateBlogList() {
         val newList = FakeDataGenerator().generateFakeBlogs(10)
         _uiState.update { currentState -> currentState.copy(blogListOfSubscribedUsers = newList) }
@@ -42,9 +49,19 @@ class NotificationViewModel(
                     _uiState.update { it.copy(chatList = listOfChat) }
                 }
         }
+        Log.e("asdfasdfasdfasdfasdf asdf qaertgvafqzavvvvvvvvvvvvvvXCJ", jwtToken)
+        connect()
+
     }
     fun getTotalUnreadNumber() : Number {
         return uiState.value.chatList.sumOf { it.numberOfUnread.toInt() }
+    }
+
+    fun sendChatRequest(chatWebSocketRequest: ChatWebSocketRequest) {
+        viewModelScope.launch {
+            val chatWebSocketRequestWithToken = chatWebSocketRequest.copy(token = jwtToken)
+            websocketManager?.send({ updateUserChat() }, chatWebSocketRequestWithToken)
+        }
     }
 
     fun updateUserChat() {
@@ -59,6 +76,7 @@ class NotificationViewModel(
                     _uiState.update { it.copy(chatList = listOfChat) }
                 }
         }
+
     }
 
     private val userChatFlow: Flow<List<Chat>> = flow {
@@ -97,5 +115,26 @@ class NotificationViewModel(
         }
         Log.i("get user chat", res.toString())
         emit(res);
+    }
+
+    fun connect() {
+        viewModelScope.launch {
+            websocketManager?.close()
+            while (jwtToken == "");
+            websocketManager = WebsocketManager(jwtToken.replace("Bearer ", ""))
+
+            websocketManager!!.connect(
+                jwtToken,
+                onConnect = {
+//                    viewModelScope.launch {
+//                        websocketManager!!.send({ }, ChatWebSocketRequest(operation = "register", senderId = "", "", ""))
+//                    }
+                },
+                onReceive = {
+                    Log.e("On RECEIVE", it.toString())
+                    updateUserChat()
+                }
+            )
+        }
     }
 }
