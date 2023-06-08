@@ -130,7 +130,7 @@ fun Info (
                     )
                     Text(
                         modifier = Modifier,
-                        text = "id: 1145141919810",
+                        text = userState.value.profile,
                         fontWeight = FontWeight.Light,
                         fontSize = 10.sp,
                         color = Color.Gray

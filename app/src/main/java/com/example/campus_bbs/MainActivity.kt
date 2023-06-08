@@ -63,7 +63,12 @@ fun App() {
 
     val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
+
     val tokenState = loginViewModel.tokenFlow.collectAsState(loginViewModel.jwtToken)
+
+    val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
+    val userState = userViewModel.currentUserState.collectAsState()
 
     NavHost(navController = mainAppNavController, startDestination = "AppHome") {
         composable("AppHome") {
@@ -72,10 +77,13 @@ fun App() {
 //            ImagePicker()
 //            AppHome(mainAppNavController)
 //            UserHomeScreen()
-            if (tokenState.value == "")
+            if (tokenState.value == "") {
                 LoginScreen()
-            else
+            }
+            else {
+                userViewModel.getCurrentUser()
                 AppHome(mainAppNavController)
+            }
 //            CommunicationScreen()
         }
         composable("BlogScreen") {
@@ -110,7 +118,9 @@ fun AppHome(
     val items = listOf("homepage", "Notification", "info")
 
     val navController = rememberNavController()
-    val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    notificationViewModel.updateUserChat()
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -193,6 +203,8 @@ fun MainAppView(
     modifier: Modifier
 ) {
 
+    val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
     NavHost(navController = navController, startDestination = "homepage") {
         composable("homepage") {
 //            HomePageTest(
@@ -208,6 +220,7 @@ fun MainAppView(
             notificationScreen(mainAppNavController, modifier = modifier)
         }
         composable("info") {
+            userViewModel.getCurrentUser()
             Info(
                 mainNavController = mainAppNavController,
                 modifier = modifier

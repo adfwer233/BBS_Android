@@ -23,6 +23,8 @@ import androidx.navigation.NavController
 import com.example.campus_bbs.ui.components.MessageReceivedComponent
 import com.example.campus_bbs.ui.components.MessageSentComponent
 import com.example.campus_bbs.ui.model.CommunicationViewModel
+import com.example.campus_bbs.ui.model.NotificationViewModel
+import com.example.campus_bbs.ui.network.chat.ChatWebSocketRequest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,12 +33,16 @@ fun CommunicationScreen(
     modifier: Modifier = Modifier,
     communicationViewModel: CommunicationViewModel = viewModel(LocalContext.current as ComponentActivity),
     ) {
+
+    val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity)
     val uiState = communicationViewModel.uiState.collectAsState()
+    val chatState = notificationViewModel.uiState.collectAsState()
+    val chat = chatState.value.chatList[uiState.value.chatIndex]
 
     Scaffold (
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = uiState.value.targetUserMeta.userName )},
+                title = { Text(text = chat.targetUserMeta.userName )},
                 navigationIcon = {
                     IconButton(onClick = {  }) {
                         Icon(Icons.Default.ArrowBack, "back")
@@ -50,7 +56,20 @@ fun CommunicationScreen(
 
                 TextField(value = uiState.value.messageInput, onValueChange = { communicationViewModel.updateMessageInput(it) })
                 
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = {
+                    if (uiState.value.messageInput.isNotEmpty()) {
+                        notificationViewModel.sendChatRequest(
+                            ChatWebSocketRequest(
+                                operation = "send",
+                                senderId = chat.selfUserMeta.userId,
+                                receiverId = chat.targetUserMeta.userId,
+                                message = uiState.value.messageInput,
+                                token = ""
+                            )
+                        )
+                        communicationViewModel.updateMessageInput("")
+                    }
+                }) {
                     Icon(imageVector = Icons.Default.Send, contentDescription = "send Message")
                 }
             }
@@ -65,17 +84,21 @@ fun CommunicationList(
     modifier: Modifier = Modifier,
     communicationViewModel: CommunicationViewModel = viewModel(LocalContext.current as ComponentActivity),
 ) {
+    val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity)
     val uiState = communicationViewModel.uiState.collectAsState()
+    val chatState = notificationViewModel.uiState.collectAsState()
+    val chat = chatState.value.chatList[uiState.value.chatIndex]
 
-    val lazyListState = rememberLazyListState(uiState.value.messageList.size)
+    val lazyListState = rememberLazyListState(0)
 
     LazyColumn(
         modifier = modifier.fillMaxHeight(),
-        state = lazyListState
+        state = lazyListState,
+        reverseLayout = true
     ) {
-        items(uiState.value.messageList) {
+        items(chat.messageInfoList.reversed()) {
 
-            if (it.senderUserMeta.userId == uiState.value.selfUserMeta.userId) {
+            if (it.senderUserMeta.userId == chat.selfUserMeta.userId) {
                 MessageSentComponent(userMeta = it.senderUserMeta, message = it.messageContent)
             } else {
                 MessageReceivedComponent(userMeta = it.senderUserMeta, message = it.messageContent)

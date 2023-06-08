@@ -16,13 +16,11 @@ class CommunicationViewModel : ViewModel() {
         _uiState.update { currentState -> currentState.copy(messageInput = newInput) }
     }
 
-    fun openChat(chat: Chat) {
+    fun openChat(index: Int) {
         _uiState.update { currentState ->
             currentState.copy(
-                selfUserMeta = chat.selfUserMeta,
-                targetUserMeta = chat.targetUserMeta,
-                messageInput = "",
-                messageList = chat.messageInfoList
+                chatIndex = index,
+                messageInput = ""
             )
         }
     }

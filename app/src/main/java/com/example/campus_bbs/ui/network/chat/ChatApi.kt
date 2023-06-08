@@ -1,5 +1,10 @@
-package com.example.campus_bbs.ui.network
+package com.example.campus_bbs.ui.network.chat
 
+import com.example.campus_bbs.data.Chat
+import com.example.campus_bbs.ui.network.IsLoginResponse
+import com.example.campus_bbs.ui.network.LoginDTO
+import com.example.campus_bbs.ui.network.LoginResponse
+import com.example.campus_bbs.ui.network.RegisterDTO
 import kotlinx.serialization.ExperimentalSerializationApi
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -20,13 +25,13 @@ private val retrofit = Retrofit.Builder()
     .baseUrl(BASE_URL)
     .build()
 
-interface PostApiService {
-    @POST("/posts/create")
-    suspend fun createPost(@Header("Authorization") token: String, @Body body: CreatePostDTO)
+interface ChatApiService {
+    @GET("/chat/userchat")
+    suspend fun getUserChat(@Header("Authorization") token: String): GetUserChatResponse
 }
 
-object PostApi {
-    val retrofitService: PostApiService by lazy {
-        retrofit.create(PostApiService::class.java)
+object ChatApi {
+    val retrofitService: ChatApiService by lazy {
+        retrofit.create(ChatApiService::class.java)
     }
 }

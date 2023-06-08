@@ -27,7 +27,7 @@ object AppViewModelProvider {
             CreateBlogViewModel(bssApplication().createBlogRepository)
         }
         initializer {
-            NotificationViewModel()
+            NotificationViewModel(bssApplication().dataStore)
         }
         initializer {
             RecommendationViewModel()
@@ -37,7 +37,7 @@ object AppViewModelProvider {
             LoginViewModel(bssApplication().dataStore)
         }
         initializer {
-            UserViewModel()
+            UserViewModel(bssApplication().dataStore)
         }
         initializer {
             NavControlViewModel()

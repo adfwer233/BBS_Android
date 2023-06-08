@@ -42,6 +42,9 @@ import com.example.campus_bbs.R
 import com.example.campus_bbs.ui.components.CommentSheet
 import com.example.campus_bbs.ui.components.FullScreenImageRoller
 import com.example.campus_bbs.ui.model.UserViewModel
+import com.example.campus_bbs.ui.network.UserApi
+import com.example.campus_bbs.ui.network.UserUpdateDescriptionDto
+import com.example.campus_bbs.ui.network.UserUpdateUsernameDto
 import kotlinx.coroutines.launch
 import java.util.function.IntConsumer
 
@@ -50,9 +53,12 @@ import java.util.function.IntConsumer
 @Preview
 fun EditProfileScreen() {
 
-    val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val userViewModel: UserViewModel =
+        viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
     val userState = userViewModel.currentUserState.collectAsState()
+
+    val uiState = userViewModel.editProfileUiState.collectAsState()
 
     var selection = remember {
         mutableStateOf("")
@@ -76,7 +82,7 @@ fun EditProfileScreen() {
     }
     ModalBottomSheetLayout(
         sheetContent = {
-            when(selection.value) {
+            when (selection.value) {
                 "name" -> EditName()
                 "profile" -> EditProfile()
             }
@@ -115,7 +121,11 @@ fun EditProfileScreen() {
                             .height(105.dp)
                             .width(105.dp)
                             .clickable {
-                                imagePickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                imagePickerLauncher.launch(
+                                    PickVisualMediaRequest(
+                                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                                    )
+                                )
                             }
                     )
                 }
@@ -127,7 +137,7 @@ fun EditProfileScreen() {
                 ListItem(
                     trailing = {
                         Row {
-                            Text(text = userState.value.userName)
+                            Text(text = uiState.value.newName)
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowRight,
                                 contentDescription = "trail"
@@ -147,7 +157,7 @@ fun EditProfileScreen() {
                 ListItem(
                     trailing = {
                         Row {
-                            Text(text = userState.value.userName)
+                            Text(text = uiState.value.newProfile)
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowRight,
                                 contentDescription = "trail"
@@ -173,20 +183,41 @@ fun EditProfileScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditName() {
-    val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
-    val userState = userViewModel.currentUserState.collectAsState()
+    val userViewModel: UserViewModel =
+        viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val uiState = userViewModel.editProfileUiState.collectAsState()
+
+    val scope = rememberCoroutineScope()
 
     Scaffold(
-        topBar = { CenterAlignedTopAppBar(title = { Text(text = "Edit Name")}) },
+        topBar = { CenterAlignedTopAppBar(title = { Text(text = "Edit Name") }) },
         modifier = Modifier.fillMaxSize()
     ) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(it)) {
-            Column (modifier = Modifier.padding(10.dp)) {
-                OutlinedTextField(value = userState.value.userName, onValueChange = { }, modifier = Modifier.fillMaxWidth())
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+        ) {
+            Column(modifier = Modifier.padding(10.dp)) {
+                OutlinedTextField(
+                    value = uiState.value.newName,
+                    onValueChange = {
+                        userViewModel.updateUserName(it)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                OutlinedButton(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = {
+                    scope.launch {
+                        UserApi.retrofitService.updateUserName(
+                            userViewModel.jwtToken,
+                            UserUpdateUsernameDto(
+                                username = uiState.value.newName
+                            )
+                        )
+                        userViewModel.getCurrentUser()
+                    }
+                }, modifier = Modifier.fillMaxWidth()) {
                     Text(text = "Save")
                 }
             }
@@ -198,17 +229,40 @@ fun EditName() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfile() {
+    val userViewModel: UserViewModel =
+        viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val uiState = userViewModel.editProfileUiState.collectAsState()
+    val scope = rememberCoroutineScope()
     Scaffold(
-        topBar = { CenterAlignedTopAppBar(title = { Text(text = "Edit Profile")}) },
+        topBar = { CenterAlignedTopAppBar(title = { Text(text = "Edit Profile") }) },
         modifier = Modifier.fillMaxSize()
     ) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(it)) {
-            Column (modifier = Modifier.padding(10.dp)) {
-                OutlinedTextField(value = "test name", onValueChange = { }, modifier = Modifier.fillMaxWidth())
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+        ) {
+            Column(modifier = Modifier.padding(10.dp)) {
+                OutlinedTextField(
+                    value = uiState.value.newProfile,
+                    onValueChange = {
+                        userViewModel.updateProfile(it)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                OutlinedButton(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = {
+                    scope.launch {
+                        UserApi.retrofitService.updateDescription(
+                            userViewModel.jwtToken,
+                            UserUpdateDescriptionDto(
+                                description = uiState.value.newProfile
+                            )
+                        )
+                        userViewModel.getCurrentUser()
+                    }
+
+                }, modifier = Modifier.fillMaxWidth()) {
                     Text(text = "Save")
                 }
             }
