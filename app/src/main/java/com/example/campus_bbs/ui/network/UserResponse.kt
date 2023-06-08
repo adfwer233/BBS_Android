@@ -1,9 +1,10 @@
 package com.example.campus_bbs.ui.network
 
+@kotlinx.serialization.Serializable
 data class UserMetaVo (
-    val id: String,
-    val avatar: String,
-    val nickname: String
+    val userId: String,
+    val userName: String,
+    val userIconUrl: String
 )
 
 @kotlinx.serialization.Serializable
@@ -14,13 +15,13 @@ data class UserResponse (
     val phoneNumber: String,
     val description: String,
     val avatarUrl: String,
-    val createTime: String,
-    val lastLoginTime: String,
+    val createTime: Long,
+    val lastLoginTime: Long,
     val banned: String,
-    val followList: List<String>,
-    val subscriberList: List<String>,
-    val postList: List<String>,
+    val followList: List<UserMetaVo>,
+    val subscriberList: List<UserMetaVo>,
+    val postList: List<PostCoverResponse>,
     val interestedTags: List<String>,
     val roles: List<String>,
-    val nickname: String
+    val collection: List<PostCoverResponse>
 )

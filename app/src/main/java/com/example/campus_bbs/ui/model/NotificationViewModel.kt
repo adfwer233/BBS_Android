@@ -87,16 +87,16 @@ class NotificationViewModel(
         val res: List<Chat> = getUserChatResponse.userChat.map {
             val selfUserMetaVo: UserMetaVo = it.selfUserMeta
             val selfUserMeta: UserMeta = UserMeta(
-                userId = selfUserMetaVo.id,
-                userName = selfUserMetaVo.nickname,
-                userIconUrl = selfUserMetaVo.avatar
+                userId = selfUserMetaVo.userId,
+                userName = selfUserMetaVo.userName,
+                userIconUrl = selfUserMetaVo.userIconUrl
             )
 
             val targetUserMetaVo: UserMetaVo = it.targetUserMeta
             val targetUserMeta: UserMeta = UserMeta(
-                userId = targetUserMetaVo.id,
-                userName = targetUserMetaVo.nickname,
-                userIconUrl = targetUserMetaVo.avatar
+                userId = targetUserMetaVo.userId,
+                userName = targetUserMetaVo.userName,
+                userIconUrl = targetUserMetaVo.userIconUrl
             )
 
 
@@ -104,7 +104,7 @@ class NotificationViewModel(
                 selfUserMeta = selfUserMeta,
                 targetUserMeta = targetUserMeta,
                 messageInfoList = it.messages.map { chatMessage ->
-                    if (chatMessage.senderUserMeta.id == selfUserMeta.userId) {
+                    if (chatMessage.senderUserMeta.userId == selfUserMeta.userId) {
                         MessageInfo(selfUserMeta, targetUserMeta, chatMessage.message)
                     } else {
                         MessageInfo(targetUserMeta, selfUserMeta, chatMessage.message)

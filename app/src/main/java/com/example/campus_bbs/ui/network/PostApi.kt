@@ -1,6 +1,10 @@
 package com.example.campus_bbs.ui.network
 
+import com.example.campus_bbs.Global
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
@@ -8,8 +12,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 
-private const val BASE_URL =
-    "http://183.172.141.89:8080"
+private const val BASE_URL = Global.BASE_HTTP_URL
 
 
 private val myJson: Json = Json { ignoreUnknownKeys = true }

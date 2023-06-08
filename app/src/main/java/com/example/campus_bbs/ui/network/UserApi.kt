@@ -1,12 +1,13 @@
 package com.example.campus_bbs.ui.network
 
+import com.example.campus_bbs.Global
 import kotlinx.serialization.ExperimentalSerializationApi
 import okhttp3.MultipartBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 
-private const val BASE_URL = "http://183.172.141.89:8080"
+private const val BASE_URL = Global.BASE_HTTP_URL
 
 private val retrofit = Retrofit.Builder()
     .addConverterFactory(GsonConverterFactory.create())

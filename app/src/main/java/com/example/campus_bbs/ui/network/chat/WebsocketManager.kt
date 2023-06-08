@@ -1,6 +1,7 @@
 package com.example.campus_bbs.ui.network.chat
 
 import android.util.Log
+import com.example.campus_bbs.Global
 import io.ktor.client.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.*
@@ -19,7 +20,7 @@ import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
 
-private const val WS_BASE_URL = "183.172.141.89"
+private const val WS_BASE_URL = Global.BASE_WS_URL
 private const val PORT = 8080
 class WebsocketManager(jwtToken: String) {
 

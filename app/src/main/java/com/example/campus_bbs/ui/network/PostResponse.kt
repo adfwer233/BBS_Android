@@ -1,9 +1,6 @@
 package com.example.campus_bbs.ui.network
-import com.example.campus_bbs.data.BlogComment
 import com.example.campus_bbs.data.UserMeta
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.util.*
 
 @Serializable
 data class Reply (
@@ -11,7 +8,7 @@ data class Reply (
     var content: String,
     var createTime: Long)
 @Serializable
-data class post (
+data class PostCoverResponse (
     var id: String,
     var creator: UserMeta,
     var createTime: Long,
@@ -28,5 +25,5 @@ data class post (
 )
 @Serializable
 data class GetAllPostResponse(
-    val postList: List<post>
+    val postList: List<PostCoverResponse>
 )
