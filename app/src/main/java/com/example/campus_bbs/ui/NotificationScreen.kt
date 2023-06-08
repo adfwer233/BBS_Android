@@ -1,6 +1,8 @@
 package com.example.campus_bbs.ui
 
+import android.os.Build
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
@@ -35,16 +37,20 @@ import coil.request.ImageRequest
 import com.example.campus_bbs.data.*
 import com.example.campus_bbs.ui.model.CommunicationViewModel
 import com.example.campus_bbs.ui.model.NotificationViewModel
+import com.example.campus_bbs.utils.showBasicNotification
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun notificationScreen(
     mainAppNavController: NavHostController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    index: Int = -1
 ) {
     val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val communicationViewModel: CommunicationViewModel = viewModel(LocalContext.current as ComponentActivity)
     val uiState = notificationViewModel.uiState.collectAsState()
 
     var refreshing by remember { mutableStateOf(false) }
@@ -58,12 +64,19 @@ fun notificationScreen(
     }
     val state = rememberPullRefreshState(refreshing, ::refresh)
 
+    val localContext = LocalContext.current
+
+    if (index >= 0) {
+        communicationViewModel.openChat(index)
+        mainAppNavController.navigate("CommunicationScreen")
+    }
+
     Box(modifier = modifier.fillMaxHeight().pullRefresh(state)) {
         LazyColumn(
 //        verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             item {
-                Button(onClick = { notificationViewModel.updateUserChat() }) {
+                Button(onClick = { showBasicNotification(localContext) }) {
                     Text(text = "refresh")
                 }
             }

@@ -32,12 +32,16 @@ fun CommunicationScreen(
     mainNavController: NavController,
     modifier: Modifier = Modifier,
     communicationViewModel: CommunicationViewModel = viewModel(LocalContext.current as ComponentActivity),
-    ) {
+    index: Int? = -1
+) {
 
-    val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val uiState = communicationViewModel.uiState.collectAsState()
     val chatState = notificationViewModel.uiState.collectAsState()
-    val chat = chatState.value.chatList[uiState.value.chatIndex]
+
+
+    val chatIndex = if ((index == null) || (index < 0)) uiState.value.chatIndex else index
+    val chat = chatState.value.chatList[chatIndex]
 
     Scaffold (
         topBar = {

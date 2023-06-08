@@ -1,6 +1,8 @@
 package com.example.campus_bbs
 
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
@@ -20,6 +22,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -34,6 +37,9 @@ import kotlinx.coroutines.flow.first
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val route: String = intent.getStringExtra("data") ?: ""
+        println(intent)
         setContent {
             Campus_BBSTheme {
                 // A surface container using the 'background' color from the theme
@@ -41,7 +47,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    App()
+                    App(route)
                 }
             }
         }
@@ -53,7 +59,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun App() {
+fun App(
+    intentRoutePath: String = ""
+) {
+    Log.e("asdfasdfsad", intentRoutePath)
     val mainAppNavController = rememberNavController()
 
     val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
@@ -67,6 +76,8 @@ fun App() {
     val tokenState = loginViewModel.tokenFlow.collectAsState(loginViewModel.jwtToken)
 
     val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
+    val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
     val userState = userViewModel.currentUserState.collectAsState()
 
@@ -100,12 +111,27 @@ fun App() {
         composable("fansScreen") {
             FansScreen(mainAppNavController = mainAppNavController)
         }
-        composable("CommunicationScreen") {
-            CommunicationScreen(mainNavController = mainAppNavController)
+        composable(
+            route = "CommunicationScreen/?index={index}",
+            arguments = listOf(
+                navArgument("index") {
+                    type = NavType.IntType
+                    defaultValue = 0
+                }
+            )
+        ) {
+            CommunicationScreen(mainNavController = mainAppNavController, index = it.arguments?.getInt("index"))
         }
-        composable("EditProfile") {
+        composable(
+            route = "EditProfile",
+        ) {
             EditProfileScreen()
         }
+    }
+
+    if (intentRoutePath != "") {
+        notificationViewModel.updateUserChat()
+        mainAppNavController.navigate(intentRoutePath)
     }
 }
 
@@ -216,7 +242,21 @@ fun MainAppView(
                 modifier = modifier,
             )
         }
-        composable("Notification") {
+        composable(
+            route = "Notification/?index={index}",
+            arguments = listOf(
+                navArgument("index") {
+                    type = NavType.IntType
+                    defaultValue = 0
+                }
+            )
+        ) {
+            it.arguments?.getInt("index")
+                ?.let { it1 -> notificationScreen(mainAppNavController, modifier = modifier, index = it1) }
+        }
+        composable(
+            route = "Notification",
+        ) {
             notificationScreen(mainAppNavController, modifier = modifier)
         }
         composable("info") {
