@@ -56,15 +56,15 @@ fun notificationScreen(
     var refreshing by remember { mutableStateOf(false) }
     val refreshScope = rememberCoroutineScope()
 
+    val localContext = LocalContext.current
+
     fun refresh () = refreshScope.launch {
         refreshing = true
         delay(500)
-        notificationViewModel.updateUserChat()
+        notificationViewModel.updateUserChat(localContext)
         refreshing = false
     }
     val state = rememberPullRefreshState(refreshing, ::refresh)
-
-    val localContext = LocalContext.current
 
     if (index >= 0) {
         communicationViewModel.openChat(index)
@@ -76,7 +76,7 @@ fun notificationScreen(
 //        verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             item {
-                Button(onClick = { showBasicNotification(localContext) }) {
+                Button(onClick = { showBasicNotification(localContext, "tstasdf", "sadf", 0) }) {
                     Text(text = "refresh")
                 }
             }
@@ -106,7 +106,7 @@ fun MessageItemInScreen(
         shape = RectangleShape,
         onClick = {
             communicationViewModel.openChat(index)
-            mainAppNavController.navigate("CommunicationScreen")
+            mainAppNavController.navigate("CommunicationScreen/?index="+index)
         }
     ) {
         Row(

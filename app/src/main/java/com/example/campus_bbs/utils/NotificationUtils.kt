@@ -32,7 +32,7 @@ class WaterNotificationService(
 
 @SuppressLint("IntentReset", "UnspecifiedImmutableFlag")
 @RequiresApi(Build.VERSION_CODES.O)
-fun showBasicNotification(context: Context) {
+fun showBasicNotification(context: Context, name: String, content: String, chatIndex: Int) {
 
     val channelId = "water_notification" + Random.nextInt()
 
@@ -47,13 +47,13 @@ fun showBasicNotification(context: Context) {
 
     val activityIntent= Intent(context, MainActivity::class.java)
     Log.e("Create Intent", activityIntent.getStringExtra("data").toString())
-    activityIntent.putExtra("data", "CommunicationScreen/?index=0")
+    activityIntent.putExtra("data", "CommunicationScreen/?index="+chatIndex)
     Log.e("Create Intent", activityIntent.getStringExtra("data").toString())
     val pendingIntent = PendingIntent.getActivity(context, 1, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT)
     val notification = NotificationCompat.Builder(context, channelId)
         .setSmallIcon(R.drawable.avatar)
-        .setContentTitle("Drink some water!")
-        .setContentText("It passed one hour since youf sadf " + Date())
+        .setContentTitle(name)
+        .setContentText(content)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         .setAutoCancel(true)

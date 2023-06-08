@@ -146,6 +146,7 @@ fun AppHome(
     val navController = rememberNavController()
     val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     notificationViewModel.updateUserChat()
+    notificationViewModel.registeredContext = LocalContext.current
 
     Scaffold(
         topBar = {
