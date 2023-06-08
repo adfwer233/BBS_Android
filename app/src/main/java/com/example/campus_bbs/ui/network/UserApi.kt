@@ -18,6 +18,8 @@ interface UserApiService {
     @GET("/user")
     suspend fun getCurrentUser(@Header("Authorization") token: String): UserResponse
 
+    @GET("/user/{id}")
+    suspend fun getUserById(@Header("Authorization") token: String, @Path("id") id: String): UserResponse
     @POST("/users/update/description")
     suspend fun updateDescription(@Header("Authorization") token: String, @Body body: UserUpdateDescriptionDto)
 

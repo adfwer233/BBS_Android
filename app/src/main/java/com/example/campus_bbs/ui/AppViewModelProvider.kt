@@ -42,6 +42,9 @@ object AppViewModelProvider {
         initializer {
             NavControlViewModel()
         }
+        initializer {
+            VisitingUserHomeViewModel()
+        }
     }
 
 }

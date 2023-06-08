@@ -1,5 +1,9 @@
 package com.example.campus_bbs.ui.network
 
+import com.example.campus_bbs.data.Blog
+import com.example.campus_bbs.data.User
+import com.example.campus_bbs.data.UserMeta
+
 @kotlinx.serialization.Serializable
 data class UserMetaVo (
     val userId: String,
@@ -24,4 +28,16 @@ data class UserResponse (
     val interestedTags: List<String>,
     val roles: List<String>,
     val collection: List<PostCoverResponse>
-)
+) {
+
+    fun getUser(): User {
+        return User(
+            userId = id,
+            userName = username,
+            userIconUrl = avatarUrl,
+            profile = description,
+            followList = followList.map { UserMeta(it.userId, it.userName, it.userIconUrl) },
+            favorBlogList = listOf()
+        )
+    }
+}

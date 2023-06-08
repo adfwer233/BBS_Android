@@ -11,9 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,10 +30,9 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.campus_bbs.BlogsList
-import com.example.campus_bbs.data.FakeDataGenerator
-import com.example.campus_bbs.data.User
 import com.example.campus_bbs.ui.model.NavControlViewModel
 import com.example.campus_bbs.ui.model.UserViewModel
+import com.example.campus_bbs.ui.model.VisitingUserHomeViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,10 +86,10 @@ fun UserHome(
     modifier: Modifier = Modifier
 ) {
 
-    val userViewModel: UserViewModel =
+    val visitingUserViewModel: VisitingUserHomeViewModel =
         viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
-    val userState = userViewModel.currentUserState.collectAsState()
+    val userState = visitingUserViewModel.currentUserState.collectAsState()
 
     val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 

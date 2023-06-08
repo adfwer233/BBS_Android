@@ -1,5 +1,6 @@
 package com.example.campus_bbs.ui.components
 
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,6 +11,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,7 +28,11 @@ import com.example.campus_bbs.data.Blog
 import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.data.UserMeta
 import com.example.campus_bbs.ui.AppViewModelProvider
+import com.example.campus_bbs.ui.model.LoginViewModel
 import com.example.campus_bbs.ui.model.NavControlViewModel
+import com.example.campus_bbs.ui.model.VisitingUserHomeViewModel
+import com.example.campus_bbs.ui.network.UserApi
+import kotlinx.coroutines.launch
 
 @Composable
 @Preview
@@ -35,6 +41,10 @@ fun UserPanelInBlog(
     timeString: String = "time"
 ) {
     val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val visitingUserHomeViewModel: VisitingUserHomeViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val scope = rememberCoroutineScope()
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         modifier = Modifier.padding(top = 5.dp, start = 5.dp)
@@ -51,7 +61,13 @@ fun UserPanelInBlog(
                 .height(65.dp)
                 .width(65.dp)
                 .clickable {
-                    navControlViewModel.mainNavController.navigate("UserHome")
+                    scope.launch {
+                        val resp = UserApi.retrofitService.getUserById(loginViewModel.jwtToken, userMeta.userId)
+                        visitingUserHomeViewModel.updateVisitingUser(resp.getUser())
+                        Log.i("GET USER BY ID", resp.getUser().toString())
+                        navControlViewModel.userHome = resp.getUser()
+                        navControlViewModel.mainNavController.navigate("UserHome")
+                    }
                 }
         )
         Column(
