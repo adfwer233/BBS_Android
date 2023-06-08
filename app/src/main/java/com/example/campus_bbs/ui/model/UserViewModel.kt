@@ -1,7 +1,13 @@
 package com.example.campus_bbs.ui.model
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
@@ -14,6 +20,10 @@ import com.example.campus_bbs.ui.state.EditProfileUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.ByteArrayOutputStream
 
 class UserViewModel(
     private val dataStore: DataStore<Preferences>
@@ -73,7 +83,25 @@ class UserViewModel(
         emit(currentUser)
     }
 
-    fun updateUserImageUri(uri: String) {
-        currentUserState.update { it -> it.copy(userIconUrl = uri) }
+    fun updateUserImageUri(uri: Uri, context: Context) {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val imageBitmap = BitmapFactory.decodeStream(inputStream).asImageBitmap()
+        val stream = ByteArrayOutputStream()
+        imageBitmap.asAndroidBitmap()
+            .compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        val requestBody = stream.toByteArray()
+            .toRequestBody(
+                "image/*".toMediaType()
+            )
+        val image = MultipartBody.Part.createFormData(
+                "image",
+                "uploaded.jpeg",
+                requestBody
+        )
+
+        viewModelScope.launch {
+            UserApi.retrofitService.updateUserAvatar(jwtToken, image)
+            getCurrentUser()
+        }
     }
 }

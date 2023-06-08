@@ -1,6 +1,8 @@
 package com.example.campus_bbs.ui
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -28,6 +30,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -46,6 +50,10 @@ import com.example.campus_bbs.ui.network.UserApi
 import com.example.campus_bbs.ui.network.UserUpdateDescriptionDto
 import com.example.campus_bbs.ui.network.UserUpdateUsernameDto
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.ByteArrayOutputStream
 import java.util.function.IntConsumer
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -73,13 +81,13 @@ fun EditProfileScreen() {
 
 
     val context = LocalContext.current
-    val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) {
-        it?.let {
-            userViewModel.updateUserImageUri(it.toString())
+    val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        uri?.run {
+            userViewModel.updateUserImageUri(uri, context)
         }
     }
+
+
     ModalBottomSheetLayout(
         sheetContent = {
             when (selection.value) {
@@ -121,11 +129,13 @@ fun EditProfileScreen() {
                             .height(105.dp)
                             .width(105.dp)
                             .clickable {
+
                                 imagePickerLauncher.launch(
                                     PickVisualMediaRequest(
                                         ActivityResultContracts.PickVisualMedia.ImageOnly
                                     )
                                 )
+
                             }
                     )
                 }
