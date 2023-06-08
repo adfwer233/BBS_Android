@@ -30,9 +30,8 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.campus_bbs.BlogsList
-import com.example.campus_bbs.ui.model.NavControlViewModel
-import com.example.campus_bbs.ui.model.UserViewModel
-import com.example.campus_bbs.ui.model.VisitingUserHomeViewModel
+import com.example.campus_bbs.data.Chat
+import com.example.campus_bbs.ui.model.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,7 +90,10 @@ fun UserHome(
 
     val userState = visitingUserViewModel.currentUserState.collectAsState()
 
+    val communicationViewModel: CommunicationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val notificationViewModel:NotificationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
     Column(
         modifier = modifier.fillMaxHeight(),
@@ -141,7 +143,29 @@ fun UserHome(
                     Text(text = "Subscribe")
                 }
                 Spacer(modifier = Modifier.width(3.dp))
-                OutlinedIconButton(onClick = { /*TODO*/ }) {
+                OutlinedIconButton(
+                    onClick = {
+                        var chatList = notificationViewModel.uiState.value.chatList.toMutableList()
+                        var matchedChat = chatList.find { it.targetUserMeta.userId == navControlViewModel.userHome.userId }
+                        matchedChat?.let {
+                            val index = chatList.indexOf(matchedChat)
+                            navControlViewModel.mainNavController.navigate("CommunicationScreen/?index=${index}")
+                        } ?: let {
+
+                            for (i in 0 until chatList.size) {
+                                if (chatList[i].targetUserMeta.userId > navControlViewModel.userHome.userId) {
+                                    chatList.add(i, Chat(userViewModel.currentUserState.value.getMeta() , navControlViewModel.userHome.getMeta(), listOf(), 0))
+                                    notificationViewModel.updateChatList(chatList)
+                                    navControlViewModel.mainNavController.navigate("CommunicationScreen/?index=${i}")
+                                    break
+                                }
+                            }
+                            chatList.add(Chat(userViewModel.currentUserState.value.getMeta() , navControlViewModel.userHome.getMeta(), listOf(), 0))
+                            notificationViewModel.updateChatList(chatList)
+                            navControlViewModel.mainNavController.navigate("CommunicationScreen/?index=0")
+                        }
+                    })
+                {
                     Icon(imageVector = Icons.Default.Email, contentDescription = "setting", modifier = Modifier.weight(1f))
                 }
             }

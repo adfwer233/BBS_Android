@@ -53,9 +53,9 @@ class NotificationViewModel(
                 .collect {listOfChat ->
                     _uiState.update { it.copy(chatList = listOfChat) }
                 }
+            connect()
         }
         Log.e("asdfasdfasdfasdfasdf asdf qaertgvafqzavvvvvvvvvvvvvvXCJ", jwtToken)
-        connect()
 
     }
     fun getTotalUnreadNumber() : Number {
@@ -67,6 +67,10 @@ class NotificationViewModel(
             val chatWebSocketRequestWithToken = chatWebSocketRequest.copy(token = jwtToken)
             websocketManager?.send({ updateUserChat() }, chatWebSocketRequestWithToken)
         }
+    }
+
+    fun updateChatList(chatList: List<Chat>) {
+        _uiState.update { it.copy(chatList = chatList) }
     }
 
     fun updateUserChat(context: Context? = null) {
@@ -159,9 +163,9 @@ class NotificationViewModel(
     private fun connect() {
         viewModelScope.launch {
             websocketManager?.close()
-            while (jwtToken == "");
+            if (jwtToken == "")
+                return@launch
             websocketManager = WebsocketManager(jwtToken.replace("Bearer ", ""))
-
             websocketManager!!.connect(
                 jwtToken,
                 onConnect = {
