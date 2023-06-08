@@ -104,10 +104,6 @@ fun CreateBlogScreen(
                     Row {
                         IconButton(onClick = {
                             val blog = createBlogViewModel.generateBlogFromState()
-                            println(blog.blogTitle)
-                            println(blog.blogContent)
-                            println(loginViewModel.jwtToken)
-                            println("end")
                             scope.launch {
                                 try {
                                     PostApi.retrofitService.createPost(

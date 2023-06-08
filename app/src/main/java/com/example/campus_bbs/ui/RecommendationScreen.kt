@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.campus_bbs.ui.components.BlogsCard
 import com.example.campus_bbs.ui.model.BlogViewModel
+import com.example.campus_bbs.ui.model.LoginViewModel
 import com.example.campus_bbs.ui.model.RecommendationViewModel
 import com.example.campus_bbs.utils.LocationUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -185,11 +186,12 @@ fun DefaultRecommendation(
 ) {
     var recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity)
     var blogViewModel: BlogViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
     val recommendationUiState by recommendationViewModel.uiState.collectAsState()
 
     if (recommendationUiState.blogList.isEmpty()) {
-        recommendationViewModel.updateBlogList()
+        recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
     }
 
     var refreshing by remember { mutableStateOf(false) }
@@ -199,7 +201,7 @@ fun DefaultRecommendation(
     fun refresh () = refreshScope.launch {
         refreshing = true
         delay(1500)
-        recommendationViewModel.updateBlogList()
+        recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
         refreshing = false
     }
     val state = rememberPullRefreshState(refreshing, ::refresh)

@@ -210,20 +210,6 @@ fun BlogCommentCard(
             Column(
                 modifier = modifier
             ) {
-                repeat(3) { index ->
-                    if (index < comment.followingComment.size) {
-                        FollowingComment(comment = comment.followingComment[index])
-                    }
-                }
-
-                if (comment.followingComment.size > 3) {
-                    Button(
-                        onClick = moreCommentOnClick,
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
-                        Text(text = "More comment")
-                    }
-                }
             }
         }
     }

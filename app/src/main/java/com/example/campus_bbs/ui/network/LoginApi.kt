@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 
 private const val BASE_URL =
-    "http://183.172.178.182:8080"
+    "http://183.172.178.133:8080"
 
 
 //private val myJson: Json = Json { ignoreUnknownKeys = true }
