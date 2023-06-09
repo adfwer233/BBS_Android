@@ -38,6 +38,7 @@ import com.example.campus_bbs.data.BlogComment
 import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.ui.components.*
 import com.example.campus_bbs.ui.model.BlogViewModel
+import com.example.campus_bbs.ui.model.RecommendationViewModel
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.Heading
 import com.halilibo.richtext.ui.material3.Material3RichText
@@ -50,9 +51,17 @@ import java.util.*
 fun BlogScreen(
     mainAppNavController: NavHostController,
     modifier: Modifier = Modifier,
+    postId: String? = "",
 ) {
 
-    val blogViewModel: BlogViewModel = viewModel(LocalContext.current as ComponentActivity)
+    // select the blog by id
+    val recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val blogViewModel: BlogViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
+    postId?.let {
+        val blog = recommendationViewModel.uiState.collectAsState().value.blogList.find { it.id == postId }!!
+        blogViewModel.updateBlog(blog)
+    }
 
     val localContent = LocalContext.current
     val sheetState = rememberModalBottomSheetState(

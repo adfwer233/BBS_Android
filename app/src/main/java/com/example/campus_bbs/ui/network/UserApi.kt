@@ -1,6 +1,7 @@
 package com.example.campus_bbs.ui.network
 
 import com.example.campus_bbs.Global
+import com.example.campus_bbs.ui.network.notification.NotificationResponse
 import kotlinx.serialization.ExperimentalSerializationApi
 import okhttp3.MultipartBody
 import retrofit2.Retrofit
@@ -32,6 +33,15 @@ interface UserApiService {
 
     @POST("/users/update/password")
     suspend fun updateUserPassword(@Header("Authorization") token: String, @Body body: UserUpdatePasswordDto)
+
+    @GET("/users/notifications")
+    suspend fun getUserNotification(@Header("Authorization") token: String): NotificationResponse
+
+    @POST("/users/notification/clear")
+    suspend fun clearAllNotification(@Header("Authorization") token: String)
+
+    @POST("/users/notification/clear/{id}")
+    suspend fun clearNotificationById(@Header("Authorization") token: String, @Path("id") id: String)
 }
 
 object UserApi {

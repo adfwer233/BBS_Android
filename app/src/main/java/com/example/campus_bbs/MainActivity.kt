@@ -32,7 +32,9 @@ import com.example.campus_bbs.ui.*
 import com.example.campus_bbs.ui.components.*
 import com.example.campus_bbs.ui.model.*
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,7 +80,11 @@ fun App(
 
     val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
+    val recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
     val userState = userViewModel.currentUserState.collectAsState()
+
+    val scope = rememberCoroutineScope()
 
     NavHost(navController = mainAppNavController, startDestination = "AppHome") {
         composable("AppHome") {
@@ -96,8 +102,16 @@ fun App(
             }
 //            CommunicationScreen()
         }
-        composable("BlogScreen") {
-            BlogScreen(mainAppNavController)
+        composable(
+            route = "BlogScreen/?id={id}",
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) {
+            BlogScreen(mainAppNavController, postId = it.arguments?.getString("id"))
         }
         composable("UserHome") {
             UserHomeScreen(mainAppNavController = mainAppNavController)
@@ -109,6 +123,9 @@ fun App(
         }
         composable("fansScreen") {
             FansScreen(mainAppNavController = mainAppNavController)
+        }
+        composable("subscriberScreen") {
+            SubscriberScreen(mainAppNavController = mainAppNavController)
         }
         composable(
             route = "CommunicationScreen/?index={index}",
@@ -129,8 +146,12 @@ fun App(
     }
 
     if (intentRoutePath != "") {
-        notificationViewModel.updateUserChat()
-        mainAppNavController.navigate(intentRoutePath)
+        scope.launch {
+            notificationViewModel.updateUserChat()
+            recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
+            delay(1000)
+            mainAppNavController.navigate(intentRoutePath)
+        }
     }
 }
 
