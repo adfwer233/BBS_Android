@@ -36,7 +36,7 @@ import com.example.campus_bbs.ui.network.RegisterDTO
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
 
-fun registerHash(username: String, password: String): String {
+public fun registerHash(username: String, password: String): String {
     var hash = MessageDigest.getInstance("MD5").digest(password.toByteArray())
     var hex = StringBuilder(hash.size * 2)
     for (b in hash) {

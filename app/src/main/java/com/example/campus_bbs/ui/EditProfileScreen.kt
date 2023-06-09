@@ -13,6 +13,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.ListItem
@@ -35,6 +36,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -48,8 +51,10 @@ import com.example.campus_bbs.ui.components.FullScreenImageRoller
 import com.example.campus_bbs.ui.model.UserViewModel
 import com.example.campus_bbs.ui.network.UserApi
 import com.example.campus_bbs.ui.network.UserUpdateDescriptionDto
+import com.example.campus_bbs.ui.network.UserUpdatePasswordDto
 import com.example.campus_bbs.ui.network.UserUpdateUsernameDto
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -91,8 +96,21 @@ fun EditProfileScreen() {
     ModalBottomSheetLayout(
         sheetContent = {
             when (selection.value) {
-                "name" -> EditName()
-                "profile" -> EditProfile()
+                "name" -> EditName{
+                    scope.launch {
+                        sheetState.hide()
+                    }
+                }
+                "profile" -> EditProfile{
+                    scope.launch {
+                        sheetState.hide()
+                    }
+                }
+                "password" -> EditPassword{
+                    scope.launch {
+                        sheetState.hide()
+                    }
+                }
             }
         },
         sheetState = sheetState
@@ -184,6 +202,24 @@ fun EditProfileScreen() {
 
                 Divider()
 
+                ListItem(
+                    trailing = {
+                        Row {
+//                            Text(text = uiState.value.newProfile)
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowRight,
+                                contentDescription = "trail"
+                            )
+                        }
+                    },
+                    modifier = Modifier.clickable {
+                        selection.value = "password"
+                        scope.launch { sheetState.show() }
+                    }
+                ) {
+                    Text(text = "Password")
+                }
+
             }
         }
     }
@@ -192,7 +228,9 @@ fun EditProfileScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditName() {
+fun EditName(
+    afterSave: () -> Unit
+) {
     val userViewModel: UserViewModel =
         viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val uiState = userViewModel.editProfileUiState.collectAsState()
@@ -226,6 +264,7 @@ fun EditName() {
                             )
                         )
                         userViewModel.getCurrentUser()
+                        afterSave()
                     }
                 }, modifier = Modifier.fillMaxWidth()) {
                     Text(text = "Save")
@@ -238,7 +277,9 @@ fun EditName() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditProfile() {
+fun EditProfile(
+    afterSave: () -> Unit
+) {
     val userViewModel: UserViewModel =
         viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val uiState = userViewModel.editProfileUiState.collectAsState()
@@ -270,8 +311,93 @@ fun EditProfile() {
                             )
                         )
                         userViewModel.getCurrentUser()
+                        afterSave()
                     }
+                }, modifier = Modifier.fillMaxWidth()) {
+                    Text(text = "Save")
+                }
+            }
+        }
 
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditPassword(
+    afterSave: () -> Unit
+) {
+    val userViewModel: UserViewModel =
+        viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val uiState = userViewModel.editProfileUiState.collectAsState()
+    val scope = rememberCoroutineScope()
+    Scaffold(
+        topBar = { CenterAlignedTopAppBar(title = { Text(text = "Edit Password") }) },
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+        ) {
+            Column(modifier = Modifier.padding(10.dp)) {
+                OutlinedTextField(
+                    value = uiState.value.previousPassword,
+                    label = { Text(text = "Previous Password") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    onValueChange = {
+                        userViewModel.updatePreviousPassword(it)
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        autoCorrect = true
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = uiState.value.newPassword,
+                    label = { Text(text = "New Password") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    onValueChange = {
+                        userViewModel.updateNewPassword(it)
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        autoCorrect = true
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = uiState.value.repeatedNewPassword,
+                    onValueChange = { userViewModel.updateRepeatNewPassword(it) },
+                    label = { Text(text = "Repeat New Password") },
+                    isError = !userViewModel.repeatCorrect(),
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        autoCorrect = true
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedButton(onClick = {
+                    scope.launch {
+                        UserApi.retrofitService.updateUserPassword(
+                            userViewModel.jwtToken,
+                            UserUpdatePasswordDto(
+                                oldPassword = registerHash(
+                                    userViewModel.currentUserState.value.userName,
+                                    uiState.value.previousPassword),
+                                newPassword = registerHash(
+                                    userViewModel.currentUserState.value.userName,
+                                    uiState.value.newPassword)
+                            )
+                        )
+                        userViewModel.getCurrentUser()
+                        afterSave()
+                    }
                 }, modifier = Modifier.fillMaxWidth()) {
                     Text(text = "Save")
                 }
