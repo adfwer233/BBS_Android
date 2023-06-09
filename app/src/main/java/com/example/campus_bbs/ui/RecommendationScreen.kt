@@ -213,8 +213,9 @@ fun DefaultRecommendation(
         ) {
             items(recommendationViewModel.uiState.value.blogList) {
                 BlogsCard({
-                    blogViewModel.updateBlog(it)
-                    mainAppNavController.navigate("BlogScreen")
+//                    blogViewModel.updateBlog(it)
+                    println("BlogScreen/?id=${it.id}")
+                    mainAppNavController.navigate("BlogScreen/?id=${it.id}")
                 },
                     it
                 )

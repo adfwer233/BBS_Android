@@ -32,8 +32,7 @@ class WaterNotificationService(
 
 @SuppressLint("IntentReset", "UnspecifiedImmutableFlag")
 @RequiresApi(Build.VERSION_CODES.O)
-fun showBasicNotification(context: Context, name: String, content: String, chatIndex: Int) {
-
+fun showBasicNotification(context: Context, name: String, content: String, route: String) {
     val channelId = "water_notification" + Random.nextInt()
 
     val notificationChannel = NotificationChannel(
@@ -47,7 +46,7 @@ fun showBasicNotification(context: Context, name: String, content: String, chatI
 
     val activityIntent= Intent(context, MainActivity::class.java)
     Log.e("Create Intent", activityIntent.getStringExtra("data").toString())
-    activityIntent.putExtra("data", "CommunicationScreen/?index="+chatIndex)
+    activityIntent.putExtra("data", route)
     Log.e("Create Intent", activityIntent.getStringExtra("data").toString())
     val pendingIntent = PendingIntent.getActivity(context, 1, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT)
     val notification = NotificationCompat.Builder(context, channelId)

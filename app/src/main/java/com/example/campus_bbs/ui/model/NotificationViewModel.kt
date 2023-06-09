@@ -15,14 +15,17 @@ import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.data.MessageInfo
 import com.example.campus_bbs.data.UserMeta
 import com.example.campus_bbs.ui.AppViewModelProvider
+import com.example.campus_bbs.ui.network.UserApi
 import com.example.campus_bbs.ui.network.UserMetaVo
 import com.example.campus_bbs.ui.network.chat.ChatApi
 import com.example.campus_bbs.ui.network.chat.ChatVo
 import com.example.campus_bbs.ui.network.chat.ChatWebSocketRequest
 import com.example.campus_bbs.ui.network.chat.WebsocketManager
+import com.example.campus_bbs.ui.network.notification.NotificationResponse
 import com.example.campus_bbs.ui.state.NotificationUiState
 import com.example.campus_bbs.utils.showBasicNotification
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -31,7 +34,6 @@ class NotificationViewModel(
 ): ViewModel() {
     private val _uiState = MutableStateFlow(NotificationUiState())
     val uiState = _uiState.asStateFlow()
-
     private var websocketManager : WebsocketManager? = null
     lateinit var registeredContext: Context
     fun updateBlogList() {
@@ -55,9 +57,59 @@ class NotificationViewModel(
                 }
             connect()
         }
-        Log.e("asdfasdfasdfasdfasdf asdf qaertgvafqzavvvvvvvvvvvvvvXCJ", jwtToken)
 
+        viewModelScope.launch {
+            while(true) {
+                notificationFlow
+                    .flowOn(Dispatchers.Default)
+                    .catch {
+                        Log.e("Error", it.stackTraceToString())
+                    }
+                    .collect {
+                    it.NotificationList.forEach { notificationVo ->
+                        if (!notificationVo.readFlag) {
+                            println(notificationVo.route)
+                            showBasicNotification(
+                                registeredContext,
+                                notificationVo.title,
+                                notificationVo.content,
+                                notificationVo.route
+                            )
+                            UserApi.retrofitService.clearNotificationById(jwtToken, notificationVo.id)
+                        }
+                    }
+                }
+                delay(1000)
+            }
+        }
+        Log.e("asdfasdfasdfasdfasdf asdf qaertgvafqzavvvvvvvvvvvvvvXCJ", jwtToken)
     }
+
+    fun update(callback: () -> Unit) {
+        viewModelScope.launch {
+
+            notificationFlow
+                .flowOn(Dispatchers.Default)
+                .catch {
+                    Log.e("Error", it.stackTraceToString())
+                }
+                .collect {
+                    it.NotificationList.forEach { notificationVo ->
+                        if (!notificationVo.readFlag) {
+                            println(notificationVo.route)
+                            showBasicNotification(
+                                registeredContext,
+                                notificationVo.title,
+                                notificationVo.content,
+                                notificationVo.route
+                            )
+                            UserApi.retrofitService.clearNotificationById(jwtToken, notificationVo.id)
+                        }
+                    }
+                }
+        }
+    }
+
     fun getTotalUnreadNumber() : Number {
         return uiState.value.chatList.sumOf { it.numberOfUnread.toInt() }
     }
@@ -98,7 +150,7 @@ class NotificationViewModel(
                                             context,
                                             newChat.targetUserMeta.userName,
                                             newChat.messageInfoList.last().messageContent,
-                                            index
+                                            "CommunicationScreen/?index=$index"
                                         )
                                         found = true
                                     }
@@ -109,7 +161,7 @@ class NotificationViewModel(
                                         context,
                                         newChat.targetUserMeta.userName,
                                         newChat.messageInfoList.last().messageContent,
-                                        index
+                                        "CommunicationScreen/?index=$index"
                                     )
                                 }
                             }
@@ -120,6 +172,12 @@ class NotificationViewModel(
                 }
         }
 
+    }
+
+    private val notificationFlow: Flow<NotificationResponse> = flow {
+        val resp = UserApi.retrofitService.getUserNotification(jwtToken)
+        println(resp)
+        emit(resp)
     }
 
     private val userChatFlow: Flow<List<Chat>> = flow {
