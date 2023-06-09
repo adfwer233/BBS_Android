@@ -5,12 +5,11 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.POST
+import retrofit2.http.*
 
 private const val BASE_URL = Global.BASE_HTTP_URL
 
@@ -24,8 +23,12 @@ private val retrofit = Retrofit.Builder()
     .build()
 
 interface PostApiService {
+    @Multipart
     @POST("/posts")
-    suspend fun createPost(@Header("Authorization") token: String, @Body body: CreatePostDTO)
+    suspend fun createPost(@Header("Authorization") token: String, @Part("title") title: RequestBody,
+        @Part("content") content: RequestBody, @Part("location") location: RequestBody,
+        @Part("tag") tag: RequestBody, @Part images: List<MultipartBody.Part>)
+//    , @Part videos: List<MultipartBody.Part>
 
     @GET("/posts")
     suspend fun getAllPost(@Header("Authorization") token: String): GetAllPostResponse

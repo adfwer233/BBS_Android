@@ -2,6 +2,8 @@ package com.example.campus_bbs.ui
 
 import android.Manifest
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -25,6 +27,9 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,6 +47,10 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.ByteArrayOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -57,6 +66,7 @@ fun CreateBlogScreen(
     val uiState = createBlogViewModel.uiState.collectAsState()
 
     val context = LocalContext.current
+    var imageUris : List<MultipartBody.Part> = mutableListOf()
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(9)
     ) { uri: List<Uri> ->
@@ -67,6 +77,22 @@ fun CreateBlogScreen(
             )
             it.toString()
         })
+        imageUris = uri.map {
+            val inputStream = context.contentResolver.openInputStream(it)
+            val imageBitmap = BitmapFactory.decodeStream(inputStream).asImageBitmap()
+            val stream = ByteArrayOutputStream()
+            imageBitmap.asAndroidBitmap()
+                .compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            val requestBody = stream.toByteArray()
+                .toRequestBody(
+                    "image/*".toMediaType()
+                )
+            MultipartBody.Part.createFormData(
+                "image",
+                "image1.jpeg",
+                requestBody
+            )
+        }
     }
 
     val videoPickerLauncher =
@@ -105,16 +131,20 @@ fun CreateBlogScreen(
                         IconButton(onClick = {
                             val blog = createBlogViewModel.generateBlogFromState()
                             scope.launch {
+                                Log.e("create", imageUris.toString())
                                 try {
                                     PostApi.retrofitService.createPost(
                                         loginViewModel.jwtToken,
-                                        CreatePostDTO(
-                                            title = blog.blogTitle,
-                                            content = blog.blogContent,
-                                            location = blog.location
-                                        )
+                                        blog.blogTitle.toRequestBody("text/plain".toMediaType()),
+                                        blog.blogContent.toRequestBody("text/plain".toMediaType()),
+                                        blog.location.toRequestBody("text/plain".toMediaType()),
+//                                        blog.tag.joinToString().toRequestBody("text/plain".toMediaType()),
+                                        listOf("a", "b", "c").joinToString(",").toRequestBody("text/plain".toMediaType()),
+                                        imageUris
                                     )
+                                    recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
                                 } catch (e: Exception) {
+                                    e.printStackTrace()
                                     Log.e("Create Post", e.toString())
                                     Toast.makeText(
                                         context, "网络错误",
@@ -124,7 +154,6 @@ fun CreateBlogScreen(
                             }
                             createBlogViewModel.clearUiState()
                             mainAppNavController.navigateUp()
-                            recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
                         }) {
                             Row {
                                 Icon(imageVector = Icons.Filled.Send, contentDescription = "test")
