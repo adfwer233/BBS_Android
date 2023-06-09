@@ -37,54 +37,9 @@ import com.example.campus_bbs.ui.model.FanSubScreenViewModel
 import com.example.campus_bbs.ui.model.NavControlViewModel
 import com.example.campus_bbs.ui.model.UserViewModel
 
-
-@Composable
-fun UserItem (
-    modifier: Modifier = Modifier,
-    user: UserMeta,
-) {
-    Column(
-        modifier = Modifier.padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(user.userIconUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = "test image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .height(80.dp)
-                    .width(80.dp)
-            )
-            Column(
-                modifier = Modifier.align(Alignment.CenterVertically),
-                verticalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
-                Text(
-                    modifier = Modifier,
-                    text = user.userName,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
-                Text(
-                    modifier = Modifier,
-                    text = user.userId,
-                    fontWeight = FontWeight.Light,
-                    fontSize = 10.sp,
-                    color = Color.Gray
-                )
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FansScreen(
+fun SubscriberScreen(
     modifier: Modifier = Modifier,
     mainAppNavController: NavHostController
 ) {
@@ -103,7 +58,7 @@ fun FansScreen(
         }
     ) { contentPadding ->
         LazyColumn(modifier = Modifier.padding(contentPadding), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            items(fanSubScreenViewModel.user.followList) {
+            items(fanSubScreenViewModel.user.subscriberList) {
                 UserItem(user = it)
             }
         }

@@ -25,7 +25,9 @@ class FakeDataGenerator {
             userIconUrl = generateImageUrlList(1)[0],
             profile = getRandomString(10),
             followList = listOf(),
-            favorBlogList = listOf()
+            favorBlogList = listOf(),
+            postBlogList = listOf(),
+            subscriberList = listOf()
         )
     }
 

@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.campus_bbs.ui.components.BlogsCard
 import com.example.campus_bbs.ui.model.BlogViewModel
+import com.example.campus_bbs.ui.model.FanSubScreenViewModel
 import com.example.campus_bbs.ui.model.LoginViewModel
 import com.example.campus_bbs.ui.model.RecommendationViewModel
 import com.example.campus_bbs.utils.LocationUtils
@@ -187,7 +188,6 @@ fun DefaultRecommendation(
     var recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity)
     var blogViewModel: BlogViewModel = viewModel(LocalContext.current as ComponentActivity)
     val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
-
     val recommendationUiState by recommendationViewModel.uiState.collectAsState()
 
     if (recommendationUiState.blogList.isEmpty()) {
@@ -195,7 +195,6 @@ fun DefaultRecommendation(
     }
 
     var refreshing by remember { mutableStateOf(false) }
-    var itemCount by remember { mutableStateOf(1) }
     val refreshScope = rememberCoroutineScope()
 
     fun refresh () = refreshScope.launch {

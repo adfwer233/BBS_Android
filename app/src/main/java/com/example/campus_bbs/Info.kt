@@ -8,12 +8,17 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,11 +38,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.campus_bbs.data.User
 import com.example.campus_bbs.ui.AppViewModelProvider
 import com.example.campus_bbs.ui.DefaultRecommendation
 import com.example.campus_bbs.ui.HotRecommendation
 import com.example.campus_bbs.ui.SubscribedRecommendation
-import com.example.campus_bbs.ui.model.UserViewModel
+import com.example.campus_bbs.ui.model.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,15 +80,51 @@ fun BlogsCard(
 }
 
 @Composable
-fun BlogsList(blogList: List<Int>, modifier: Modifier = Modifier){
-    LazyColumn(
-        modifier = Modifier.fillMaxHeight(),
-        verticalArrangement = Arrangement.spacedBy(5.dp)
-    ) {
-        item { BlogsCard(moreButtonOnClick = { /*TODO*/ }) }
-        item { BlogsCard(moreButtonOnClick = { /*TODO*/ }) }
-        item { BlogsCard(moreButtonOnClick = { /*TODO*/ }) }
-        item { BlogsCard(moreButtonOnClick = { /*TODO*/ }) }
+fun PostsList(
+    mainAppNavController: NavHostController,
+    modifier: Modifier = Modifier,
+    user: User
+) {
+    val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    Box(modifier = modifier) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            items(user.postBlogList) {
+                com.example.campus_bbs.ui.components.BlogsCard(
+                    {
+                        println("BlogScreen/?id=${it.id}")
+                        mainAppNavController.navigate("BlogScreen/?id=${it.id}")
+                    },
+                    it
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CollectList(
+    mainAppNavController: NavHostController,
+    modifier: Modifier = Modifier,
+    user: User
+) {
+    Box(modifier = modifier) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            items(user.favorBlogList) {
+                com.example.campus_bbs.ui.components.BlogsCard(
+                    {
+                        println("BlogScreen/?id=${it.id}")
+                        mainAppNavController.navigate("BlogScreen/?id=${it.id}")
+                    },
+                    it
+                )
+            }
+        }
     }
 }
 
@@ -92,12 +135,11 @@ fun Info (
     modifier: Modifier = Modifier
 ) {
     val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
-
+    var fanSubScreenViewModel : FanSubScreenViewModel = viewModel(LocalContext.current as ComponentActivity)
     val userState = userViewModel.currentUserState.collectAsState()
 
     Column(
         modifier = modifier.fillMaxHeight(),
-//            .verticalScroll(state = scrollState),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         Column(
@@ -105,7 +147,6 @@ fun Info (
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(userState.value.userIconUrl)
@@ -153,13 +194,16 @@ fun Info (
             Column(
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
-                    .clickable { mainNavController.navigate("fansScreen") },
+                    .clickable {
+                        fanSubScreenViewModel.user = userViewModel.currentUserState.value
+                        mainNavController.navigate("fansScreen")
+                               },
                 verticalArrangement = Arrangement.spacedBy(5.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     color = Color.Blue,
-                    text = "114",
+                    text = userViewModel.currentUserState.value.followList.size.toString(),
                     fontSize = 15.sp
                 )
                 Text(
@@ -168,13 +212,17 @@ fun Info (
                 )
             }
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().fillMaxWidth(0.5f)
+                    .clickable {
+                        fanSubScreenViewModel.user = userViewModel.currentUserState.value
+                        mainNavController.navigate("subscriberScreen")
+                               },
                 verticalArrangement = Arrangement.spacedBy(5.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     color = Color.Blue,
-                    text = "514",
+                    text = userViewModel.currentUserState.value.subscriberList.size.toString(),
                     fontSize = 15.sp
                 )
                 Text(
@@ -185,7 +233,7 @@ fun Info (
         }
 
 
-        val items = listOf("Liked", "Bookmark", "History")
+        val items = listOf("Liked", "Bookmark")
 
         var pagerState = rememberPagerState(0)
 
@@ -224,9 +272,8 @@ fun Info (
                 modifier = Modifier.fillMaxHeight()
             ) { page ->
                 when(page) {
-                    1 -> BlogsList(blogList = listOf(1))
-                    2 -> BlogsList(blogList = listOf(1))
-                    0 -> BlogsList(blogList = listOf(1))
+                    1 -> CollectList(mainAppNavController = mainNavController, user = userViewModel.currentUserState.value)
+                    0 -> PostsList(mainAppNavController = mainNavController, user = userViewModel.currentUserState.value)
                 }
             }
         }
