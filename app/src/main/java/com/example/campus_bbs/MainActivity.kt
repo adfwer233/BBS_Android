@@ -140,6 +140,9 @@ fun App(
         ) {
             EditProfileScreen()
         }
+        composable("Search") {
+            SearchScreen()
+        }
     }
 
     if (intentRoutePath != "") {
@@ -170,7 +173,9 @@ fun AppHome(
             CenterAlignedTopAppBar(
                 title = { Text(text = "Campus BBS") },
                 actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+                        mainAppNavController.navigate("Search")
+                    }) {
                         Icon(imageVector = Icons.Default.Search, contentDescription = "search")
                     }
                 },
