@@ -76,7 +76,7 @@ fun notificationScreen(
 //        verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             item {
-                Button(onClick = { showBasicNotification(localContext, "tstasdf", "sadf", 0) }) {
+                Button(onClick = { showBasicNotification(localContext, "tstasdf", "sadf", "CommunicationScreen/?index=0") }) {
                     Text(text = "refresh")
                 }
             }
