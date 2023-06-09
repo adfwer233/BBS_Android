@@ -45,6 +45,9 @@ object AppViewModelProvider {
         initializer {
             VisitingUserHomeViewModel()
         }
+        initializer {
+            SearchViewModel()
+        }
     }
 
 }

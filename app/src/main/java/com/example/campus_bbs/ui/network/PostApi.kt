@@ -32,6 +32,9 @@ interface PostApiService {
 
     @GET("/posts")
     suspend fun getAllPost(@Header("Authorization") token: String): GetAllPostResponse
+
+    @GET("/posts/search")
+    suspend fun search(@Header("Authorization") token: String, @Query("keyword") keyword: String ) : GetAllPostResponse
 }
 
 object PostApi {
