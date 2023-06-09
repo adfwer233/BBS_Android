@@ -13,8 +13,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.campus_bbs.JWT_TOKEN_KEY
-import com.example.campus_bbs.data.FakeDataGenerator
-import com.example.campus_bbs.data.User
+import com.example.campus_bbs.data.*
 import com.example.campus_bbs.ui.network.UserApi
 import com.example.campus_bbs.ui.state.EditProfileUiState
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +23,8 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.ByteArrayOutputStream
+import java.util.*
+import java.util.stream.Collectors
 
 class UserViewModel(
     private val dataStore: DataStore<Preferences>
@@ -77,8 +78,53 @@ class UserViewModel(
             userName = currentUserResponse.username,
             userIconUrl = currentUserResponse.avatarUrl,
             profile = currentUserResponse.description,
-            followList = listOf(),
-            favorBlogList = listOf(),
+            followList = currentUserResponse.followList.map { UserMeta(it.userId, it.userName, it.userIconUrl) },
+            favorBlogList = currentUserResponse.collection.map { post ->
+                Blog(
+                    post.id,
+                    post.creator,
+                    Date(post.createTime),
+                    post.title,
+                    post.content,
+                    post.images,
+                    post.tags,
+                    post.likesNumber,
+                    post.collectedNumber,
+                    post.comments.stream().map{ reply -> BlogComment(
+                        reply.creator,
+                        reply.content,
+                        Date(reply.createTime),
+                    )
+                    }.collect(Collectors.toList()),
+                    post.liked,
+                    post.collected,
+                    post.location
+                )
+            },
+            postBlogList = currentUserResponse.postList.map { post ->
+                Blog(
+                    post.id,
+                    post.creator,
+                    Date(post.createTime),
+                    post.title,
+                    post.content,
+                    post.images,
+                    post.tags,
+                    post.likesNumber,
+                    post.collectedNumber,
+                    post.comments.stream().map { reply ->
+                        BlogComment(
+                            reply.creator,
+                            reply.content,
+                            Date(reply.createTime),
+                        )
+                    }.collect(Collectors.toList()),
+                    post.liked,
+                    post.collected,
+                    post.location
+                )
+            },
+            subscriberList = currentUserResponse.subscriberList.map { UserMeta(it.userId, it.userName, it.userIconUrl) },
         )
         emit(currentUser)
     }

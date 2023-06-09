@@ -124,6 +124,9 @@ fun App(
         composable("fansScreen") {
             FansScreen(mainAppNavController = mainAppNavController)
         }
+        composable("subscriberScreen") {
+            SubscriberScreen(mainAppNavController = mainAppNavController)
+        }
         composable(
             route = "CommunicationScreen/?index={index}",
             arguments = listOf(
