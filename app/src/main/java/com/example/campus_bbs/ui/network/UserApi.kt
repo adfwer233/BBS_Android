@@ -29,6 +29,9 @@ interface UserApiService {
     @Multipart
     @POST("/users/update/avatar")
     suspend fun updateUserAvatar(@Header("Authorization") token: String, @Part images: MultipartBody.Part)
+
+    @POST("/users/update/password")
+    suspend fun updateUserPassword(@Header("Authorization") token: String, @Body body: UserUpdatePasswordDto)
 }
 
 object UserApi {

@@ -37,6 +37,7 @@ class UserViewModel(
     val _editProfileUiState = MutableStateFlow(EditProfileUiState())
     val editProfileUiState = _editProfileUiState.asStateFlow()
 
+
     init {
         viewModelScope.launch {
             jwtToken = dataStore.data.map { it[JWT_TOKEN_KEY] ?: "" }.first()
@@ -51,6 +52,20 @@ class UserViewModel(
         _editProfileUiState.update { it.copy(newProfile = newProfile) }
     }
 
+    fun updatePreviousPassword(PreviousPassword : String) {
+        _editProfileUiState.update { it.copy(previousPassword = PreviousPassword) }
+    }
+
+    fun updateNewPassword(newPassword : String) {
+        _editProfileUiState.update { it.copy(newPassword = newPassword) }
+    }
+
+    fun updateRepeatNewPassword(RepeatNewPassword : String) {
+        _editProfileUiState.update { it.copy(repeatedNewPassword = RepeatNewPassword) }
+    }
+    fun repeatCorrect() : Boolean{
+        return _editProfileUiState.value.newPassword == _editProfileUiState.value.repeatedNewPassword
+    }
     fun getCurrentUser() {
         Log.e("get current user", "get user")
         viewModelScope.launch {
