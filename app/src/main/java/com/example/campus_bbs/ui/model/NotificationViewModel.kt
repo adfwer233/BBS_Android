@@ -68,6 +68,7 @@ class NotificationViewModel(
                     .collect {
                     it.NotificationList.forEach { notificationVo ->
                         if (!notificationVo.readFlag) {
+                            println(notificationVo.route)
                             showBasicNotification(
                                 registeredContext,
                                 notificationVo.title,
@@ -82,8 +83,33 @@ class NotificationViewModel(
             }
         }
         Log.e("asdfasdfasdfasdfasdf asdf qaertgvafqzavvvvvvvvvvvvvvXCJ", jwtToken)
-
     }
+
+    fun update(callback: () -> Unit) {
+        viewModelScope.launch {
+
+            notificationFlow
+                .flowOn(Dispatchers.Default)
+                .catch {
+                    Log.e("Error", it.stackTraceToString())
+                }
+                .collect {
+                    it.NotificationList.forEach { notificationVo ->
+                        if (!notificationVo.readFlag) {
+                            println(notificationVo.route)
+                            showBasicNotification(
+                                registeredContext,
+                                notificationVo.title,
+                                notificationVo.content,
+                                notificationVo.route
+                            )
+                            UserApi.retrofitService.clearNotificationById(jwtToken, notificationVo.id)
+                        }
+                    }
+                }
+        }
+    }
+
     fun getTotalUnreadNumber() : Number {
         return uiState.value.chatList.sumOf { it.numberOfUnread.toInt() }
     }
