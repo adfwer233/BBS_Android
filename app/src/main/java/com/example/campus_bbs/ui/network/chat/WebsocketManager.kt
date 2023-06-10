@@ -15,6 +15,7 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.serialization.json.Json
+import okhttp3.Interceptor
 
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
@@ -35,13 +36,12 @@ class WebsocketManager(jwtToken: String) {
         }
         engine {
             preconfigured = OkHttpClient.Builder()
-                .pingInterval(20, TimeUnit.SECONDS)
+                .pingInterval(3, TimeUnit.SECONDS)
                 .build()
         }
         install(WebSockets) {
             contentConverter = KotlinxWebsocketSerializationConverter(Json)
         }
-
     }
 
     private var session: DefaultClientWebSocketSession ?= null

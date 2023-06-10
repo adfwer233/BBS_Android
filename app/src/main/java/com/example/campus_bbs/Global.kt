@@ -1,6 +1,6 @@
 package com.example.campus_bbs
 
 object Global {
-    const val BASE_HTTP_URL = "http://183.172.178.46:8080"
-    const val BASE_WS_URL = "183.172.178.46"
+    const val BASE_HTTP_URL = "http://183.172.129.177:8080"
+    const val BASE_WS_URL = "183.172.129.177"
 }

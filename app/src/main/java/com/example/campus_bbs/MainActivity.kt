@@ -17,9 +17,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -64,6 +68,37 @@ class MainActivity : ComponentActivity() {
 fun App(
     intentRoutePath: String = ""
 ) {
+    val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
+    val tokenState = loginViewModel.tokenFlow.collectAsState(loginViewModel.jwtToken)
+
+    val scope = rememberCoroutineScope()
+
+    val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START) {
+                Log.e("asdfasdf", "START")
+                scope.launch {
+                    notificationViewModel.connect()
+                }
+            } else if (event == Lifecycle.Event.ON_STOP) {
+                Log.e("asdfasdf", "STOP")
+                scope.launch {
+                    notificationViewModel.websocketManager?.close()
+                }
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     Log.e("asdfasdfsad", intentRoutePath)
     val mainAppNavController = rememberNavController()
 
@@ -72,19 +107,13 @@ fun App(
 
     val cameraViewModel = CameraViewModel()
 
-    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
-
-    val tokenState = loginViewModel.tokenFlow.collectAsState(loginViewModel.jwtToken)
-
     val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
-    val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
     val recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
     val userState = userViewModel.currentUserState.collectAsState()
 
-    val scope = rememberCoroutineScope()
 
     NavHost(navController = mainAppNavController, startDestination = "AppHome") {
         composable("AppHome") {
@@ -156,6 +185,7 @@ fun App(
             mainAppNavController.navigate(intentRoutePath)
         }
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

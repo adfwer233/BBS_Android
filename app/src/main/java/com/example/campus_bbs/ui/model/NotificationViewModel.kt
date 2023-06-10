@@ -34,7 +34,7 @@ class NotificationViewModel(
 ): ViewModel() {
     private val _uiState = MutableStateFlow(NotificationUiState())
     val uiState = _uiState.asStateFlow()
-    private var websocketManager : WebsocketManager? = null
+    public var websocketManager : WebsocketManager? = null
     lateinit var registeredContext: Context
     fun updateBlogList() {
         val newList = FakeDataGenerator().generateFakeBlogs(10)
@@ -219,7 +219,7 @@ class NotificationViewModel(
         emit(res);
     }
 
-    private fun connect() {
+    public fun connect() {
         viewModelScope.launch {
             websocketManager?.close()
             if (jwtToken == "")
