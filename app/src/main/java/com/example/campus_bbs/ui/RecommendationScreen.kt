@@ -44,8 +44,7 @@ fun RecommendationScreen(
 //    val blogList = remember{ mutableStateOf<List<Blog>>(FakeDataGenerator().generateFakeBlogs(10)) }
 
     val titles = listOf("Default", "Hot", "Subscribe")
-
-    var pagerState = rememberPagerState(0)
+    val pagerState = rememberPagerState(0)
 
     val coroutineScope = rememberCoroutineScope()
     Column(

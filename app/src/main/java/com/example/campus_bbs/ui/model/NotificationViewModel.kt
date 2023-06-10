@@ -66,19 +66,20 @@ class NotificationViewModel(
                         Log.e("Error", it.stackTraceToString())
                     }
                     .collect {
-                    it.NotificationList.forEach { notificationVo ->
-                        if (!notificationVo.readFlag) {
-                            println(notificationVo.route)
-                            showBasicNotification(
-                                registeredContext,
-                                notificationVo.title,
-                                notificationVo.content,
-                                notificationVo.route
-                            )
-                            UserApi.retrofitService.clearNotificationById(jwtToken, notificationVo.id)
+                        it.NotificationList.forEach { notificationVo ->
+                            if (!notificationVo.readFlag) {
+                                println(notificationVo.route)
+                                showBasicNotification(
+                                    registeredContext,
+                                    notificationVo.title,
+                                    notificationVo.content,
+                                    notificationVo.route
+                                )
+                                UserApi.retrofitService.clearNotificationById(jwtToken, notificationVo.id)
+                            }
                         }
+                        _uiState.update { currentState -> currentState.copy(notificationList = it.NotificationList) }
                     }
-                }
                 delay(1000)
             }
         }
