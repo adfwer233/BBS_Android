@@ -22,10 +22,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.campus_bbs.ui.components.BlogsCard
-import com.example.campus_bbs.ui.model.BlogViewModel
-import com.example.campus_bbs.ui.model.FanSubScreenViewModel
-import com.example.campus_bbs.ui.model.LoginViewModel
-import com.example.campus_bbs.ui.model.RecommendationViewModel
+import com.example.campus_bbs.ui.model.*
 import com.example.campus_bbs.utils.LocationUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -43,7 +40,7 @@ fun RecommendationScreen(
 ) {
 //    val blogList = remember{ mutableStateOf<List<Blog>>(FakeDataGenerator().generateFakeBlogs(10)) }
 
-    val titles = listOf("Default", "Hot", "Subscribe")
+    val titles = listOf("Latest", "Hot", "Subscribe")
 
     var pagerState = rememberPagerState(0)
 
@@ -85,97 +82,100 @@ fun RecommendationScreen(
             page ->
             when(page) {
                 0 -> DefaultRecommendation(mainAppNavController, Modifier)
-                1 -> HotRecommendation()
-                2 -> SubscribedRecommendation()
+                1 -> HotRecommendation(mainAppNavController, Modifier)
+                2 -> SubscribedRecommendation(mainAppNavController, Modifier)
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 
 fun HotRecommendation(
+    mainAppNavController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxHeight()
-    ) {
-        item {
-            RichText(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Markdown(
-                    """
-                # Markdown Demo
-            
-                Emphasis, aka italics, with *asterisks* or _underscores_. Strong emphasis, aka bold, with **asterisks** or __underscores__. Combined emphasis with **asterisks and _underscores_**. [Links with two blocks, text in square-brackets, destination is in parentheses.](https://www.example.com). Inline `code` has `back-ticks around` it.
-            
-                1. First ordered list item
-                2. Another item
-                    * Unordered sub-list.
-                3. And another item.
-                    You can have properly indented paragraphs within list items. Notice the blank line above, and the leading spaces (at least one, but we'll use three here to also align the raw Markdown).
-            
-                * Unordered list can use asterisks
-                - Or minuses
-                + Or pluses
-                ---
-            
-                ```javascript
-                var s = "code blocks use monospace font";
-                alert(s);
-                ```
-            
-                Markdown | Table | Extension
-                --- | --- | ---
-                *renders* | `beautiful images` | ![random image](https://picsum.photos/seed/picsum/400/400 "Text 1")
-                1 | 2 | 3
-            
-                > Blockquotes are very handy in email to emulate reply text.
-                > This line is part of the same quote.
-                """.trimIndent()
+    var hotViewModel: HotViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val hotUiState by hotViewModel.uiState.collectAsState()
+
+    if (hotUiState.blogList.isEmpty()) {
+        hotViewModel.updateBlogList(loginViewModel.jwtToken, sort = "hot")
+    }
+
+    var refreshing by remember { mutableStateOf(false) }
+    val refreshScope = rememberCoroutineScope()
+
+    fun refresh () = refreshScope.launch {
+        refreshing = true
+        delay(1500)
+        hotViewModel.updateBlogList(loginViewModel.jwtToken, sort = "hot")
+        refreshing = false
+    }
+    val state = rememberPullRefreshState(refreshing, ::refresh)
+
+    Box(modifier = modifier.pullRefresh(state)) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            items(hotViewModel.uiState.value.blogList) {
+                BlogsCard({
+//                    blogViewModel.updateBlog(it)
+                    println("BlogScreen/?id=${it.id}")
+                    mainAppNavController.navigate("BlogScreen/?id=${it.id}")
+                },
+                    it
                 )
             }
         }
+        PullRefreshIndicator(refreshing = refreshing, state = state, modifier = Modifier.align(Alignment.TopCenter))
     }
 }
 
 
-@OptIn(ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SubscribedRecommendation(
+    mainAppNavController: NavHostController,
     modifier: Modifier = Modifier
 ) {
+    var subscribedViewModel: SubscribedViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val subscribedUiState by subscribedViewModel.uiState.collectAsState()
 
-    val localContext = LocalContext.current
+    if (subscribedUiState.blogList.isEmpty()) {
+        subscribedViewModel.updateBlogList(loginViewModel.jwtToken)
+    }
 
-    var location = LocationUtils().getLocation(localContext)
+    var refreshing by remember { mutableStateOf(false) }
+    val refreshScope = rememberCoroutineScope()
 
-    var addressList = LocationUtils().getGeoFromLocation(localContext, location)
+    fun refresh () = refreshScope.launch {
+        refreshing = true
+        delay(1500)
+        subscribedViewModel.updateBlogList(loginViewModel.jwtToken)
+        refreshing = false
+    }
+    val state = rememberPullRefreshState(refreshing, ::refresh)
 
-    val locationPermissionState = rememberPermissionState(
-        permission = Manifest.permission.ACCESS_FINE_LOCATION
-    )
-
-    Column(
-        modifier = Modifier.fillMaxHeight()
-    ) {
-        Text(text = "Subscribed Screen")
-
-        if (locationPermissionState.status.isGranted) {
-            Text("Location permission Granted")
-            if (location != null) {
-                Text(text = location.latitude.toString())
-            }
-
-            if (addressList.isNotEmpty()) {
-                Text(text = addressList[0].featureName)
-            }
-        } else {
-            Button(onClick = { locationPermissionState.launchPermissionRequest() }) {
-                Text("Request permission")
+    Box(modifier = modifier.pullRefresh(state)) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            items(subscribedViewModel.uiState.value.blogList) {
+                BlogsCard({
+//                    blogViewModel.updateBlog(it)
+                    println("BlogScreen/?id=${it.id}")
+                    mainAppNavController.navigate("BlogScreen/?id=${it.id}")
+                },
+                    it
+                )
             }
         }
+        PullRefreshIndicator(refreshing = refreshing, state = state, modifier = Modifier.align(Alignment.TopCenter))
     }
 }
 
