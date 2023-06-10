@@ -123,6 +123,7 @@ fun BlogScreen(
                                          blogViewModel.uiState.value.blog.id,
                                          PostReplyDto(uiState.value.comment)
                                      )
+                                     recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
                                  }
                                 blogViewModel.updateComment("")
                             },
@@ -164,7 +165,7 @@ fun BlogScreenMain(
             BlogMainCard(blog = blogViewModel.getBlog())
         }
 
-        items(blogViewModel.uiState.value.blog.blogComments) {
+        items(blogViewModel.uiState.value.blog.blogComments.sortedBy { comment -> comment.createTime }.reversed()) {
             BlogCommentCard(
                 comment = it,
                 moreCommentOnClick = { showComment(it) }
@@ -209,7 +210,7 @@ fun BlogCommentCard(
         modifier = modifier.fillMaxWidth()
     ) {
 
-        UserPanelInComment(userMeta = comment.creator)
+        UserPanelInComment(userMeta = comment.creator, createTime = comment.createTime.toString())
 
         Spacer(modifier = Modifier.height(3.dp))
 

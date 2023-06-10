@@ -35,6 +35,7 @@ import com.example.campus_bbs.ui.model.UserViewModel
 import com.example.campus_bbs.ui.model.VisitingUserHomeViewModel
 import com.example.campus_bbs.ui.network.UserApi
 import kotlinx.coroutines.launch
+import java.util.*
 
 @Composable
 @Preview
@@ -94,8 +95,10 @@ fun UserPanelInBlog(
 }
 
 @Composable
-@Preview
-fun UserPanelInComment(userMeta: UserMeta = FakeDataGenerator().generateSingleUserMeta()) {
+fun UserPanelInComment(
+    userMeta: UserMeta = FakeDataGenerator().generateSingleUserMeta(),
+    createTime : String = "time"
+) {
     val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     Row(
         horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -132,13 +135,8 @@ fun UserPanelInComment(userMeta: UserMeta = FakeDataGenerator().generateSingleUs
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
-                IconButton(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                ) {
-                    Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "like")
-                }
             }
+            Text(text = createTime)
         }
     }
 }

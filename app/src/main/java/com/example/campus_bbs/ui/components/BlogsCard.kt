@@ -31,6 +31,7 @@ import com.example.campus_bbs.data.Blog
 import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.ui.AppViewModelProvider
 import com.example.campus_bbs.ui.model.LoginViewModel
+import com.example.campus_bbs.ui.model.RecommendationViewModel
 import com.example.campus_bbs.ui.network.PostApi
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.Heading
@@ -51,6 +52,8 @@ fun BlogsCard(
     blog: Blog = FakeDataGenerator().generateSingleFakeBlog(),
     modifier: Modifier = Modifier
 ) {
+    var recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity)
+
     Card(
         modifier = modifier
             .fillMaxWidth(),
@@ -99,21 +102,9 @@ fun BlogsCard(
             horizontalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             IconButton(onClick = {
-                scope.launch {
-                    if(blog.liked){
-                        PostApi.retrofitService.unlikePost(loginViewModel.jwtToken, blog.id)
-                    } else {
-                        PostApi.retrofitService.likePost(loginViewModel.jwtToken, blog.id)
-                    }
-
-                }
             }, modifier= Modifier.weight(1F)) {
                 Row {
-                    if (blog.liked) {
-                        Icon(imageVector = Icons.Default.Menu, "", )
-                    } else {
-                        Icon(imageVector = Icons.Filled.Menu, "test")
-                    }
+                    Icon(imageVector = Icons.Default.Menu, "", )
                     Spacer(modifier = Modifier.width(2.dp))
                     Text(text = blog.blogComments.size.toString())
                 }
@@ -125,6 +116,7 @@ fun BlogsCard(
                     } else {
                         PostApi.retrofitService.collectPost(loginViewModel.jwtToken, blog.id)
                     }
+                    recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
                 }
             }, modifier= Modifier.weight(1F)) {
                 Row {
@@ -145,6 +137,7 @@ fun BlogsCard(
                     } else {
                         PostApi.retrofitService.likePost(loginViewModel.jwtToken, blog.id)
                     }
+                    recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
                 }
             }, modifier= Modifier.weight(1F)) {
                 Row {
