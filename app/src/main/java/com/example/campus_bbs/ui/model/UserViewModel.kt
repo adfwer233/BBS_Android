@@ -31,7 +31,8 @@ class UserViewModel(
 ): ViewModel() {
     private val currentUser: User = FakeDataGenerator().generateSingleUser()
 
-    val currentUserState = MutableStateFlow(currentUser)
+    val _currentUserState = MutableStateFlow(currentUser)
+    val currentUserState = _currentUserState.asStateFlow()
     var jwtToken: String = ""
 
 
@@ -78,7 +79,7 @@ class UserViewModel(
                 }
                 .collect {user ->
                     Log.e("user", user.toString())
-                    currentUserState.update { user }
+                    _currentUserState.update { user }
                     _editProfileUiState.update { it.copy(newName = user.userName, newProfile = user.profile) }
                 }
         }
