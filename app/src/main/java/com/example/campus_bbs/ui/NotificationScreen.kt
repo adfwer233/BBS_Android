@@ -69,7 +69,7 @@ fun notificationScreen(
     val scope = rememberCoroutineScope()
 
     Column(
-        modifier = modifier
+        modifier = modifier.fillMaxHeight()
     ) {
 
         Row(
@@ -119,22 +119,11 @@ fun NotificationTab(
     val uiState = notificationViewModel.uiState.collectAsState()
     val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val visitingUserHomeViewModel: VisitingUserHomeViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
-    var refreshing by remember { mutableStateOf(false) }
-    val refreshScope = rememberCoroutineScope()
     val scope = rememberCoroutineScope()
-    val localContext = LocalContext.current
-
-    fun refresh () = refreshScope.launch {
-        refreshing = true
-        delay(500)
-        notificationViewModel.updateUserChat(localContext)
-        refreshing = false
-    }
-    val state = rememberPullRefreshState(refreshing, ::refresh)
 
     Box(modifier = modifier
-        .fillMaxHeight()
-        .pullRefresh(state)) {
+        .fillMaxHeight())
+    {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
@@ -183,7 +172,6 @@ fun NotificationTab(
                 }
             }
         }
-        PullRefreshIndicator(refreshing = refreshing, state = state, modifier = Modifier.align(Alignment.TopCenter))
     }
 }
 
@@ -213,6 +201,7 @@ fun ChatTab(
         .fillMaxHeight()
         .pullRefresh(state)) {
         LazyColumn(
+            modifier = Modifier.fillMaxHeight()
 //        verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             items(uiState.value.chatList.size) {

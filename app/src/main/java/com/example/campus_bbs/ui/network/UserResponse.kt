@@ -8,14 +8,14 @@ import java.util.*
 import java.util.stream.Collectors
 
 @kotlinx.serialization.Serializable
-data class UserMetaVo (
+data class UserMetaVo(
     val userId: String,
     val userName: String,
     val userIconUrl: String
 )
 
 @kotlinx.serialization.Serializable
-data class UserResponse (
+data class UserResponse(
     val id: String,
     val username: String,
     val email: String,
@@ -51,11 +51,12 @@ data class UserResponse (
                     post.tags,
                     post.likesNumber,
                     post.collectedNumber,
-                    post.comments.stream().map{ reply -> BlogComment(
-                        reply.creator,
-                        reply.content,
-                        Date(reply.createTime),
-                    )
+                    post.comments.stream().map { reply ->
+                        BlogComment(
+                            reply.creator,
+                            reply.content,
+                            Date(reply.createTime),
+                        )
                     }.collect(Collectors.toList()),
                     post.liked,
                     post.collected,
@@ -89,3 +90,16 @@ data class UserResponse (
         )
     }
 }
+
+data class UserSearch(
+    val userId: String,
+    val username: String,
+    val avatarUrl: String,
+    val description: String
+)
+
+data class UserResponseList(val users: List<UserSearch>)
+
+data class SearchUserResponse(
+    val _embedded: UserResponseList
+)

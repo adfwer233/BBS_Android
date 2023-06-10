@@ -48,7 +48,7 @@ fun CommunicationScreen(
             CenterAlignedTopAppBar(
                 title = { Text(text = chat.targetUserMeta.userName )},
                 navigationIcon = {
-                    IconButton(onClick = {  }) {
+                    IconButton(onClick = { mainNavController.navigateUp() }) {
                         Icon(Icons.Default.ArrowBack, "back")
                     }
                 }
