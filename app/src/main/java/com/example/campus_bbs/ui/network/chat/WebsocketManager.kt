@@ -69,6 +69,6 @@ class WebsocketManager(jwtToken: String) {
     }
 
     suspend fun close() {
-        session!!.close()
+        session?.close()
     }
 }
