@@ -42,6 +42,12 @@ interface UserApiService {
 
     @POST("/users/update/password")
     suspend fun updateUserPassword(@Header("Authorization") token: String, @Body body: UserUpdatePasswordDto)
+
+    @POST("/users/{id}/subscribe")
+    suspend fun subscribe(@Header("Authorization") token: String, @Path("id") id: String)
+
+    @POST("/users/{id}/unsubscribe")
+    suspend fun unsubscribe(@Header("Authorization") token: String, @Path("id") id: String)
 }
 
 object UserApi {

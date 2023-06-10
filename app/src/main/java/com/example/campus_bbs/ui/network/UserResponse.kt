@@ -1,8 +1,11 @@
 package com.example.campus_bbs.ui.network
 
 import com.example.campus_bbs.data.Blog
+import com.example.campus_bbs.data.BlogComment
 import com.example.campus_bbs.data.User
 import com.example.campus_bbs.data.UserMeta
+import java.util.*
+import java.util.stream.Collectors
 
 @kotlinx.serialization.Serializable
 data class UserMetaVo (
@@ -37,7 +40,52 @@ data class UserResponse (
             userIconUrl = avatarUrl,
             profile = description,
             followList = followList.map { UserMeta(it.userId, it.userName, it.userIconUrl) },
-            favorBlogList = listOf()
+            favorBlogList = collection.map { post ->
+                Blog(
+                    post.id,
+                    post.creator,
+                    Date(post.createTime),
+                    post.title,
+                    post.content,
+                    post.images,
+                    post.tags,
+                    post.likesNumber,
+                    post.collectedNumber,
+                    post.comments.stream().map{ reply -> BlogComment(
+                        reply.creator,
+                        reply.content,
+                        Date(reply.createTime),
+                    )
+                    }.collect(Collectors.toList()),
+                    post.liked,
+                    post.collected,
+                    post.location
+                )
+            },
+            postBlogList = postList.map { post ->
+                Blog(
+                    post.id,
+                    post.creator,
+                    Date(post.createTime),
+                    post.title,
+                    post.content,
+                    post.images,
+                    post.tags,
+                    post.likesNumber,
+                    post.collectedNumber,
+                    post.comments.stream().map { reply ->
+                        BlogComment(
+                            reply.creator,
+                            reply.content,
+                            Date(reply.createTime),
+                        )
+                    }.collect(Collectors.toList()),
+                    post.liked,
+                    post.collected,
+                    post.location
+                )
+            },
+            subscriberList = subscriberList.map { UserMeta(it.userId, it.userName, it.userIconUrl) }
         )
     }
 }

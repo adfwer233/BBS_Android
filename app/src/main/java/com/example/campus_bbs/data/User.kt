@@ -16,7 +16,9 @@ data class User (
     var userIconUrl: String,
     val profile: String,
     val followList: List<UserMeta>,
-    val favorBlogList: List<Blog>
+    val favorBlogList: List<Blog>,
+    val postBlogList: List<Blog>,
+    val subscriberList: List<UserMeta>
 ) {
     fun getMeta(): UserMeta {
         return UserMeta(

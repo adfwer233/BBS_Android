@@ -1,5 +1,6 @@
 package com.example.campus_bbs.ui
 
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -29,10 +30,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.campus_bbs.BlogsList
+import com.example.campus_bbs.CollectList
+import com.example.campus_bbs.PostsList
 import com.example.campus_bbs.data.Chat
+import com.example.campus_bbs.data.User
 import com.example.campus_bbs.ui.model.*
+import com.example.campus_bbs.ui.network.UserApi
 import kotlinx.coroutines.launch
+import java.util.stream.Collectors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -62,7 +67,9 @@ fun UserHomeScreen(
                     ) {
                         DropdownMenuItem(
                             text = { Text("拉黑") },
-                            onClick = { /* Handle edit! */ },
+                            onClick = {
+
+                            },
                             leadingIcon = {
                                 Icon(
                                     Icons.Outlined.Delete,
@@ -91,9 +98,16 @@ fun UserHome(
     val userState = visitingUserViewModel.currentUserState.collectAsState()
 
     val communicationViewModel: CommunicationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    var fanSubScreenViewModel : FanSubScreenViewModel = viewModel(LocalContext.current as ComponentActivity)
     val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val notificationViewModel:NotificationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
+    val currentUserState = userViewModel.currentUserState.collectAsState()
+
+    val scope = rememberCoroutineScope()
+    val subscribed = currentUserState.value.followList.filter { it.userId == navControlViewModel.userHome.userId }.isNotEmpty()
 
     Column(
         modifier = modifier.fillMaxHeight(),
@@ -139,8 +153,23 @@ fun UserHome(
             }
             Row() {
 
-                OutlinedButton(onClick = { }, modifier=Modifier.weight(6f)) {
-                    Text(text = "Subscribe")
+                OutlinedButton(onClick = {
+                    scope.launch {
+                        if (!subscribed) {
+                            UserApi.retrofitService.subscribe(loginViewModel.jwtToken, navControlViewModel.userHome.userId)
+                        } else {
+                            UserApi.retrofitService.unsubscribe(loginViewModel.jwtToken, navControlViewModel.userHome.userId)
+                        }
+                        userViewModel.getCurrentUser()
+                        navControlViewModel.userHome = UserApi.retrofitService.getUserById(loginViewModel.jwtToken, navControlViewModel.userHome.userId).getUser()
+                        Log.e("subscribe", subscribed.toString())
+                    }
+                }, modifier=Modifier.weight(6f)) {
+                    if (subscribed){
+                        Text(text = "Subscribed")
+                    } else {
+                        Text(text = "Subscribe")
+                    }
                 }
                 Spacer(modifier = Modifier.width(3.dp))
                 OutlinedIconButton(
@@ -175,13 +204,16 @@ fun UserHome(
             Column(
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
-                    .clickable { },
+                    .clickable {
+                        fanSubScreenViewModel.user = navControlViewModel.userHome
+                        navControlViewModel.mainNavController.navigate("fansScreen")
+                    },
                 verticalArrangement = Arrangement.spacedBy(5.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     color = Color.Blue,
-                    text = "114",
+                    text = navControlViewModel.userHome.followList.size.toString(),
                     fontSize = 15.sp
                 )
                 Text(
@@ -190,13 +222,18 @@ fun UserHome(
                 )
             }
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        fanSubScreenViewModel.user = navControlViewModel.userHome
+                        navControlViewModel.mainNavController.navigate("subscriberScreen")
+                    },
                 verticalArrangement = Arrangement.spacedBy(5.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     color = Color.Blue,
-                    text = "514",
+                    text = navControlViewModel.userHome.subscriberList.size.toString(),
                     fontSize = 15.sp
                 )
                 Text(
@@ -207,7 +244,7 @@ fun UserHome(
         }
 
 
-        val items = listOf("Liked", "Bookmark", "History")
+        val items = listOf("Liked", "Bookmark")
 
         var pagerState = rememberPagerState(0)
 
@@ -246,9 +283,8 @@ fun UserHome(
                 modifier = Modifier.fillMaxHeight()
             ) { page ->
                 when(page) {
-                    0 -> BlogsList(blogList = listOf(1))
-                    1 -> BlogsList(blogList = listOf(1))
-                    2 -> BlogsList(blogList = listOf(1))
+                    1 -> CollectList(mainAppNavController = navControlViewModel.mainNavController as NavHostController, user = navControlViewModel.userHome)
+                    0 -> PostsList(mainAppNavController = navControlViewModel.mainNavController as NavHostController, user = navControlViewModel.userHome)
                 }
             }
         }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,7 @@ import com.example.campus_bbs.data.UserMeta
 import com.example.campus_bbs.ui.AppViewModelProvider
 import com.example.campus_bbs.ui.model.LoginViewModel
 import com.example.campus_bbs.ui.model.NavControlViewModel
+import com.example.campus_bbs.ui.model.UserViewModel
 import com.example.campus_bbs.ui.model.VisitingUserHomeViewModel
 import com.example.campus_bbs.ui.network.UserApi
 import kotlinx.coroutines.launch
@@ -43,6 +45,11 @@ fun UserPanelInBlog(
     val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val visitingUserHomeViewModel: VisitingUserHomeViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val currentUserState = userViewModel.currentUserState.collectAsState()
+
+    val subscribed = currentUserState.value.followList.filter { it.userId == userMeta.userId }.isNotEmpty()
+
     val scope = rememberCoroutineScope()
 
     Row(
@@ -74,7 +81,13 @@ fun UserPanelInBlog(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.align(Alignment.CenterVertically)
         ) {
-            Text(text = userMeta.userName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Row{
+                Text(text = userMeta.userName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.width(2.dp))
+                if (subscribed) {
+                    Text(text = "已关注", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                }
+            }
             Text(text = timeString)
         }
     }
