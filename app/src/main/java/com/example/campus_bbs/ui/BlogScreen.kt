@@ -124,6 +124,7 @@ fun BlogScreen(
                                          PostReplyDto(uiState.value.comment)
                                      )
                                  }
+                                blogViewModel.updateComment("")
                             },
                             modifier = Modifier.align(Alignment.CenterVertically)
                         ) {
