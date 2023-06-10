@@ -7,5 +7,7 @@ data class CreateBlogUiState(
     val videoUrl: String = "",
     val location: String = "",
     val tagInput: String = "",
-    val tagList: List<String> = listOf()
+    val tagList: List<String> = listOf(),
+    val progress: Float = 0f,
+    val progressBarVisible: Boolean = false
 )

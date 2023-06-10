@@ -5,12 +5,14 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -27,10 +29,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -40,17 +42,23 @@ import com.example.campus_bbs.ui.components.OnlineVideoPlayer
 import com.example.campus_bbs.ui.model.CreateBlogViewModel
 import com.example.campus_bbs.ui.model.LoginViewModel
 import com.example.campus_bbs.ui.model.RecommendationViewModel
-import com.example.campus_bbs.ui.network.CreatePostDTO
-import com.example.campus_bbs.ui.network.PostApi
+import com.example.campus_bbs.ui.network.*
 import com.example.campus_bbs.utils.LocationUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.launch
+import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Retrofit
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -62,8 +70,10 @@ fun CreateBlogScreen(
         viewModel(LocalContext.current as ComponentActivity)
     val createBlogViewModel: CreateBlogViewModel =
         viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
     val uiState = createBlogViewModel.uiState.collectAsState()
+    val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
     var imageUris : List<MultipartBody.Part> = mutableListOf()
@@ -103,6 +113,58 @@ fun CreateBlogScreen(
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
                 createBlogViewModel.updateVideoUri(it.toString())
+                scope.launch {
+                    val inputStream = context.contentResolver.openInputStream(it)
+                    var fileOutputStream: FileOutputStream? = null
+
+                    var videoName: String = ""
+                    val cursor = context.contentResolver.query(it, null, null, null, null)
+                    cursor?.let { cur ->
+                        if (cursor.moveToFirst()) {
+                            videoName =
+                                cur.getString(cur.getColumnIndexOrThrow("_display_name"))
+                            cursor.close()
+                        }
+                    }
+                    val videoDir = File(
+                        context.getExternalFilesDir(Environment.DIRECTORY_MOVIES),
+                        "Videos"
+                    )
+                    if (!videoDir.exists()) {
+                        videoDir.mkdirs()
+                    }
+                    val videoFile = File(videoDir, videoName)
+
+                    fileOutputStream = FileOutputStream(videoFile)
+                    inputStream?.copyTo(fileOutputStream)
+                    inputStream?.close()
+
+                    val bodyBuilder = MultipartBody.Builder().setType(MultipartBody.FORM)
+                    bodyBuilder.addFormDataPart(
+                        "file",
+                        videoFile.name,
+                        videoFile.asRequestBody("video/*".toMediaTypeOrNull())
+                    )
+
+                    //                val requestBody = videoFile.asRequestBody("video/".toMediaTypeOrNull())
+
+                    val requestBody = bodyBuilder.build()
+                    val requestBodyWithProgress = ReqBodyWithProgress(requestBody) { progress ->
+                        //If you use logging interceptor this will trigger twice
+                        Log.d("Upload Progress:", "" + progress)
+                        if (progress - uiState.value.progress > 0.15)
+                            createBlogViewModel.updateProgress(progress)
+                    }
+
+                    createBlogViewModel.updateProgressVisible(true)
+                    createBlogViewModel.updateProgress(0f)
+                    val resp = VideoApi.retrofitService.upload(
+                        loginViewModel.jwtToken,
+                        requestBodyWithProgress
+                    )
+                    createBlogViewModel.updateProgressVisible(false)
+                }
+
             }
         }
 
@@ -114,8 +176,6 @@ fun CreateBlogScreen(
     val locationPermissionState = rememberPermissionState(
         permission = Manifest.permission.ACCESS_FINE_LOCATION
     )
-    val scope = rememberCoroutineScope()
-    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
 
     Scaffold(
         topBar = {
@@ -260,6 +320,23 @@ fun CreateBlogScreen(
     }
 }
 
+@Composable
+fun progressBar() {
+    val createBlogViewModel: CreateBlogViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val progressState = createBlogViewModel.progressState.collectAsState()
+    val animatedProgress by animateFloatAsState(
+        targetValue = progressState.value,
+        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+    )
+
+    LinearProgressIndicator(
+        modifier = Modifier.fillMaxWidth()
+            .semantics(mergeDescendants = true) {}
+            .padding(10.dp),
+        progress = animatedProgress,
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun editBlog(
@@ -275,6 +352,9 @@ fun editBlog(
 //        skipHalfExpanded = true
     )
     val scope = rememberCoroutineScope()
+
+
+
 
     ModalBottomSheetLayout(
         sheetContent = {
@@ -293,6 +373,11 @@ fun editBlog(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
+                item {
+                    if (uistate.value.progressBarVisible) {
+                        progressBar()
+                    }
+                }
                 item {
                     TextField(
                         label = { Text(text = "Title") },

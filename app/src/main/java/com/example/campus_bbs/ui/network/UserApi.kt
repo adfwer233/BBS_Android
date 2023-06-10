@@ -3,7 +3,9 @@ package com.example.campus_bbs.ui.network
 import com.example.campus_bbs.Global
 import com.example.campus_bbs.ui.network.notification.NotificationResponse
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.JsonObject
 import okhttp3.MultipartBody
+import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*

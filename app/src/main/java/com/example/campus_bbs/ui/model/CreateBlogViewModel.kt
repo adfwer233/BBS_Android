@@ -15,6 +15,9 @@ class CreateBlogViewModel(
     private val createBlogRepository: CreateBlogRepository
 ): ViewModel() {
 
+    private val _progressState = MutableStateFlow(0f)
+    val progressState = _progressState.asStateFlow()
+
     private val _uiState = MutableStateFlow(CreateBlogUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -28,6 +31,14 @@ class CreateBlogViewModel(
         viewModelScope.launch {
             createBlogRepository.saveCreateBlogUiState(uiState.value)
         }
+    }
+
+    fun updateProgress(value: Float) {
+        _progressState.update { value }
+    }
+
+    fun updateProgressVisible(value: Boolean) {
+        _uiState.update { it.copy(progressBarVisible = value) }
     }
 
     fun updateContentText(newContent: String) {
