@@ -31,6 +31,9 @@ interface LoginApiService {
 
     @GET("/login/isLogin")
     suspend fun isLogin(@Header("Authorization") token: String): IsLoginResponse
+
+    @GET("/login/logout")
+    suspend fun logout(@Header("Authorization") token: String)
 }
 
 object LoginApi {
