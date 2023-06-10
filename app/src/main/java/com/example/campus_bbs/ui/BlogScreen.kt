@@ -1,12 +1,10 @@
 package com.example.campus_bbs.ui
 
 import android.content.Intent
-import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
@@ -17,28 +15,22 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.campus_bbs.data.Blog
 import com.example.campus_bbs.data.BlogComment
 import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.ui.components.*
 import com.example.campus_bbs.ui.model.BlogViewModel
+import com.example.campus_bbs.ui.model.LoginViewModel
 import com.example.campus_bbs.ui.model.RecommendationViewModel
+import com.example.campus_bbs.ui.network.PostApi
+import com.example.campus_bbs.ui.network.PostReplyDto
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.Heading
 import com.halilibo.richtext.ui.material3.Material3RichText
@@ -57,11 +49,13 @@ fun BlogScreen(
     // select the blog by id
     val recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val blogViewModel: BlogViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
-
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     postId?.let {
         val blog = recommendationViewModel.uiState.collectAsState().value.blogList.find { it.id == postId }!!
         blogViewModel.updateBlog(blog)
     }
+
+    var comment: String = ""
 
     val localContent = LocalContext.current
     val sheetState = rememberModalBottomSheetState(
@@ -72,6 +66,8 @@ fun BlogScreen(
     var commentToShow by remember {
         mutableStateOf(FakeDataGenerator().generateSingleComment(2))
     }
+
+    val uiState = blogViewModel.uiState.collectAsState()
 
     ModalBottomSheetLayout(
         sheetContent = {
@@ -115,12 +111,20 @@ fun BlogScreen(
                 BottomAppBar(
                     content = {
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = { },
-                            label = { Text(text = "@ Test") },
+                            value = uiState.value.comment,
+                            onValueChange = { blogViewModel.updateComment(it) },
+                            label = { Text(text = "Comment") },
                         )
                         IconButton(
-                            onClick = { /*TODO*/ },
+                            onClick = {
+                                 scope.launch {
+                                     PostApi.retrofitService.replyPost(
+                                         loginViewModel.jwtToken,
+                                         blogViewModel.uiState.value.blog.id,
+                                         PostReplyDto(uiState.value.comment)
+                                     )
+                                 }
+                            },
                             modifier = Modifier.align(Alignment.CenterVertically)
                         ) {
                             Icon(

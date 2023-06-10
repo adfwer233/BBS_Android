@@ -44,6 +44,9 @@ interface PostApiService {
 
     @POST("/posts/{id}/uncollect")
     suspend fun uncollectPost(@Header("Authorization") token: String, @Path("id") id: String)
+
+    @POST("/posts/{id}/reply")
+    suspend fun replyPost(@Header("Authorization") token: String, @Path("id") id: String, @Body body: PostReplyDto)
 }
 
 object PostApi {
