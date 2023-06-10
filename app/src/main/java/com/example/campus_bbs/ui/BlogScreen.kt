@@ -181,6 +181,10 @@ fun BlogMainCard(
     modifier: Modifier = Modifier,
     blog: Blog = FakeDataGenerator().generateSingleFakeBlog()
 ) {
+    var recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val scope = rememberCoroutineScope()
+
     Card(
         modifier = modifier.fillMaxWidth()
     ) {
@@ -195,6 +199,51 @@ fun BlogMainCard(
         }
 
         ImageSingleOrGrid(imageUrlList = blog.imageUrlList)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(3.dp)
+        ) {
+            IconButton(onClick = {
+                scope.launch {
+                    if(blog.subscribed){
+                        PostApi.retrofitService.uncollectPost(loginViewModel.jwtToken, blog.id)
+                    } else {
+                        PostApi.retrofitService.collectPost(loginViewModel.jwtToken, blog.id)
+                    }
+                    recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
+                }
+            }, modifier= Modifier.weight(1F)) {
+                Row {
+                    if (blog.subscribed) {
+                        Icon(imageVector = Icons.Filled.Star, "test", tint = Color.Yellow)
+                    } else {
+                        Icon(imageVector = Icons.Filled.Star, "test")
+                    }
+
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text(text = blog.subscribedNumber.toString())
+                }
+            }
+            IconButton(onClick = {
+                scope.launch {
+                    if(blog.liked){
+                        PostApi.retrofitService.unlikePost(loginViewModel.jwtToken, blog.id)
+                    } else {
+                        PostApi.retrofitService.likePost(loginViewModel.jwtToken, blog.id)
+                    }
+                    recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
+                }
+            }, modifier= Modifier.weight(1F)) {
+                Row {
+                    if (blog.liked) {
+                        Icon(imageVector = Icons.Filled.ThumbUp, "test", tint = Color.Red  )
+                    } else {
+                        Icon(imageVector = Icons.Filled.ThumbUp, "test")
+                    }
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text(text = blog.likedNumber.toString())
+                }
+            }
+        }
     }
 }
 

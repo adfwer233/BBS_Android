@@ -1,6 +1,7 @@
 package com.example.campus_bbs.ui
 
 import android.Manifest
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
@@ -19,10 +20,14 @@ import kotlinx.coroutines.launch
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.campus_bbs.ui.components.BlogsCard
 import com.example.campus_bbs.ui.model.*
+import com.example.campus_bbs.ui.network.UserApi
 import com.example.campus_bbs.utils.LocationUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -99,9 +104,13 @@ fun HotRecommendation(
     var hotViewModel: HotViewModel = viewModel(LocalContext.current as ComponentActivity)
     val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val hotUiState by hotViewModel.uiState.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+    var sortedMethod by remember {
+        mutableStateOf("comments")
+    }
 
     if (hotUiState.blogList.isEmpty()) {
-        hotViewModel.updateBlogList(loginViewModel.jwtToken, sort = "hot")
+        hotViewModel.updateBlogList(loginViewModel.jwtToken, sort = sortedMethod)
     }
 
     var refreshing by remember { mutableStateOf(false) }
@@ -110,16 +119,18 @@ fun HotRecommendation(
     fun refresh () = refreshScope.launch {
         refreshing = true
         delay(1500)
-        hotViewModel.updateBlogList(loginViewModel.jwtToken, sort = "hot")
+        hotViewModel.updateBlogList(loginViewModel.jwtToken, sort = sortedMethod)
         refreshing = false
     }
     val state = rememberPullRefreshState(refreshing, ::refresh)
+
 
     Box(modifier = modifier.pullRefresh(state)) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
+
             items(hotViewModel.uiState.value.blogList) {
                 BlogsCard({
 //                    blogViewModel.updateBlog(it)
@@ -127,6 +138,32 @@ fun HotRecommendation(
                     mainAppNavController.navigate("BlogScreen/?id=${it.id}")
                 },
                     it
+                )
+            }
+        }
+        IconButton(onClick = { expanded = true }, modifier = Modifier.align(Alignment.TopEnd)) {
+            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "more")
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("评论最多") },
+                    onClick = {
+                        sortedMethod = "comments"
+                        Log.e("sorted", sortedMethod)
+                        hotViewModel.updateBlogList(loginViewModel.jwtToken, sort = sortedMethod)
+                        expanded = false
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("点赞最多") },
+                    onClick = {
+                        sortedMethod = "likes"
+                        Log.e("sorted", sortedMethod)
+                        hotViewModel.updateBlogList(loginViewModel.jwtToken, sort = sortedMethod)
+                        expanded = false
+                    }
                 )
             }
         }
