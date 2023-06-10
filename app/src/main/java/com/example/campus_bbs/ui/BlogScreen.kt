@@ -165,7 +165,7 @@ fun BlogScreenMain(
             BlogMainCard(blog = blogViewModel.getBlog())
         }
 
-        items(blogViewModel.uiState.value.blog.blogComments.sortedBy { comment -> comment.createTime }.reversed()) {
+        items(blogViewModel.uiState.value.blog.blogComments.sortedBy { comment -> comment.createTime }) {
             BlogCommentCard(
                 comment = it,
                 moreCommentOnClick = { showComment(it) }

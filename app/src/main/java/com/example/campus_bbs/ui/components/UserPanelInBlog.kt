@@ -69,9 +69,17 @@ fun UserPanelInBlog(
                 .width(65.dp)
                 .clickable {
                     scope.launch {
-                        val resp = UserApi.retrofitService.getUserById(loginViewModel.jwtToken, userMeta.userId)
+                        val resp = UserApi.retrofitService.getUserById(
+                            loginViewModel.jwtToken,
+                            userMeta.userId
+                        )
                         visitingUserHomeViewModel.updateVisitingUser(resp.getUser())
-                        Log.i("GET USER BY ID", resp.getUser().toString())
+                        Log.i(
+                            "GET USER BY ID",
+                            resp
+                                .getUser()
+                                .toString()
+                        )
                         navControlViewModel.userHome = resp.getUser()
                         navControlViewModel.mainNavController.navigate("UserHome")
                     }
@@ -81,11 +89,13 @@ fun UserPanelInBlog(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.align(Alignment.CenterVertically)
         ) {
-            Row{
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
                 Text(text = userMeta.userName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.width(150.dp))
                 if (subscribed) {
-                    Text(text = "已关注", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.End))
+                    Text(text = "已关注", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 }
             }
             Text(text = timeString)
@@ -98,6 +108,7 @@ fun UserPanelInComment(
     userMeta: UserMeta = FakeDataGenerator().generateSingleUserMeta(),
     createTime : String = "time"
 ) {
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val scope = rememberCoroutineScope()
 
@@ -118,7 +129,10 @@ fun UserPanelInComment(
                 .width(65.dp)
                 .clickable {
                     scope.launch {
-                        val resp = UserApi.retrofitService.getUserById(loginViewModel.jwtToken, userMeta.userId)
+                        val resp = UserApi.retrofitService.getUserById(
+                            loginViewModel.jwtToken,
+                            userMeta.userId
+                        )
                         navControlViewModel.userHome = resp.getUser()
                         navControlViewModel.mainNavController.navigate("UserHome")
                     }
@@ -134,14 +148,16 @@ fun UserPanelInComment(
                     .height(65.dp)
                     .fillMaxWidth()
             ) {
-                Text(
-                    text = userMeta.userName,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
+                Column() {
+                    Text(
+                        text = userMeta.userName,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(text = createTime)
+                }
+
             }
-            Text(text = createTime)
         }
     }
 }
