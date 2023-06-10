@@ -70,6 +70,8 @@ fun UserPanelInBlog(
                 .clickable {
                     scope.launch {
                         val resp = UserApi.retrofitService.getUserById(loginViewModel.jwtToken, userMeta.userId)
+                        visitingUserHomeViewModel.updateVisitingUser(resp.getUser())
+                        Log.i("GET USER BY ID", resp.getUser().toString())
                         navControlViewModel.userHome = resp.getUser()
                         navControlViewModel.mainNavController.navigate("UserHome")
                     }
@@ -81,9 +83,9 @@ fun UserPanelInBlog(
         ) {
             Row{
                 Text(text = userMeta.userName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.width(2.dp))
+                Spacer(modifier = Modifier.width(150.dp))
                 if (subscribed) {
-                    Text(text = "已关注", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "已关注", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.End))
                 }
             }
             Text(text = timeString)
@@ -92,9 +94,10 @@ fun UserPanelInBlog(
 }
 
 @Composable
-@Preview
-fun UserPanelInComment(userMeta: UserMeta = FakeDataGenerator().generateSingleUserMeta()) {
-    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+fun UserPanelInComment(
+    userMeta: UserMeta = FakeDataGenerator().generateSingleUserMeta(),
+    createTime : String = "time"
+) {
     val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val scope = rememberCoroutineScope()
 
@@ -137,13 +140,8 @@ fun UserPanelInComment(userMeta: UserMeta = FakeDataGenerator().generateSingleUs
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
-                IconButton(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                ) {
-                    Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "like")
-                }
             }
+            Text(text = createTime)
         }
     }
 }

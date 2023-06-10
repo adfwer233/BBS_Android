@@ -51,6 +51,12 @@ interface UserApiService {
 
     @GET("/users/search/findAllByUsernameContaining")
     suspend fun searchUser(@Header("Authorization") token: String, @Query("keyword") keyword: String): SearchUserResponse
+
+    @POST("users/{id}/black")
+    suspend fun black(@Header("Authorization") token: String, @Path("id") id: String)
+
+    @POST("users/{id}/unblack")
+    suspend fun unblack(@Header("Authorization") token: String, @Path("id") id: String)
 }
 
 object UserApi {

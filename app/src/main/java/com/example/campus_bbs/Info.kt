@@ -233,7 +233,7 @@ fun Info (
         }
 
 
-        val items = listOf("Liked", "Bookmark")
+        val items = listOf("MyPosts", "Bookmark")
 
         var pagerState = rememberPagerState(0)
 

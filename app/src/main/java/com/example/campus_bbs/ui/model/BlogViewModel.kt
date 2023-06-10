@@ -23,4 +23,8 @@ class BlogViewModel(
     fun getBlog():Blog {
         return uiState.value.blog
     }
+
+    fun updateComment(comment: String) {
+        _uiState.update { it.copy(comment = comment) }
+    }
 }
