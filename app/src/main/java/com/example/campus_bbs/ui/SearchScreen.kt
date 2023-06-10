@@ -151,6 +151,7 @@ fun searchPostTab() {
                     post.title,
                     post.content,
                     post.images,
+                    post.videoUrl,
                     post.tags,
                     post.likesNumber,
                     post.collectedNumber,

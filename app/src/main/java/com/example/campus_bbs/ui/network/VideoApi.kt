@@ -9,6 +9,7 @@ import kotlinx.serialization.json.JsonObject
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -33,7 +34,7 @@ interface VideoApiService {
 //
 
     @POST("/file/body")
-    suspend fun upload(@Header("Authorization") token: String, @Body images: ReqBodyWithProgress)
+    suspend fun upload(@Header("Authorization") token: String, @Body images: ReqBodyWithProgress): Response<ResponseVo>
 }
 
 object VideoApi {

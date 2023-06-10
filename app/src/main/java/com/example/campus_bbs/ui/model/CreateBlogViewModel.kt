@@ -109,6 +109,7 @@ class CreateBlogViewModel(
             blogTitle = uiState.value.titleText,
             blogContent = uiState.value.contentText,
             imageUrlList = uiState.value.imageUrlList,
+            videoUrl = uiState.value.videoUrl,
             blogComments = listOf(),
             subscribed = false,
             liked = false,

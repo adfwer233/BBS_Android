@@ -27,7 +27,7 @@ interface PostApiService {
     @POST("/posts")
     suspend fun createPost(@Header("Authorization") token: String, @Part("title") title: RequestBody,
         @Part("content") content: RequestBody, @Part("location") location: RequestBody,
-        @Part("tag") tag: RequestBody, @Part images: List<MultipartBody.Part>)
+        @Part("tag") tag: RequestBody, @Part images: List<MultipartBody.Part>, @Part("video") video: RequestBody)
 //    , @Part videos: List<MultipartBody.Part>
 
     @GET("/posts")

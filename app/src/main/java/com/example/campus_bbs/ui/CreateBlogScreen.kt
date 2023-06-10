@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.campus_bbs.Global
 import com.example.campus_bbs.ui.components.AddImageGrid
 import com.example.campus_bbs.ui.components.OnlineVideoPlayer
 import com.example.campus_bbs.ui.model.CreateBlogViewModel
@@ -162,6 +163,9 @@ fun CreateBlogScreen(
                         loginViewModel.jwtToken,
                         requestBodyWithProgress
                     )
+
+                    createBlogViewModel.updateVideoUri(Global.BASE_HTTP_URL + resp.headers()["location"])
+                    println(createBlogViewModel.uiState.value.videoUrl)
                     createBlogViewModel.updateProgressVisible(false)
                 }
 
@@ -199,7 +203,8 @@ fun CreateBlogScreen(
                                         blog.blogContent.toRequestBody("text/plain".toMediaType()),
                                         blog.location.toRequestBody("text/plain".toMediaType()),
                                         blog.tag.joinToString().toRequestBody("text/plain".toMediaType()),
-                                        imageUris
+                                        imageUris,
+                                        blog.videoUrl.toRequestBody("text/plain".toMediaType())
                                     )
                                     recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
                                 } catch (e: Exception) {

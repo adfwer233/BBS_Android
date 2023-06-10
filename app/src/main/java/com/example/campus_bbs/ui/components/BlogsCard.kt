@@ -77,6 +77,10 @@ fun BlogsCard(
         
         ImageSingleOrGrid(imageUrlList = blog.imageUrlList)
 
+        if (blog.videoUrl.isNotEmpty()) {
+            OnlineVideoPlayer(videoUrl = blog.videoUrl, modifier, showDelete = false)
+        }
+
         LazyRow(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             items(blog.tag.stream().filter {tag -> !(tag.trim().length == 0)}.toList()) {
                 Icon(imageVector = Icons.Default.Star, contentDescription = "tag")
