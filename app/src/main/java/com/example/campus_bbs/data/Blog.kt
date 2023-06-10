@@ -13,10 +13,10 @@ data class Blog (
     val creator: UserMeta,
     val createTime: Date,
     val blogTitle: String,
-
     // TODO: More data types of content
     val blogContent: String,
     val imageUrlList: List<String>,
+    val videoUrl: String,
     val tag: List<String>,
     val likedNumber: Int,
     val subscribedNumber: Int,

@@ -75,6 +75,7 @@ class FakeDataGenerator {
             blogTitle = getRandomString(15),
             blogContent = getRandomString(500),
             imageUrlList = generateImageUrlList(Random.nextInt(1, 10)),
+            videoUrl = "",
             blogComments = generateCommentList(2, 10),
             subscribed = Random.nextBoolean(),
             liked = Random.nextBoolean(),

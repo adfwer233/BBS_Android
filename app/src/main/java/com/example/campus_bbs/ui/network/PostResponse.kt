@@ -14,6 +14,7 @@ data class PostCoverResponse (
     var createTime: Long,
     var title: String,
     var content: String,
+    var videoUrl: String,
     var images: List<String>,
     var tags: List<String>,
     var likesNumber: Int,
