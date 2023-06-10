@@ -138,8 +138,7 @@ fun CreateBlogScreen(
                                         blog.blogTitle.toRequestBody("text/plain".toMediaType()),
                                         blog.blogContent.toRequestBody("text/plain".toMediaType()),
                                         blog.location.toRequestBody("text/plain".toMediaType()),
-//                                        blog.tag.joinToString().toRequestBody("text/plain".toMediaType()),
-                                        listOf("a", "b", "c").joinToString(",").toRequestBody("text/plain".toMediaType()),
+                                        blog.tag.joinToString().toRequestBody("text/plain".toMediaType()),
                                         imageUris
                                     )
                                     recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
@@ -340,9 +339,11 @@ fun editBlog(
             Box(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Row {
-                    Card {
-                        Text(text = ("# test"), Modifier.padding(5.dp))
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    items(uistate.value.tagList) {
+                        Card {
+                            Text(text = ("# $it"), Modifier.padding(5.dp))
+                        }
                     }
                 }
                 OutlinedIconButton(
@@ -386,15 +387,25 @@ fun MultiMediaPanel(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun addTagSheet() {
+    val createBlogViewModel: CreateBlogViewModel =
+        viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
+    val uiState = createBlogViewModel.uiState.collectAsState()
+
     Column() {
-        val tagList = listOf<String>("tag1", "tag2", "tag3")
 
         Text("Add New Tag:")
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
-            OutlinedTextField(value = "", onValueChange = { })
+            OutlinedTextField(value = uiState.value.tagInput
+                , onValueChange = {
+                    createBlogViewModel.updateTagInput(it)
+                })
 
             OutlinedIconButton(
-                onClick = { /*TODO*/ }, modifier = Modifier
+                onClick = {
+                    createBlogViewModel.insertTag(createBlogViewModel.uiState.value.tagInput)
+                    createBlogViewModel.clearTag()
+                }, modifier = Modifier
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -405,7 +416,7 @@ fun addTagSheet() {
 
         Spacer(Modifier.height(10.dp))
         LazyRow(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-            items(tagList) {
+            items(uiState.value.tagList) {
                 Card {
                     Text(text = ("# $it"), Modifier.padding(5.dp))
                 }

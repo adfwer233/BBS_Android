@@ -3,6 +3,8 @@ package com.example.campus_bbs.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,6 +34,7 @@ import com.halilibo.richtext.ui.RichTextStyle
 import com.halilibo.richtext.ui.material3.Material3RichText
 import com.halilibo.richtext.ui.textOrderedMarkers
 import java.lang.Integer.min
+import kotlin.streams.toList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +67,13 @@ fun BlogsCard(
         
         ImageSingleOrGrid(imageUrlList = blog.imageUrlList)
 
+        LazyRow(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            items(blog.tag.stream().filter {tag -> !(tag.trim().length == 0)}.toList()) {
+                Icon(imageVector = Icons.Default.Star, contentDescription = "tag")
+                Text(it)
+            }
+        }
+
         if(blog.location.isNotEmpty()) {
             Spacer(modifier = Modifier.height(3.dp))
             Card {
@@ -73,6 +83,8 @@ fun BlogsCard(
                 }
             }
         }
+
+
 
         Spacer(modifier = Modifier.height(3.dp))
 

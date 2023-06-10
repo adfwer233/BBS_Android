@@ -83,9 +83,9 @@ fun UserPanelInBlog(
         ) {
             Row{
                 Text(text = userMeta.userName, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.width(2.dp))
+                Spacer(modifier = Modifier.width(150.dp))
                 if (subscribed) {
-                    Text(text = "已关注", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "subscribed", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 }
             }
             Text(text = timeString)

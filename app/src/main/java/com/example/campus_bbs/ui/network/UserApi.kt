@@ -48,6 +48,11 @@ interface UserApiService {
 
     @POST("/users/{id}/unsubscribe")
     suspend fun unsubscribe(@Header("Authorization") token: String, @Path("id") id: String)
+
+    @POST("users/{id}/black")
+    suspend fun black(@Header("Authorization") token: String, @Path("id") id: String)
+    @POST("users/{id}/unblack")
+    suspend fun unblack(@Header("Authorization") token: String, @Path("id") id: String)
 }
 
 object UserApi {

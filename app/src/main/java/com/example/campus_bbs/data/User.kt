@@ -1,4 +1,5 @@
 package com.example.campus_bbs.data
+import com.example.campus_bbs.ui.network.UserMetaVo
 import kotlinx.serialization.Serializable
 
 // meta data of user
@@ -18,7 +19,8 @@ data class User (
     val followList: List<UserMeta>,
     val favorBlogList: List<Blog>,
     val postBlogList: List<Blog>,
-    val subscriberList: List<UserMeta>
+    val subscriberList: List<UserMeta>,
+    val blackList: List<UserMeta>
 ) {
     fun getMeta(): UserMeta {
         return UserMeta(

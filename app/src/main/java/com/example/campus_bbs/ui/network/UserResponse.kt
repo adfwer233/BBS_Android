@@ -30,7 +30,8 @@ data class UserResponse (
     val postList: List<PostCoverResponse>,
     val interestedTags: List<String>,
     val roles: List<String>,
-    val collection: List<PostCoverResponse>
+    val collection: List<PostCoverResponse>,
+    val blackList: List<UserMetaVo>
 ) {
 
     fun getUser(): User {
@@ -85,7 +86,8 @@ data class UserResponse (
                     post.location
                 )
             },
-            subscriberList = subscriberList.map { UserMeta(it.userId, it.userName, it.userIconUrl) }
+            subscriberList = subscriberList.map { UserMeta(it.userId, it.userName, it.userIconUrl) },
+            blackList = blackList.map { UserMeta(it.userId, it.userName, it.userIconUrl) }
         )
     }
 }

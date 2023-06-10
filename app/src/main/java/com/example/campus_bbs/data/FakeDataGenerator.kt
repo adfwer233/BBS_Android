@@ -27,7 +27,8 @@ class FakeDataGenerator {
             followList = listOf(),
             favorBlogList = listOf(),
             postBlogList = listOf(),
-            subscriberList = listOf()
+            subscriberList = listOf(),
+            blackList = listOf()
         )
     }
 

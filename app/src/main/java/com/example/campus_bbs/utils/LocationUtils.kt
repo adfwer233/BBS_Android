@@ -38,7 +38,7 @@ class LocationUtils {
             // for ActivityCompat#requestPermissions for more details.
             return null
         }
-        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 //        try {
 //            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
 ////

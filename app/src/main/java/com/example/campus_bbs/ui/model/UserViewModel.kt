@@ -141,6 +141,7 @@ class UserViewModel(
                 )
             },
             subscriberList = currentUserResponse.subscriberList.map { UserMeta(it.userId, it.userName, it.userIconUrl) },
+            blackList = currentUserResponse.blackList.map { UserMeta(it.userId, it.userName, it.userIconUrl) },
         )
         emit(currentUser)
     }

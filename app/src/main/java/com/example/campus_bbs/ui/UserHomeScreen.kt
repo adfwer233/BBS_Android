@@ -47,6 +47,13 @@ fun UserHomeScreen(
     mainAppNavController: NavHostController = rememberNavController()
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val userViewModel: UserViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val currentUserState = userViewModel.currentUserState.collectAsState()
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    var recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val blacked = currentUserState.value.blackList.filter { it.userId == navControlViewModel.userHome.userId }.isNotEmpty()
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -65,18 +72,43 @@ fun UserHomeScreen(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("拉黑") },
-                            onClick = {
-
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Outlined.Delete,
-                                    contentDescription = null
-                                )
-                            }
-                        )
+                        if (blacked) {
+                            DropdownMenuItem(
+                                text = { Text("取消拉黑") },
+                                onClick = {
+                                    scope.launch {
+                                        UserApi.retrofitService.unblack(loginViewModel.jwtToken, navControlViewModel.userHome.userId)
+                                        userViewModel.getCurrentUser()
+                                        navControlViewModel.userHome = UserApi.retrofitService.getUserById(loginViewModel.jwtToken, navControlViewModel.userHome.userId).getUser()
+                                        recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
+                                    }
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Outlined.Delete,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+                        } else {
+                            DropdownMenuItem(
+                                text = { Text("拉黑") },
+                                onClick = {
+                                    scope.launch {
+                                        UserApi.retrofitService.black(loginViewModel.jwtToken, navControlViewModel.userHome.userId)
+                                        userViewModel.getCurrentUser()
+                                        navControlViewModel.userHome = UserApi.retrofitService.getUserById(loginViewModel.jwtToken, navControlViewModel.userHome.userId).getUser()
+                                        recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
+                                    }
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Outlined.Delete,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             )

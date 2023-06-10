@@ -59,6 +59,16 @@ class CreateBlogViewModel(
         }
     }
 
+    fun insertTag(tag: String) {
+        val tabList = uiState.value.tagList.toMutableList()
+        tabList.add(tag)
+        _uiState.update { it.copy(tagList = tabList) }
+    }
+
+    fun clearTag() {
+        _uiState.update { it.copy(tagInput = "") }
+    }
+
     fun removeVideoUri() {
         updateVideoUri("")
     }
@@ -76,6 +86,10 @@ class CreateBlogViewModel(
         }
     }
 
+    fun updateTagInput(tag: String) {
+        _uiState.update { it.copy(tagInput = tag) }
+    }
+
     fun generateBlogFromState(): Blog {
         val newBlog = Blog(
             id = "",
@@ -89,7 +103,7 @@ class CreateBlogViewModel(
             liked = false,
             subscribedNumber = 0,
             likedNumber = 0,
-            tag = listOf(),
+            tag = uiState.value.tagList,
             location = uiState.value.location
         )
 

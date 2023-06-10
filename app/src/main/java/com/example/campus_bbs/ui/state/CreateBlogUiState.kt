@@ -5,5 +5,7 @@ data class CreateBlogUiState(
     val contentText: String = "",
     val imageUrlList: List<String> = listOf(),
     val videoUrl: String = "",
-    val location: String = ""
+    val location: String = "",
+    val tagInput: String = "",
+    val tagList: List<String> = listOf()
 )
