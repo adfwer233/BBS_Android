@@ -38,7 +38,8 @@ class LocationUtils {
             // for ActivityCompat#requestPermissions for more details.
             return null
         }
-        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+        println(location)
 //        try {
 //            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
 ////
@@ -53,14 +54,16 @@ class LocationUtils {
     }
 
     fun getGeoFromLocation(context: Context, location: Location?): List<Address> {
-        if (location == null)
+        if (location == null) {
+            println("No location")
             return listOf()
+        }
 
         val geocoder = Geocoder(context)
         var addressList: List<Address> = listOf()
         try {
             addressList = geocoder.getFromLocation(location.latitude, location.longitude, 1) as List<Address>
-
+            println(addressList)
         } catch (e: IOException) {
             e.printStackTrace()
         }

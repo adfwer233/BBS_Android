@@ -70,8 +70,6 @@ fun UserPanelInBlog(
                 .clickable {
                     scope.launch {
                         val resp = UserApi.retrofitService.getUserById(loginViewModel.jwtToken, userMeta.userId)
-                        visitingUserHomeViewModel.updateVisitingUser(resp.getUser())
-                        Log.i("GET USER BY ID", resp.getUser().toString())
                         navControlViewModel.userHome = resp.getUser()
                         navControlViewModel.mainNavController.navigate("UserHome")
                     }
@@ -96,7 +94,10 @@ fun UserPanelInBlog(
 @Composable
 @Preview
 fun UserPanelInComment(userMeta: UserMeta = FakeDataGenerator().generateSingleUserMeta()) {
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val navControlViewModel: NavControlViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val scope = rememberCoroutineScope()
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         modifier = Modifier.padding(top = 5.dp, start = 5.dp)
@@ -113,7 +114,11 @@ fun UserPanelInComment(userMeta: UserMeta = FakeDataGenerator().generateSingleUs
                 .height(65.dp)
                 .width(65.dp)
                 .clickable {
-                    navControlViewModel.mainNavController.navigate("UserHome")
+                    scope.launch {
+                        val resp = UserApi.retrofitService.getUserById(loginViewModel.jwtToken, userMeta.userId)
+                        navControlViewModel.userHome = resp.getUser()
+                        navControlViewModel.mainNavController.navigate("UserHome")
+                    }
                 }
         )
         Column(

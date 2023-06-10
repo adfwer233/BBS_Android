@@ -48,6 +48,9 @@ interface UserApiService {
 
     @POST("/users/{id}/unsubscribe")
     suspend fun unsubscribe(@Header("Authorization") token: String, @Path("id") id: String)
+
+    @GET("/users/search/findAllByUsernameContaining")
+    suspend fun searchUser(@Header("Authorization") token: String, @Query("keyword") keyword: String): SearchUserResponse
 }
 
 object UserApi {
