@@ -32,6 +32,18 @@ interface PostApiService {
 
     @GET("/posts")
     suspend fun getAllPost(@Header("Authorization") token: String): GetAllPostResponse
+
+    @POST("/posts/{id}/like")
+    suspend fun likePost(@Header("Authorization") token: String, @Path("id") id: String)
+
+    @POST("/posts/{id}/unlike")
+    suspend fun unlikePost(@Header("Authorization") token: String, @Path("id") id: String)
+
+    @POST("/posts/{id}/collect")
+    suspend fun collectPost(@Header("Authorization") token: String, @Path("id") id: String)
+
+    @POST("/posts/{id}/uncollect")
+    suspend fun uncollectPost(@Header("Authorization") token: String, @Path("id") id: String)
 }
 
 object PostApi {
