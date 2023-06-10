@@ -35,6 +35,21 @@ interface PostApiService {
 
     @GET("/posts/search")
     suspend fun search(@Header("Authorization") token: String, @Query("keyword") keyword: String ) : GetAllPostResponse
+
+    @POST("/posts/{id}/like")
+    suspend fun likePost(@Header("Authorization") token: String, @Path("id") id: String)
+
+    @POST("/posts/{id}/unlike")
+    suspend fun unlikePost(@Header("Authorization") token: String, @Path("id") id: String)
+
+    @POST("/posts/{id}/collect")
+    suspend fun collectPost(@Header("Authorization") token: String, @Path("id") id: String)
+
+    @POST("/posts/{id}/uncollect")
+    suspend fun uncollectPost(@Header("Authorization") token: String, @Path("id") id: String)
+
+    @POST("/posts/{id}/reply")
+    suspend fun replyPost(@Header("Authorization") token: String, @Path("id") id: String, @Body body: PostReplyDto)
 }
 
 object PostApi {
