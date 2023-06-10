@@ -101,7 +101,3 @@ data class UserSearch(
 )
 
 data class UserResponseList(val users: List<UserSearch>)
-
-data class SearchUserResponse(
-    val _embedded: UserResponseList
-)

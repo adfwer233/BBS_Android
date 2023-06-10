@@ -186,7 +186,7 @@ fun searchUserTab() {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            items(uiState.value.userResult._embedded.users) {userSearched ->
+            items(uiState.value.userResult.users) {user ->
                 Card {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -194,7 +194,7 @@ fun searchUserTab() {
                     ) {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
-                                .data(userSearched.avatarUrl)
+                                .data(user.avatarUrl)
                                 .crossfade(true)
                                 .build(),
                             contentDescription = "test image",
@@ -207,7 +207,7 @@ fun searchUserTab() {
                                     scope.launch {
                                         val resp = UserApi.retrofitService.getUserById(
                                             loginViewModel.jwtToken,
-                                            userSearched.userId
+                                            user.userId
                                         )
                                         navControlViewModel.userHome = resp.getUser()
                                         navControlViewModel.mainNavController.navigate("UserHome")
@@ -226,11 +226,11 @@ fun searchUserTab() {
                             ) {
                                 Column() {
                                     Text(
-                                        text = userSearched.username,
+                                        text = user.username,
                                         fontSize = 20.sp,
                                         fontWeight = FontWeight.Bold,
                                     )
-                                    Text(text = userSearched.description)
+                                    Text(text = user.description)
                                 }
                             }
                             Spacer(modifier = Modifier.height(3.dp))
