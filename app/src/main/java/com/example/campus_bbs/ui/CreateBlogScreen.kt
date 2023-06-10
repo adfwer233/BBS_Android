@@ -66,7 +66,7 @@ fun CreateBlogScreen(
     val uiState = createBlogViewModel.uiState.collectAsState()
 
     val context = LocalContext.current
-    var imageUris : List<MultipartBody.Part> = mutableListOf()
+    var imageUris : MutableList<MultipartBody.Part> = mutableListOf()
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(9)
     ) { uri: List<Uri> ->
@@ -77,7 +77,7 @@ fun CreateBlogScreen(
             )
             it.toString()
         })
-        imageUris = uri.map {
+        imageUris.addAll(uri.map {
             val inputStream = context.contentResolver.openInputStream(it)
             val imageBitmap = BitmapFactory.decodeStream(inputStream).asImageBitmap()
             val stream = ByteArrayOutputStream()
@@ -92,7 +92,7 @@ fun CreateBlogScreen(
                 "image1.jpeg",
                 requestBody
             )
-        }
+        })
     }
 
     val videoPickerLauncher =
