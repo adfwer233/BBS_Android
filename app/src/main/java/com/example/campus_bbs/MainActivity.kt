@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -31,6 +32,7 @@ import com.example.campus_bbs.data.User
 import com.example.campus_bbs.ui.*
 import com.example.campus_bbs.ui.components.*
 import com.example.campus_bbs.ui.model.*
+import com.example.campus_bbs.ui.network.LoginApi
 import com.example.campus_bbs.ui.theme.Campus_BBSTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -170,6 +172,9 @@ fun AppHome(
     val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     notificationViewModel.updateUserChat()
     notificationViewModel.registeredContext = LocalContext.current
+    var expanded by remember { mutableStateOf(false) }
+    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -183,11 +188,23 @@ fun AppHome(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            imageVector = Icons.Default.AccountCircle,
-                            contentDescription = "User Icon"
-                        )
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "User Icon")
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("log out") },
+                                onClick = {
+                                    scope.launch {
+                                        LoginApi.retrofitService.logout(loginViewModel.jwtToken)
+                                        loginViewModel.setToken("")
+                                    }
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
             )
