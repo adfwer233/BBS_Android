@@ -15,14 +15,14 @@ import kotlinx.coroutines.launch
 import java.util.*
 import java.util.stream.Collectors
 
-class RecommendationViewModel: ViewModel() {
+class HotViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(RecommendationUiState())
     val uiState: StateFlow<RecommendationUiState> = _uiState.asStateFlow()
 
 
-    fun updateBlogList(token: String, sort: String = "createTime", filter: String = "all") {
+    fun updateBlogList(token: String, sort: String = "createTime") {
         viewModelScope.launch { try {
-            var response = PostApi.retrofitService.getAllPost(token, sort, filter)
+            var response = PostApi.retrofitService.getAllPost(token, sort)
             var newList = response.postList.stream().map { post ->
                 Blog(
                     post.id,
@@ -38,7 +38,8 @@ class RecommendationViewModel: ViewModel() {
                         reply.creator,
                         reply.content,
                         Date(reply.createTime),
-                    )}.collect(Collectors.toList()),
+                    )
+                    }.collect(Collectors.toList()),
                     post.liked,
                     post.collected,
                     post.location

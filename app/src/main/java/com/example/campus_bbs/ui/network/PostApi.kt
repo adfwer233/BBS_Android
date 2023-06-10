@@ -31,7 +31,7 @@ interface PostApiService {
 //    , @Part videos: List<MultipartBody.Part>
 
     @GET("/posts")
-    suspend fun getAllPost(@Header("Authorization") token: String): GetAllPostResponse
+    suspend fun getAllPost(@Header("Authorization") token: String, @Query("sort") sort: String, @Query("filter") filter: String = "all"): GetAllPostResponse
 
     @GET("/posts/search")
     suspend fun search(@Header("Authorization") token: String, @Query("keyword") keyword: String ) : GetAllPostResponse
