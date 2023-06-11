@@ -191,7 +191,17 @@ fun searchUserTab() {
                 Card {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(5.dp),
-                        modifier = Modifier.padding(top = 5.dp, start = 5.dp)
+                        modifier = Modifier.padding(top = 5.dp, start = 5.dp).clickable {
+                            scope.launch {
+                                println(user.username);
+                                val resp = UserApi.retrofitService.getUserById(
+                                    loginViewModel.jwtToken,
+                                    user.id
+                                )
+                                navControlViewModel.userHome = resp.getUser()
+                                navControlViewModel.mainNavController.navigate("UserHome")
+                            }
+                        }
                     ) {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
@@ -204,16 +214,6 @@ fun searchUserTab() {
                                 .clip(CircleShape)
                                 .height(65.dp)
                                 .width(65.dp)
-                                .clickable {
-                                    scope.launch {
-                                        val resp = UserApi.retrofitService.getUserById(
-                                            loginViewModel.jwtToken,
-                                            user.userId
-                                        )
-                                        navControlViewModel.userHome = resp.getUser()
-                                        navControlViewModel.mainNavController.navigate("UserHome")
-                                    }
-                                }
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         Column(

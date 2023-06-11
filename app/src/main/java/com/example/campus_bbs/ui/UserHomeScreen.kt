@@ -276,7 +276,7 @@ fun UserHome(
         }
 
 
-        val items = listOf("Liked", "Bookmark")
+        val items = listOf("发布", "收藏")
 
         var pagerState = rememberPagerState(0)
 

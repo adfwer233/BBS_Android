@@ -96,7 +96,7 @@ data class UserResponse(
 }
 
 data class UserSearch(
-    val userId: String,
+    val id: String,
     val username: String,
     val avatarUrl: String,
     val description: String
