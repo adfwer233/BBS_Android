@@ -30,8 +30,10 @@ import coil.request.ImageRequest
 import com.example.campus_bbs.data.Blog
 import com.example.campus_bbs.data.FakeDataGenerator
 import com.example.campus_bbs.ui.AppViewModelProvider
+import com.example.campus_bbs.ui.model.HotViewModel
 import com.example.campus_bbs.ui.model.LoginViewModel
 import com.example.campus_bbs.ui.model.RecommendationViewModel
+import com.example.campus_bbs.ui.model.SubscribedViewModel
 import com.example.campus_bbs.ui.network.PostApi
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.Heading
@@ -52,8 +54,9 @@ fun BlogsCard(
     blog: Blog = FakeDataGenerator().generateSingleFakeBlog(),
     modifier: Modifier = Modifier
 ) {
-    var recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity)
-
+    val recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val subscribedViewModel: SubscribedViewModel = viewModel(LocalContext.current as ComponentActivity)
+    val hotViewModel: HotViewModel = viewModel(LocalContext.current as ComponentActivity)
     Card(
         modifier = modifier
             .fillMaxWidth(),
@@ -62,6 +65,7 @@ fun BlogsCard(
         val scope = rememberCoroutineScope()
         UserPanelInBlog(userMeta = blog.creator, timeString = blog.createTime.toString())
         val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+
         Column(modifier = Modifier.padding(5.dp)) {
             Material3RichText(
                 style = RichTextStyle(),
@@ -121,6 +125,8 @@ fun BlogsCard(
                         PostApi.retrofitService.collectPost(loginViewModel.jwtToken, blog.id)
                     }
                     recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
+                    subscribedViewModel.updateBlogList(loginViewModel.jwtToken)
+                    hotViewModel.updateBlogList(loginViewModel.jwtToken)
                 }
             }, modifier= Modifier.weight(1F)) {
                 Row {
@@ -142,6 +148,8 @@ fun BlogsCard(
                         PostApi.retrofitService.likePost(loginViewModel.jwtToken, blog.id)
                     }
                     recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
+                    subscribedViewModel.updateBlogList(loginViewModel.jwtToken)
+                    hotViewModel.updateBlogList(loginViewModel.jwtToken)
                 }
             }, modifier= Modifier.weight(1F)) {
                 Row {

@@ -117,29 +117,32 @@ fun BlogScreen(
             bottomBar = {
                 BottomAppBar(
                     content = {
-                        OutlinedTextField(
-                            value = uiState.value.comment,
-                            onValueChange = { blogViewModel.updateComment(it) },
-                            label = { Text(text = "Comment") },
-                        )
-                        IconButton(
-                            onClick = {
-                                scope.launch {
-                                    PostApi.retrofitService.replyPost(
-                                        loginViewModel.jwtToken,
-                                        blogViewModel.uiState.value.blog.id,
-                                        PostReplyDto(uiState.value.comment)
-                                    )
-                                    recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
-                                }
-                                blogViewModel.updateComment("")
-                            },
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Send,
-                                contentDescription = "send message"
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            OutlinedTextField(
+                                value = uiState.value.comment,
+                                onValueChange = { blogViewModel.updateComment(it) },
+                                label = { Text(text = "Comment") },
+                                modifier = Modifier.weight(10f)
                             )
+                            IconButton(
+                                onClick = {
+                                    scope.launch {
+                                        PostApi.retrofitService.replyPost(
+                                            loginViewModel.jwtToken,
+                                            blogViewModel.uiState.value.blog.id,
+                                            PostReplyDto(uiState.value.comment)
+                                        )
+                                        recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
+                                    }
+                                    blogViewModel.updateComment("")
+                                },
+                                modifier = Modifier.align(Alignment.CenterVertically).weight(1f)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Send,
+                                    contentDescription = "send message"
+                                )
+                            }
                         }
                     },
                 )
