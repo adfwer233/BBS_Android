@@ -64,7 +64,7 @@ class WebsocketManager(jwtToken: String) {
                 onReceive(session!!.converter?.deserialize(frame) as ChatWebSocketResponse)
             }
         } catch (e: SocketTimeoutException) {
-            e.printStackTrace()
+//            e.printStackTrace()
         }
     }
 

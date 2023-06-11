@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.campus_bbs.JWT_TOKEN_KEY
@@ -74,8 +75,9 @@ class UserViewModel(
             jwtToken = dataStore.data.map { it[JWT_TOKEN_KEY] ?: "" }.first()
             currentUserFlow
                 .flowOn(Dispatchers.Default)
-                .catch {
-                    Log.e("Error", it.stackTraceToString())
+                .catch {throwable ->
+                    Log.e("Error", throwable.stackTraceToString())
+                    dataStore.edit { it[JWT_TOKEN_KEY] = "" }
                 }
                 .collect {user ->
                     Log.e("user", user.toString())
