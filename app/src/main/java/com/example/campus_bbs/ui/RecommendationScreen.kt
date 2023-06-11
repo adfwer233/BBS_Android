@@ -178,12 +178,18 @@ fun SubscribedRecommendation(
     mainAppNavController: NavHostController,
     modifier: Modifier = Modifier
 ) {
+
     var subscribedViewModel: SubscribedViewModel = viewModel(LocalContext.current as ComponentActivity)
     val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val subscribedUiState by subscribedViewModel.uiState.collectAsState()
 
+
     if (subscribedUiState.blogList.isEmpty()) {
-        subscribedViewModel.updateBlogList(loginViewModel.jwtToken)
+        try{
+            subscribedViewModel.updateBlogList(loginViewModel.jwtToken)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     var refreshing by remember { mutableStateOf(false) }

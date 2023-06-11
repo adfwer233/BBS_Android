@@ -206,9 +206,10 @@ fun searchUserTab() {
                                 .width(65.dp)
                                 .clickable {
                                     scope.launch {
+                                        println(user.username);
                                         val resp = UserApi.retrofitService.getUserById(
                                             loginViewModel.jwtToken,
-                                            user.userId
+                                            user.id
                                         )
                                         navControlViewModel.userHome = resp.getUser()
                                         navControlViewModel.mainNavController.navigate("UserHome")
