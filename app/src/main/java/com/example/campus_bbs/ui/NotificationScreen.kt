@@ -229,7 +229,7 @@ fun MessageItemInScreen(
         shape = RectangleShape,
         onClick = {
             communicationViewModel.openChat(index)
-            mainAppNavController.navigate("CommunicationScreen/?index="+index)
+            mainAppNavController.navigate("CommunicationScreen/?index="+chat.targetUserMeta.userId)
         }
     ) {
         Row(
@@ -238,17 +238,17 @@ fun MessageItemInScreen(
             Spacer(modifier = Modifier.width(5.dp))
             BadgedBox(
                 badge = {
-                    if (chat.numberOfUnread.toInt() > 0) {
-                        Badge {
-                            Text(
-                                chat.numberOfUnread.toString(),
-                                modifier = Modifier.semantics {
-                                    contentDescription =
-                                        "new notifications"
-                                }
-                            )
-                        }
-                    }
+//                    if (chat.numberOfUnread.toInt() > 0) {
+//                        Badge {
+//                            Text(
+//                                chat.numberOfUnread.toString(),
+//                                modifier = Modifier.semantics {
+//                                    contentDescription =
+//                                        "new notifications"
+//                                }
+//                            )
+//                        }
+//                    }
                 },
                 modifier = Modifier.align(Alignment.CenterVertically)
             ) {

@@ -9,6 +9,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -62,8 +63,24 @@ fun OnlineVideoPlayer(
                     .fillMaxWidth(),
                 update = {
                     it.player?.setMediaItem(MediaItem.fromUri(videoUrl))
+                    it.player?.prepare()
                 }
             )
+
+            IconButton(
+                onClick = {
+                            exoPlayer.clearMediaItems()
+                            exoPlayer.setMediaItem(mediaItem)
+                            exoPlayer.prepare()
+                          },
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .background(Color.LightGray, shape = CircleShape)
+                    .width(35.dp)
+                    .height(35.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Refresh, contentDescription = "test")
+            }
 
             if (showDelete) {
                 IconButton(

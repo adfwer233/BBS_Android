@@ -210,20 +210,20 @@ fun UserHome(
                         var matchedChat = chatList.find { it.targetUserMeta.userId == navControlViewModel.userHome.userId }
                         matchedChat?.let {
                             val index = chatList.indexOf(matchedChat)
-                            navControlViewModel.mainNavController.navigate("CommunicationScreen/?index=${index}")
+                            navControlViewModel.mainNavController.navigate("CommunicationScreen/?index=${matchedChat.targetUserMeta.userId}")
                         } ?: let {
 
                             for (i in 0 until chatList.size) {
                                 if (chatList[i].targetUserMeta.userId > navControlViewModel.userHome.userId) {
                                     chatList.add(i, Chat(userViewModel.currentUserState.value.getMeta() , navControlViewModel.userHome.getMeta(), listOf(), 0))
                                     notificationViewModel.updateChatList(chatList)
-                                    navControlViewModel.mainNavController.navigate("CommunicationScreen/?index=${i}")
+                                    navControlViewModel.mainNavController.navigate("CommunicationScreen/?index=${navControlViewModel.userHome.userId}")
                                     break
                                 }
                             }
                             chatList.add(Chat(userViewModel.currentUserState.value.getMeta() , navControlViewModel.userHome.getMeta(), listOf(), 0))
                             notificationViewModel.updateChatList(chatList)
-                            navControlViewModel.mainNavController.navigate("CommunicationScreen/?index=0")
+                            navControlViewModel.mainNavController.navigate("CommunicationScreen/?index=${navControlViewModel.userHome.userId}")
                         }
                     })
                 {

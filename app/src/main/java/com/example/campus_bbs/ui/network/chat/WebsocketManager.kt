@@ -18,6 +18,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
 
 import okhttp3.OkHttpClient
+import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 
@@ -36,7 +37,7 @@ class WebsocketManager(jwtToken: String) {
         }
         engine {
             preconfigured = OkHttpClient.Builder()
-                .pingInterval(3, TimeUnit.SECONDS)
+                .pingInterval(20, TimeUnit.SECONDS)
                 .build()
         }
         install(WebSockets) {
@@ -51,15 +52,19 @@ class WebsocketManager(jwtToken: String) {
         onConnect: () -> Unit,
         onReceive: (chatWebSocketResponse: ChatWebSocketResponse) -> Unit
     ) {
-        if (session == null) {
-            session = client.webSocketSession {
-                url("ws", WS_BASE_URL, PORT, "/chat")
+        try {
+            if (session == null) {
+                session = client.webSocketSession {
+                    url("ws", WS_BASE_URL, PORT, "/chat")
 //                header("Authorization", token)
+                }
             }
-        }
-        send({ }, ChatWebSocketRequest(operation = "register", senderId = "", "", "", token))
-        session!!.incoming.consumeAsFlow().collect {frame ->
-            onReceive(session!!.converter?.deserialize(frame) as ChatWebSocketResponse)
+            send({ }, ChatWebSocketRequest(operation = "register", senderId = "", "", "", token))
+            session!!.incoming.consumeAsFlow().collect { frame ->
+                onReceive(session!!.converter?.deserialize(frame) as ChatWebSocketResponse)
+            }
+        } catch (e: SocketTimeoutException) {
+            e.printStackTrace()
         }
     }
 

@@ -47,11 +47,15 @@ fun BlogScreen(
 ) {
 
     // select the blog by id
-    val recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
-    val blogViewModel: BlogViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
-    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val recommendationViewModel: RecommendationViewModel =
+        viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val blogViewModel: BlogViewModel =
+        viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    val loginViewModel: LoginViewModel =
+        viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     postId?.let {
-        val blog = recommendationViewModel.uiState.collectAsState().value.blogList.find { it.id == postId }!!
+        val blog =
+            recommendationViewModel.uiState.collectAsState().value.blogList.find { it.id == postId }!!
         blogViewModel.updateBlog(blog)
     }
 
@@ -95,7 +99,10 @@ fun BlogScreen(
                             val sendIntent: Intent = Intent().apply {
                                 action = Intent.ACTION_SEND
                                 putExtra(Intent.EXTRA_TITLE, "Campus BBS")
-                                putExtra(Intent.EXTRA_TEXT, "43.138.60.13:8085")
+                                putExtra(
+                                    Intent.EXTRA_TEXT,
+                                    "Post in Campus BBS: \n Title: ${uiState.value.blog.blogTitle} \n Creator: ${uiState.value.blog.creator.userName} \n Content: ${uiState.value.blog.blogContent} \n Open this link in browser to view post in Campus BBS 43.138.60.13:8085/redirect/${uiState.value.blog.id}"
+                                )
                                 type = "text/html"
                             }
 
@@ -117,14 +124,14 @@ fun BlogScreen(
                         )
                         IconButton(
                             onClick = {
-                                 scope.launch {
-                                     PostApi.retrofitService.replyPost(
-                                         loginViewModel.jwtToken,
-                                         blogViewModel.uiState.value.blog.id,
-                                         PostReplyDto(uiState.value.comment)
-                                     )
-                                     recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
-                                 }
+                                scope.launch {
+                                    PostApi.retrofitService.replyPost(
+                                        loginViewModel.jwtToken,
+                                        blogViewModel.uiState.value.blog.id,
+                                        PostReplyDto(uiState.value.comment)
+                                    )
+                                    recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
+                                }
                                 blogViewModel.updateComment("")
                             },
                             modifier = Modifier.align(Alignment.CenterVertically)
@@ -181,8 +188,10 @@ fun BlogMainCard(
     modifier: Modifier = Modifier,
     blog: Blog = FakeDataGenerator().generateSingleFakeBlog()
 ) {
-    var recommendationViewModel: RecommendationViewModel = viewModel(LocalContext.current as ComponentActivity)
-    val loginViewModel: LoginViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
+    var recommendationViewModel: RecommendationViewModel =
+        viewModel(LocalContext.current as ComponentActivity)
+    val loginViewModel: LoginViewModel =
+        viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
     val scope = rememberCoroutineScope()
 
     Card(
@@ -199,19 +208,24 @@ fun BlogMainCard(
         }
 
         ImageSingleOrGrid(imageUrlList = blog.imageUrlList)
+
+        if (blog.videoUrl.isNotEmpty()) {
+            OnlineVideoPlayer(videoUrl = blog.videoUrl, modifier, showDelete = false)
+        }
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             IconButton(onClick = {
                 scope.launch {
-                    if(blog.subscribed){
+                    if (blog.subscribed) {
                         PostApi.retrofitService.uncollectPost(loginViewModel.jwtToken, blog.id)
                     } else {
                         PostApi.retrofitService.collectPost(loginViewModel.jwtToken, blog.id)
                     }
                     recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
                 }
-            }, modifier= Modifier.weight(1F)) {
+            }, modifier = Modifier.weight(1F)) {
                 Row {
                     if (blog.subscribed) {
                         Icon(imageVector = Icons.Filled.Star, "test", tint = Color.Yellow)
@@ -225,17 +239,17 @@ fun BlogMainCard(
             }
             IconButton(onClick = {
                 scope.launch {
-                    if(blog.liked){
+                    if (blog.liked) {
                         PostApi.retrofitService.unlikePost(loginViewModel.jwtToken, blog.id)
                     } else {
                         PostApi.retrofitService.likePost(loginViewModel.jwtToken, blog.id)
                     }
                     recommendationViewModel.updateBlogList(loginViewModel.jwtToken)
                 }
-            }, modifier= Modifier.weight(1F)) {
+            }, modifier = Modifier.weight(1F)) {
                 Row {
                     if (blog.liked) {
-                        Icon(imageVector = Icons.Filled.ThumbUp, "test", tint = Color.Red  )
+                        Icon(imageVector = Icons.Filled.ThumbUp, "test", tint = Color.Red)
                     } else {
                         Icon(imageVector = Icons.Filled.ThumbUp, "test")
                     }

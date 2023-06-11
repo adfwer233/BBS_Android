@@ -48,7 +48,7 @@ fun showBasicNotification(context: Context, name: String, content: String, route
     Log.e("Create Intent", activityIntent.getStringExtra("data").toString())
     activityIntent.putExtra("data", route)
     Log.e("Create Intent", activityIntent.getStringExtra("data").toString())
-    val pendingIntent = PendingIntent.getActivity(context, 1, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+    val pendingIntent = PendingIntent.getActivity(context, 1, activityIntent, PendingIntent.FLAG_MUTABLE)
     val notification = NotificationCompat.Builder(context, channelId)
         .setSmallIcon(R.drawable.avatar)
         .setContentTitle(name)

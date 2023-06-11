@@ -32,7 +32,7 @@ fun CommunicationScreen(
     mainNavController: NavController,
     modifier: Modifier = Modifier,
     communicationViewModel: CommunicationViewModel = viewModel(LocalContext.current as ComponentActivity),
-    index: Int? = -1
+    targetUserId: String? = ""
 ) {
 
     val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity, factory = AppViewModelProvider.Factory)
@@ -40,8 +40,11 @@ fun CommunicationScreen(
     val chatState = notificationViewModel.uiState.collectAsState()
 
 
-    val chatIndex = if ((index == null) || (index < 0)) uiState.value.chatIndex else index
-    val chat = chatState.value.chatList[chatIndex]
+//    val chatIndex = if ((index == null) || (index < 0)) uiState.value.chatIndex else index
+//    val chat = chatState.value.chatList[chatIndex]
+
+    communicationViewModel.openChat(chatState.value.chatList.indexOfFirst { it.targetUserMeta.userId == targetUserId })
+    val chat = chatState.value.chatList.firstOrNull { it.targetUserMeta.userId == targetUserId }!!
 
     Scaffold (
         topBar = {
@@ -79,7 +82,7 @@ fun CommunicationScreen(
             }
         }
     ){
-       CommunicationList(communicationViewModel = communicationViewModel, modifier = Modifier.padding(it))
+       CommunicationList(communicationViewModel = communicationViewModel, modifier = Modifier.padding(it), targetUserId = targetUserId)
     }
 }
 
@@ -87,11 +90,11 @@ fun CommunicationScreen(
 fun CommunicationList(
     modifier: Modifier = Modifier,
     communicationViewModel: CommunicationViewModel = viewModel(LocalContext.current as ComponentActivity),
+    targetUserId: String? = ""
 ) {
     val notificationViewModel: NotificationViewModel = viewModel(LocalContext.current as ComponentActivity)
-    val uiState = communicationViewModel.uiState.collectAsState()
     val chatState = notificationViewModel.uiState.collectAsState()
-    val chat = chatState.value.chatList[uiState.value.chatIndex]
+    val chat = chatState.value.chatList.firstOrNull { it.targetUserMeta.userId == targetUserId }!!
 
     val lazyListState = rememberLazyListState(0)
 

@@ -151,8 +151,9 @@ class NotificationViewModel(
                                             context,
                                             newChat.targetUserMeta.userName,
                                             newChat.messageInfoList.last().messageContent,
-                                            "CommunicationScreen/?index=$index"
+                                            "CommunicationScreen/?index=${newChat.targetUserMeta.userId}"
                                         )
+                                        Log.e("found", "CommunicationScreen/?index=${newChat.targetUserMeta.userId}")
                                         found = true
                                     }
                                 }
@@ -162,8 +163,10 @@ class NotificationViewModel(
                                         context,
                                         newChat.targetUserMeta.userName,
                                         newChat.messageInfoList.last().messageContent,
-                                        "CommunicationScreen/?index=$index"
+                                        "CommunicationScreen/?index=${newChat.targetUserMeta.userId}"
                                     )
+
+                                    Log.e("found", "CommunicationScreen/?index=${newChat.targetUserMeta.userId}")
                                 }
                             }
                         }

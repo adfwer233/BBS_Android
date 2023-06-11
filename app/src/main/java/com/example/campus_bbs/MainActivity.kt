@@ -46,8 +46,21 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val route: String = intent.getStringExtra("data") ?: ""
+        var route: String = intent.getStringExtra("data") ?: ""
         println(intent)
+
+        intent?.let {
+            val uri: Uri? = it.data
+            uri?.let {
+                uri.path?.let { it1 -> Log.e("route log", it1) }
+//                Log.e("routelog)
+                uri.getQueryParameter("route")?.let {
+                    input -> route = input
+                    Log.e("routelog", uri.query.toString())
+                    Log.e("routelog", route)
+                }
+            }
+        }
         setContent {
             Campus_BBSTheme {
                 // A surface container using the 'background' color from the theme
@@ -162,12 +175,12 @@ fun App(
             route = "CommunicationScreen/?index={index}",
             arguments = listOf(
                 navArgument("index") {
-                    type = NavType.IntType
-                    defaultValue = 0
+                    type = NavType.StringType
+                    defaultValue = ""
                 }
             )
         ) {
-            CommunicationScreen(mainNavController = mainAppNavController, index = it.arguments?.getInt("index"))
+            CommunicationScreen(mainNavController = mainAppNavController, targetUserId = it.arguments?.getString("index"))
         }
         composable(
             route = "EditProfile",
@@ -244,28 +257,7 @@ fun AppHome(
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
                         icon = {
-                            if (index == 1) {
-                                BadgedBox(
-                                    badge = {
-                                        Badge {
-                                            val badgeNumber = notificationViewModel.getTotalUnreadNumber()
-                                            Text(
-                                                badgeNumber.toString(),
-                                                modifier = Modifier.semantics {
-                                                    contentDescription =
-                                                        "$badgeNumber new notifications"
-                                                }
-                                            )
-                                        }
-                                    }) {
-                                    Icon(
-                                        Icons.Filled.Favorite,
-                                        contentDescription = "Favorite"
-                                    )
-                                }
-                            } else {
                                 Icon(Icons.Filled.Favorite, contentDescription = item)
-                            }
                         },
                         label = { Text(item) },
                         selected = selectedItem == index,

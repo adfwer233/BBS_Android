@@ -274,7 +274,7 @@ fun CreateBlogScreen(
                                 location = LocationUtils().getLocation(localContext)
                                 addressList =
                                     LocationUtils().getGeoFromLocation(localContext, location)
-                                if (addressList.isNotEmpty()) {
+                                if (addressList.isNotEmpty() && addressList[0].featureName != null) {
                                     createBlogViewModel.updateLocation(addressList[0].featureName)
                                 }
                             } else {
